@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mailfooter Light Portal - OS Holdings Email Signature Portal</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Mailfooter Light Version - Clean OS Holdings corporate email signature generator & deployment portal. High-visibility data tables, automated CSV role ingestion, and single-action signature delivery.">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="MailFooter Resources/MailFooter - Logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Preload Critical Logo -->
+  <link rel="preload" as="image" href="MailFooter Resources/MailFooter - Logo.png">
+
+  <!-- Black & Electric Green Branded CSS -->
+  <link rel="stylesheet" href="light.css?v=2.0">
+</head>
+<body>
+
+  <!-- Black & Electric Green Sticky Header -->
+  <header class="portal-header">
+    <div class="header-container">
+      <div class="brand-section">
+        <a href="index.html" class="brand-logo-wrapper">
+          <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="brand-logo-img">
+        </a>
+        <div class="portal-title-wrapper">
+          <div class="portal-title">
+            Mailfooter <span class="badge-light-version">Light Portal</span>
+          </div>
+          <div class="portal-subtitle">OS Holdings Corporate On-Site Deployment Suite</div>
+        </div>
+      </div>
+
+      <!-- Live Directory Statistics Badge Bar -->
+      <div class="header-stats">
+        <div class="stat-item">
+          <span class="stat-label">Total Staff:</span>
+          <span id="statTotalCount" class="stat-value">0</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Managers/Directors:</span>
+          <span id="statMgrCount" class="stat-value">0</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Staff:</span>
+          <span id="statStaffCount" class="stat-value">0</span>
+        </div>
+      </div>
+
+      <!-- Header Controls -->
+      <div class="header-controls">
+        <button id="exportDataBtn" class="mc-btn mc-btn-primary" title="Export directory dataset to CSV">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Export Directory CSV
+        </button>
+        <button id="resetDataBtn" class="mc-btn mc-btn-dark" title="Restore central OS Holdings corporate directory">
+          ↺ Restore Default Directory
+        </button>
+        <a href="app.html" class="mc-btn mc-btn-primary" style="text-decoration: none;">
+          Full App Builder →
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Portal Body -->
+  <main class="main-wrapper">
+    <!-- Top-Level Tabs Bar -->
+    <div class="mc-tabs-bar">
+      <div class="tab-nav-item active" data-tab="overview" id="tabNavOverview">
+        <span>📑 OVERVIEW TAB</span>
+      </div>
+      <div class="tab-nav-item" data-tab="bulk" id="tabNavBulk">
+        <span>📥 BULK ADD TAB</span>
+      </div>
+      <div class="tab-nav-item" data-tab="installation" id="tabNavInstallation">
+        <span>⚙️ INSTALLATION TAB</span>
+      </div>
+    </div>
+
+    <!-- TAB 1: OVERVIEW TAB PANE -->
+    <div id="tabPane-overview" class="tab-content-pane">
+      <!-- Sub-tabs Bar -->
+      <div class="subtabs-bar">
+        <button class="subtab-btn active" data-subtab="all">
+          📋 Full Staff List Sub-tab
+        </button>
+        <button class="subtab-btn" data-subtab="managers">
+          👔 Managers Sub-tab
+        </button>
+        <button class="subtab-btn" data-subtab="staff">
+          👥 Staff Sub-tab
+        </button>
+      </div>
+
+      <!-- Analytics Cards -->
+      <div id="analyticsGrid" class="analytics-grid"></div>
+
+      <!-- Toolbar: Search & Dept Filter -->
+      <div class="table-toolbar">
+        <div class="search-box-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="tableSearchInput" class="mc-input" placeholder="Search personnel by name, email, department, or title...">
+        </div>
+        <div class="filter-group">
+          <label style="font-size: 13px; font-weight: 700; color: var(--text-secondary);">Department Filter:</label>
+          <select id="tableDeptFilter" class="mc-select">
+            <option value="ALL">All Departments</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Staff Directory Table -->
+      <div class="table-container">
+        <table class="mc-table">
+          <thead>
+            <tr>
+              <th>Personnel Name & Title</th>
+              <th>Role Tier</th>
+              <th>Department</th>
+              <th>Email Address</th>
+              <th>Contact Phone</th>
+              <th>⚡ Row-Level Quick Actions</th>
+            </tr>
+          </thead>
+          <tbody id="staffTableBody">
+            <!-- Rendered dynamically by light.js -->
+          </tbody>
+        </table>
+        <div class="table-footer">
+          <span id="tableShowingCount">Showing 0 records</span>
+          <span style="font-size: 12px; color: var(--text-secondary);">⚡ Single-click [Copy Rich Text] injects the formatted signature asset into your clipboard for Outlook or Apple Mail.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: BULK ADD TAB PANE -->
+    <div id="tabPane-bulk" class="tab-content-pane tab-pane-hidden">
+      <div class="bulk-container">
+        <div class="bulk-header-box">
+          <div class="bulk-header-icon">📥</div>
+          <div class="bulk-header-text">
+            <h3>Raw Data Ingestion & Automated Role-Detection Engine</h3>
+            <p>Highlight data columns from a client spreadsheet, press Ctrl+C, and paste directly below. The automated ingestion engine parses headers, categorizes personnel into "Director", "Manager", or "Staff", and updates the directory instantly.</p>
+          </div>
+        </div>
+
+        <!-- Download Import Templates Card (Blank & Pre-filled) -->
+        <div class="template-download-row">
+          <div class="template-download-title">
+            📥 Import Templates: Download pre-formatted spreadsheets for client handoff:
+          </div>
+          <div class="template-btns">
+            <button id="downloadBlankCsvBtn" class="mc-btn mc-btn-sm mc-btn-dark" title="Download empty CSV template with standard headers">
+              📄 Download Blank Template
+            </button>
+            <button id="downloadSampleCsvBtn" class="mc-btn mc-btn-sm mc-btn-primary" title="Download pre-filled CSV sample template">
+              📋 Download Pre-filled Sample
+            </button>
+          </div>
+        </div>
+
+        <!-- Text Area Input -->
+        <label class="form-label" style="margin-bottom: 6px; font-size: 13px; font-weight: 700;">Paste CSV / Excel Spreadsheet Data Here:</label>
+        <textarea id="csvTextArea" class="mc-textarea" placeholder="Paste raw data block here... E.g.&#10;First Name, Surname, Role, Department, Email Address, Job Title, Phone&#10;Jonathan, Sterling, Director, Executive, j.sterling@os-holdings.co.za, Managing Director, +27 11 463 1000&#10;Samantha, Vanderbilt, Manager, Marketing, s.vanderbilt@os-holdings.co.za, Marketing Head, +27 11 463 1005"></textarea>
+
+        <div class="bulk-actions-row">
+          <button id="loadSampleCsvBtn" class="mc-btn mc-btn-dark">
+            ⚡ Load OS Holdings CSV Sample
+          </button>
+          <button id="ingestDataBtn" class="mc-btn mc-btn-primary mc-btn-lg">
+            ⚡ Process & Ingest Data
+          </button>
+        </div>
+
+        <!-- Report Box -->
+        <div id="ingestReportBox" class="ingest-report-box"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: INSTALLATION TAB PANE -->
+    <div id="tabPane-installation" class="tab-content-pane tab-pane-hidden">
+      <div class="installation-workspace">
+        
+        <!-- Left-Hand Panel (Input Mutation Panel) -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">
+              ✎ Edit Form (Keystroke Real-Time Mutation)
+            </div>
+            <div class="filter-group">
+              <select id="activeEmpSelect" class="mc-select" style="max-width: 220px; font-weight: 600;">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <form id="liveEditForm" onsubmit="return false;" class="form-grid">
+              <div>
+                <label class="form-label">First Name</label>
+                <input type="text" id="inputFirstName" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Surname / Last Name</label>
+                <input type="text" id="inputLastName" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Seniority Tier / Role</label>
+                <select id="inputRole" class="form-input">
+                  <option value="Director">Director</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Staff">Staff</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Department</label>
+                <input type="text" id="inputDepartment" class="form-input">
+              </div>
+              <div class="form-group-full">
+                <label class="form-label">Job Title</label>
+                <input type="text" id="inputJobTitle" class="form-input">
+              </div>
+              <div class="form-group-full">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="inputEmail" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Phone Number</label>
+                <input type="text" id="inputPhone" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Company Name</label>
+                <input type="text" id="inputCompany" class="form-input">
+              </div>
+              <div class="form-group-full">
+                <label class="form-label">Office Location</label>
+                <input type="text" id="inputLocation" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Primary Brand Hex</label>
+                <div class="color-input-wrapper">
+                  <input type="color" id="inputPrimaryColor" class="color-picker" value="#0d4b8e">
+                </div>
+              </div>
+              <div>
+                <label class="form-label">Secondary Brand Hex</label>
+                <div class="color-input-wrapper">
+                  <input type="color" id="inputSecondaryColor" class="color-picker" value="#f18a22">
+                </div>
+              </div>
+              <div class="form-group-full">
+                <label class="form-label">Signature Layout Theme</label>
+                <select id="tplSelect" class="form-input" style="font-weight: 700;">
+                  <option value="os-flat-banner" selected>OS Holdings 2026 Signature (Flat Banner)</option>
+                  <option value="os-premium">OS Holdings Premium Layout (With Campaign Banner)</option>
+                </select>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right-Hand Panel (Virtual Canvas Preview) -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">
+              🖥️ Live Signature Canvas
+            </div>
+            <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">
+              Updates character-by-character
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div class="canvas-container">
+              <div id="signatureCanvasViewport" class="canvas-viewport">
+                <!-- Signature output dynamically rendered by light.js -->
+              </div>
+            </div>
+
+            <!-- Sticky Floating Action Footer (The 5-Second Asset Fix Delivery) -->
+            <div class="canvas-action-footer">
+              <div style="font-size: 14px; font-weight: 800; color: #FFFFFF;">
+                Asset Delivery Triggers:
+              </div>
+              <div class="footer-btn-group">
+                <button id="btnFooterCopyRichText" class="mc-btn mc-btn-primary mc-btn-lg">
+                  📋 Copy Rich Text Signature
+                </button>
+                <button id="btnFooterCopyHtml" class="mc-btn mc-btn-dark mc-btn-lg">
+                  &lt;/&gt; Copy HTML Snippet
+                </button>
+                <button id="btnFooterDownloadHtml" class="mc-btn mc-btn-sm mc-btn-dark" title="Download standalone HTML file">
+                  💾 Download .html File
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Engine Scripts (v2.0) -->
+  <script src="templates.js?v=2.0"></script>
+  <script src="light.js?v=2.0"></script>
+</body>
+</html>

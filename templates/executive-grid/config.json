@@ -1,0 +1,71 @@
+{
+  "name": "Executive Grid",
+  "rows": [
+    {
+      "columns": [
+        {
+          "width": 25,
+          "sections": [
+            "logo"
+          ]
+        },
+        {
+          "width": 50,
+          "sections": [
+            "tagline"
+          ]
+        },
+        {
+          "width": 25,
+          "sections": [
+            "phone"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "width": 25,
+          "sections": [
+            "profile_image"
+          ]
+        },
+        {
+          "width": 35,
+          "sections": [
+            "profile"
+          ]
+        },
+        {
+          "width": 25,
+          "sections": [
+            "contacts"
+          ]
+        },
+        {
+          "width": 15,
+          "sections": [
+            "cta_button"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "width": 40,
+          "sections": [
+            "socials"
+          ]
+        },
+        {
+          "width": 60,
+          "sections": [
+            "banner"
+          ]
+        }
+      ]
+    }
+  ]
+}

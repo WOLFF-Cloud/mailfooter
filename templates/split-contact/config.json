@@ -1,0 +1,69 @@
+{
+  "name": "Split Contact",
+  "rows": [
+    {
+      "columns": [
+        {
+          "width": 25,
+          "sections": [
+            "logo"
+          ]
+        },
+        {
+          "width": 75,
+          "sections": [
+            "profile"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "width": 25,
+          "sections": [
+            "email_block"
+          ]
+        },
+        {
+          "width": 25,
+          "sections": [
+            "phone_block"
+          ]
+        },
+        {
+          "width": 25,
+          "sections": [
+            "website_block"
+          ]
+        },
+        {
+          "width": 25,
+          "sections": [
+            "location_block"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "width": 100,
+          "sections": [
+            "banner"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "width": 100,
+          "sections": [
+            "socials"
+          ]
+        }
+      ]
+    }
+  ]
+}

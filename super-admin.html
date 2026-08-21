@@ -1,0 +1,2514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MailFooter - Ultimate SaaS Command Center</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="MailFooter Resources/MailFooter - Logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN for Interactive Graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #040711;
+      --bg-secondary: rgba(13, 19, 36, 0.75);
+      --bg-tertiary: rgba(22, 31, 57, 0.9);
+      --accent: #2563eb;
+      --accent-neon: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --emerald: #10b981;
+      --emerald-neon: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --rose: #ef4444;
+      --rose-neon: #ff4d4d;
+      --rose-glow: rgba(239, 68, 68, 0.25);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.25);
+      --purple: #8b5cf6;
+      --purple-glow: rgba(139, 92, 246, 0.25);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: rgba(148, 163, 184, 0.1);
+      --border-glow: rgba(59, 130, 246, 0.15);
+      --font-family: 'Plus Jakarta Sans', sans-serif;
+      --font-family-title: 'Outfit', sans-serif;
+      --font-family-mono: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(at 10% 20%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+        radial-gradient(at 90% 80%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      overflow-x: hidden;
+      padding-bottom: 60px;
+    }
+
+    .app-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 30px;
+    }
+
+    /* Header styling with backdrop blur */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 30px;
+      background: rgba(13, 19, 36, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      margin: 24px 0;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-img {
+      height: 44px;
+      filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4));
+    }
+
+    .badge-super-admin {
+      background: linear-gradient(135deg, var(--accent-neon) 0%, var(--purple) 100%);
+      color: white;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 99px;
+      letter-spacing: 1px;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* Currency Toggler */
+    .currency-toggler {
+      display: flex;
+      align-items: center;
+      background-color: rgba(22, 31, 57, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 30px;
+      padding: 3px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .currency-btn {
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-secondary);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .currency-btn.active {
+      background-color: var(--accent-neon);
+      color: white;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    /* Navigation Tabs */
+    .admin-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      background: rgba(13, 19, 36, 0.4);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .nav-tab {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-family-title);
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover {
+      color: var(--text-primary);
+      background-color: rgba(148, 163, 184, 0.05);
+    }
+
+    .nav-tab.active {
+      color: white;
+      background-color: var(--accent-neon);
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    /* Tab content panels */
+    .tab-panel {
+      display: none;
+      animation: fadeInTab 0.4s ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeInTab {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cyber Card base styling with spotlight glow logic */
+    .cyber-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease;
+    }
+
+    .cyber-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-glow);
+    }
+
+    /* Glow spotlight effect */
+    .cyber-card::after {
+      content: '';
+      position: absolute;
+      top: var(--y, 0);
+      left: var(--x, 0);
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 60%);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .cyber-card:hover::after {
+      opacity: 1;
+    }
+
+    /* Metrics Counters */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .metric-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-neon) 0%, transparent 80%);
+    }
+
+    .metric-card.rose-border::before { background: linear-gradient(90deg, var(--rose-neon) 0%, transparent 80%); }
+    .metric-card.emerald-border::before { background: linear-gradient(90deg, var(--emerald-neon) 0%, transparent 80%); }
+    .metric-card.amber-border::before { background: linear-gradient(90deg, var(--amber) 0%, transparent 80%); }
+
+    .metric-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .metric-value {
+      font-size: 36px;
+      font-weight: 900;
+      font-family: var(--font-family-title);
+      letter-spacing: -0.75px;
+      margin-bottom: 6px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    }
+
+    .metric-subtext {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .trend-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+    }
+
+    .trend-up {
+      background-color: var(--emerald-glow);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .trend-down {
+      background-color: var(--rose-glow);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    /* Tab grids */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 992px) {
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* TABLE LAYOUTS */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .admin-table th {
+      background-color: rgba(148, 163, 184, 0.02);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 20px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      letter-spacing: 0.75px;
+    }
+
+    .admin-table td {
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 20px;
+      font-size: 13.5px;
+      vertical-align: middle;
+      color: var(--text-primary);
+    }
+
+    .admin-table tr:hover td {
+      background-color: rgba(148, 163, 184, 0.01);
+    }
+
+    /* Company Cell info */
+    .company-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .company-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(22, 31, 57, 0.6) 0%, rgba(59, 130, 246, 0.15) 100%);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--accent-neon);
+      font-family: var(--font-family-title);
+    }
+
+    .company-name { font-weight: 800; }
+    .company-domain { font-size: 11px; color: var(--text-muted); }
+
+    /* Buttons inside grids */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid transparent;
+      font-family: var(--font-family);
+    }
+
+    .btn-primary { background-color: var(--accent); color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+    .btn-primary:hover { background-color: var(--accent-neon); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(59, 130, 246, 0.5); }
+    
+    .btn-secondary { background-color: rgba(22, 31, 57, 0.6); color: var(--text-primary); border-color: var(--border-color); }
+    .btn-secondary:hover { background-color: rgba(22, 31, 57, 0.9); border-color: var(--text-secondary); }
+
+    .btn-danger { background-color: var(--rose-glow); color: #fca5a5; border-color: rgba(239, 68, 68, 0.2); }
+    .btn-danger:hover { background-color: var(--rose); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+
+    .btn-success { background-color: var(--emerald-glow); color: #86efac; border-color: rgba(16, 185, 129, 0.2); }
+    .btn-success:hover { background-color: var(--emerald); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+
+    .btn-sm { padding: 5px 10px; font-size: 11.5px; border-radius: 6px; }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-active { background-color: var(--emerald-glow); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .badge-suspended { background-color: var(--rose-glow); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+    .badge-pending { background-color: var(--amber-glow); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .badge-plan { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+
+    /* ----------------------------------------------------------------- */
+    /* SAAS COMMAND SHELL TERMINAL */
+    /* ----------------------------------------------------------------- */
+    .terminal-container {
+      background-color: #03050a;
+      border: 1px solid var(--emerald-neon);
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+      font-family: var(--font-family-mono);
+      display: flex;
+      flex-direction: column;
+      height: 480px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .terminal-header {
+      background-color: #0c0f17;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .terminal-dot-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .terminal-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .terminal-dot.red { background-color: #ef4444; }
+    .terminal-dot.yellow { background-color: #f59e0b; }
+    .terminal-dot.green { background-color: #10b981; }
+
+    .terminal-title {
+      font-size: 11px;
+      color: #10b981;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .terminal-body {
+      flex-grow: 1;
+      padding: 16px;
+      overflow-y: auto;
+      color: #10b981;
+      font-size: 13px;
+      line-height: 1.6;
+      text-shadow: 0 0 3px rgba(16, 185, 129, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .terminal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .terminal-body::-webkit-scrollbar-thumb {
+      background-color: rgba(16, 185, 129, 0.2);
+      border-radius: 3px;
+    }
+
+    .terminal-output {
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .terminal-input-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .terminal-prompt {
+      color: #60a5fa;
+      font-weight: 600;
+    }
+
+    .terminal-input {
+      flex-grow: 1;
+      background: none;
+      border: none;
+      color: #10b981;
+      font-family: var(--font-family-mono);
+      font-size: 13px;
+      outline: none;
+      caret-color: #10b981;
+    }
+
+    /* scanlines retro effect */
+    .terminal-container::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      z-index: 10;
+      background-size: 100% 3px, 3px 100%;
+      pointer-events: none;
+    }
+
+    /* ----------------------------------------------------------------- */
+    /* PAYSTACK BILLING LEDGER */
+    /* ----------------------------------------------------------------- */
+    .billing-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 992px) {
+      .billing-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ----------------------------------------------------------------- */
+    /* FORECASTING CALCULATOR ENGINE */
+    /* ----------------------------------------------------------------- */
+    .forecast-layout {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 992px) {
+      .forecast-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slider-label {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .slider-val {
+      font-weight: 800;
+      color: var(--accent-neon);
+      font-size: 14px;
+    }
+
+    .custom-range {
+      width: 100%;
+      height: 6px;
+      background: rgba(148, 163, 184, 0.1);
+      border-radius: 3px;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+    }
+
+    .custom-range::-webkit-slider-thumb {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-neon);
+      box-shadow: 0 0 8px var(--accent-glow);
+      transition: transform 0.1s ease;
+    }
+
+    .custom-range::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+    }
+
+    /* CANARY ROLLOUT CONTROLS */
+    .canary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .canary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .canary-progress-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      position: relative;
+    }
+
+    .canary-dial-outer {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent-neon) 0%, rgba(59, 130, 246, 0.1) 0%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px var(--accent-glow);
+      transition: background 0.3s ease;
+    }
+
+    .canary-dial-inner {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background-color: #0d1324;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* PAYSTACK SANDBOX MODAL POPUP */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(6px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .paystack-modal {
+      background-color: #0a0e17;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 24px;
+      width: 450px;
+      max-width: 90%;
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      animation: slideModal 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideModal {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .paystack-modal-header {
+      background: #0f172a;
+      padding: 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .paystack-modal-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .paystack-checkout-card {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 16px;
+      color: white;
+      font-family: var(--font-family-mono);
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* SLIDING SIDE DRAWER */
+    .metrics-drawer-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .metrics-drawer-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .metrics-drawer {
+      position: fixed;
+      top: 0; right: -520px;
+      width: 520px;
+      height: 100%;
+      background-color: #0b0f19;
+      border-left: 1px solid var(--border-color);
+      z-index: 1001;
+      box-shadow: -8px 0 40px rgba(0, 0, 0, 0.6);
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metrics-drawer.active {
+      right: 0;
+    }
+
+    @media (max-width: 576px) {
+      .metrics-drawer {
+        width: 100%;
+        right: -100%;
+      }
+    }
+
+    .drawer-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #0f172a;
+    }
+
+    .drawer-title { font-family: var(--font-family-title); font-size: 20px; font-weight: 800; }
+    .drawer-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 24px; }
+    .drawer-body { flex-grow: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+
+    /* Form control elements */
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; }
+    .form-control { background-color: rgba(22, 31, 57, 0.6); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 14px; border-radius: 8px; font-size: 13.5px; outline: none; }
+    .form-control:focus { border-color: var(--accent-neon); }
+
+    /* Diagnostics Table columns */
+    .diag-item {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 0;
+      font-size: 13px;
+    }
+
+    .diag-item:last-child {
+      border-bottom: none;
+    }
+
+    .diag-label { color: var(--text-secondary); font-weight: 600; }
+    .diag-val { font-family: var(--font-family-mono); font-weight: 700; color: var(--accent-neon); }
+
+    /* Toasts styles */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 100000; display: flex; flex-direction: column; gap: 10px; }
+    .toast {
+      background-color: #0b0f19;
+      border-left: 4px solid var(--accent-neon);
+      color: white;
+      padding: 14px 20px;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      font-size: 13px;
+      font-weight: 700;
+      animation: slideInToast 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    @keyframes slideInToast {
+      from { transform: translateX(120%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="logo-img">
+        <span class="badge-super-admin">Command Center</span>
+      </div>
+      <div class="header-actions">
+        <!-- Currency -->
+        <div class="currency-toggler" id="currencyToggler">
+          <div class="currency-btn active" id="curZar" data-currency="ZAR">ZAR (R)</div>
+          <div class="currency-btn" id="curUsd" data-currency="USD">USD ($)</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="refreshAllBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+          Sync SaaS Core
+        </button>
+        <a href="index.html" class="btn btn-secondary btn-sm">Sign Out</a>
+      </div>
+    </header>
+
+    <!-- Navigation Menu Tabs -->
+    <nav class="admin-nav">
+      <button class="nav-tab active" data-tab="tab-overview">
+        SaaS Overview
+      </button>
+      <button class="nav-tab" data-tab="tab-clients">
+        Client Directory
+      </button>
+      <button class="nav-tab" data-tab="tab-shell">
+        Command Shell
+      </button>
+      <button class="nav-tab" data-tab="tab-billing">
+        Paystack Billing
+      </button>
+      <button class="nav-tab" data-tab="tab-forecast">
+        Financial Forecaster
+      </button>
+      <button class="nav-tab" data-tab="tab-canary">
+        Canary Deployments
+      </button>
+      <button class="nav-tab" data-tab="tab-system">
+        System Health
+      </button>
+    </nav>
+
+    <!-- Global Key Counters Grid -->
+    <section class="metrics-grid">
+      <!-- MRR -->
+      <div class="cyber-card metric-card">
+        <div class="metric-header">
+          <span>Monthly Revenue (MRR)</span>
+          <span>💰</span>
+        </div>
+        <div class="metric-value" id="valMrr" style="color: #60a5fa;">--</div>
+        <div class="metric-subtext">
+          <span class="trend-badge trend-up" id="valArr">-- ARR</span>
+          <span>Annual Run Rate</span>
+        </div>
+      </div>
+      <!-- Losses -->
+      <div class="cyber-card metric-card rose-border">
+        <div class="metric-header">
+          <span>Suspended Losses</span>
+          <span>📉</span>
+        </div>
+        <div class="metric-value" id="valLoss" style="color: #f87171;">--</div>
+        <div class="metric-subtext">
+          <span class="trend-badge trend-down" id="valSuspendedClients">-- Suspended</span>
+          <span>Churn / Overdue losses</span>
+        </div>
+      </div>
+      <!-- Active clients -->
+      <div class="cyber-card metric-card emerald-border">
+        <div class="metric-header">
+          <span>Active Clients</span>
+          <span>🏢</span>
+        </div>
+        <div class="metric-value" id="valClientsCount" style="color: #34d399;">--</div>
+        <div class="metric-subtext">
+          <span class="trend-badge trend-up" id="valActivePercent">--% Retention</span>
+          <span>Client Health Rate</span>
+        </div>
+      </div>
+      <!-- Deployed signatures -->
+      <div class="cyber-card metric-card amber-border">
+        <div class="metric-header">
+          <span>Outbound Signatures</span>
+          <span>✉️</span>
+        </div>
+        <div class="metric-value" id="valSignatures" style="color: #fbbf24;">--</div>
+        <div class="metric-subtext">
+          <span class="trend-badge trend-up" id="valSaaSCtr">--% CTR</span>
+          <span>Global interactions conversion</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 1: SAAS OVERVIEW -->
+    <div class="tab-panel active" id="tab-overview">
+      <div class="dashboard-layout">
+        <!-- Revenue growth chart -->
+        <div class="cyber-card">
+          <div class="chart-card-header">
+            <h3 class="chart-card-title">SaaS Financial Growth Ledger</h3>
+            <span class="text-muted" style="font-size: 11px;">Historical revenue vs suspended losses</span>
+          </div>
+          <div style="position: relative; height: 330px; width: 100%;">
+            <canvas id="revenueGrowthChart"></canvas>
+          </div>
+        </div>
+        
+        <!-- Demographics chart -->
+        <div class="cyber-card">
+          <div class="chart-card-header">
+            <h3 class="chart-card-title">Plan Demographics</h3>
+          </div>
+          <div style="position: relative; height: 330px; width: 100%; display: flex; align-items: center; justify-content: center;">
+            <canvas id="planDistributionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: CLIENTS DIRECTORY -->
+    <div class="tab-panel" id="tab-clients">
+      <!-- Filter controls -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <div>
+            <span class="filter-label">Plan Filter:</span>
+            <select class="filter-select" id="filterPlanSelect">
+              <option value="all">All Plan Tiers</option>
+              <option value="starter">Starter</option>
+              <option value="team">Team</option>
+              <option value="enterprise">Enterprise</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div>
+            <span class="filter-label">Status:</span>
+            <select class="filter-select" id="filterStatusSelect">
+              <option value="all">All Statuses</option>
+              <option value="active">Active Only</option>
+              <option value="suspended">Suspended Only</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" id="searchClientsInput" placeholder="Search clients by name, domain, admin...">
+          <svg class="search-icon-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+      </div>
+
+      <!-- Clients Directory grid -->
+      <div class="cyber-card table-card" style="padding: 0;">
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Company / Client</th>
+                <th>Domain / Admin</th>
+                <th>Price Plan</th>
+                <th>Signatures</th>
+                <th>Total Views</th>
+                <th>Bandwidth</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="clientsTableBody">
+              <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">Syncing client directory...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: SAAS INTERACTIVE COMMAND SHELL -->
+    <div class="tab-panel" id="tab-shell">
+      <div class="cyber-card" style="margin-bottom: 24px;">
+        <h3 class="chart-card-title" style="margin-bottom: 8px;">Interactive SaaS Remote Command Shell</h3>
+        <p class="text-secondary" style="font-size: 13.5px; margin-bottom: 16px;">
+          Direct operator console. Type commands to query SQL statistics, compact files, synchronize cache guidelines, or audit domains live.
+        </p>
+        
+        <div class="terminal-container">
+          <div class="terminal-header">
+            <div class="terminal-dot-group">
+              <div class="terminal-dot red"></div>
+              <div class="terminal-dot yellow"></div>
+              <div class="terminal-dot green"></div>
+            </div>
+            <div class="terminal-title">SaaS Cluster Console: saas-operator@mailfooter:~</div>
+            <div style="width: 40px;"></div>
+          </div>
+          
+          <div class="terminal-body" id="terminalConsoleBody">
+            <div class="terminal-output" id="terminalConsoleOutput">MailFooter SaaS Cluster Command Terminal v2.4.1 [SQLite Engine]
+Type 'help' to review list of administrative core commands.
+</div>
+            <div class="terminal-input-line">
+              <span class="terminal-prompt">saas-operator@mailfooter:~$</span>
+              <input type="text" class="terminal-input" id="terminalConsoleInput" autofocus autocomplete="off">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: PAYSTACK BILLING & SIMULATOR -->
+    <div class="tab-panel" id="tab-billing">
+      <div class="billing-layout">
+        <!-- Ledgers -->
+        <div class="cyber-card" style="padding: 0;">
+          <div style="padding: 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="chart-card-title">Billing Ledger & Invoices</h3>
+            <button class="btn btn-primary btn-sm" id="btnOpenGenInv">Generate Invoice</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Invoice ID</th>
+                  <th>Client / Domain</th>
+                  <th>Bill Amount</th>
+                  <th>Issued Date</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="invoicesTableBody">
+                <tr>
+                  <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">Syncing billing ledger...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Paystack Simulation Console -->
+        <div class="cyber-card" style="display: flex; flex-direction: column; gap: 20px;">
+          <h3 class="chart-card-title">Paystack Gateway Diagnostics</h3>
+          <p class="text-secondary" style="font-size: 13px;">Verify Paystack checkout integrations, webhook deliveries, and instant account reactivation webhooks.</p>
+          
+          <div style="background-color: rgba(22, 31, 57, 0.4); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; font-family: var(--font-family-mono); font-size: 11px; display: flex; flex-direction: column; gap: 8px;">
+            <div><span style="color: var(--emerald);">[API STATUS]</span> CONNECTED</div>
+            <div><span style="color: var(--text-muted);">[ENVIRONMENT]</span> SANDBOX PROD</div>
+            <div><span style="color: var(--text-muted);">[PAYMENT REF]</span> <span id="diagPayRef">--</span></div>
+            <div><span style="color: var(--text-muted);">[WEBHOOK CALLBACK]</span> <span id="diagWebHook" style="color: var(--amber);">WAITING</span></div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button class="btn btn-secondary" id="btnSimulateWebhook" style="width: 100%; border-color: rgba(245, 158, 11, 0.3); color: #fcd34d;">
+              ⚡ Trigger Paystack Webhook Simulation
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: FINANCIAL GROWTH & FORECASTER -->
+    <div class="tab-panel" id="tab-forecast">
+      <div class="forecast-layout">
+        <!-- Sliders panel -->
+        <div class="cyber-card">
+          <h3 class="chart-card-title" style="margin-bottom: 20px;">Forecast Simulation</h3>
+          
+          <!-- Slider 1 -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">New Clients (Monthly)</span>
+              <span class="slider-val" id="slideClientsVal">+5</span>
+            </div>
+            <input type="range" class="custom-range" id="slideClients" min="1" max="50" value="5">
+          </div>
+
+          <!-- Slider 2 -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Average Price / Client</span>
+              <span class="slider-val" id="slidePriceVal">R2,500</span>
+            </div>
+            <input type="range" class="custom-range" id="slidePrice" min="500" max="15000" step="500" value="2500">
+          </div>
+
+          <!-- Slider 3 -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Monthly Churn Rate</span>
+              <span class="slider-val" id="slideChurnVal">3.5%</span>
+            </div>
+            <input type="range" class="custom-range" id="slideChurn" min="0" max="25" step="0.5" value="3.5">
+          </div>
+
+          <!-- Slider 4 -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Expansion Rate (LTV Growth)</span>
+              <span class="slider-val" id="slideExpansionVal">1.5%</span>
+            </div>
+            <input type="range" class="custom-range" id="slideExpansion" min="0" max="15" step="0.5" value="1.5">
+          </div>
+        </div>
+
+        <!-- Growth Curve Projection -->
+        <div class="cyber-card">
+          <div class="chart-card-header">
+            <h3 class="chart-card-title">36-Month SaaS ARR Projection Curve</h3>
+            <span class="text-muted" style="font-size: 11px;">Dynamic compounded growth calculation</span>
+          </div>
+          <div style="position: relative; height: 350px; width: 100%;">
+            <canvas id="forecastProjectionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: CANARY CORE DEPLOYMENTS -->
+    <div class="tab-panel" id="tab-canary">
+      <div class="canary-grid">
+        <!-- Control dial -->
+        <div class="cyber-card canary-progress-wrapper">
+          <h3 class="chart-card-title" style="margin-bottom: 20px;">Staged Rollout Allocation</h3>
+          
+          <div class="canary-dial-outer" id="canaryProgressDial">
+            <div class="canary-dial-inner">
+              <span style="font-size: 36px; font-weight: 900; font-family: var(--font-family-title);" id="canaryPercentVal">100%</span>
+              <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Rollout Staged</span>
+            </div>
+          </div>
+          
+          <div style="width: 100%; margin-top: 30px; display: flex; flex-direction: column; gap: 16px;">
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Deployment Percentage</span>
+                <span class="slider-val" id="canarySliderVal">100%</span>
+              </div>
+              <input type="range" class="custom-range" id="canarySlider" min="0" max="100" step="5" value="100">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <button class="btn btn-primary btn-sm" id="btnStageCanary">Staged Release</button>
+              <button class="btn btn-danger btn-sm" id="btnRollbackCanary">Emergency Rollback</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Release logs -->
+        <div class="cyber-card">
+          <h3 class="chart-card-title" style="margin-bottom: 20px;">Staged Release Core Audit logs</h3>
+          <div class="table-wrapper" style="max-height: 300px; overflow-y: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                  <th>Rollout</th>
+                </tr>
+              </thead>
+              <tbody id="canaryLogsTableBody">
+                <tr>
+                  <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">Retrieving core canary logs...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 7: SYSTEM HEALTH DIAGNOSTICS -->
+    <div class="tab-panel" id="tab-system">
+      <div class="maintenance-layout">
+        <!-- Audit logs -->
+        <div class="cyber-card" style="padding: 0;">
+          <div style="padding: 24px; border-bottom: 1px solid var(--border-color);">
+            <h3 class="chart-card-title">SaaS Core Operations Ledger</h3>
+          </div>
+          <div class="table-wrapper" style="max-height: 480px; overflow-y: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Event Log</th>
+                  <th>Target Scope</th>
+                  <th>Operator IP</th>
+                </tr>
+              </thead>
+              <tbody id="auditLogsTableBody">
+                <tr>
+                  <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">Syncing server logs...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Hardware metrics -->
+        <div class="cyber-card" style="display: flex; flex-direction: column; gap: 20px;">
+          <h3 class="chart-card-title">SQLite Cluster Diagnostics</h3>
+          <p class="text-secondary" style="font-size: 13px;">Live hardware execution benchmark indicators and buffer allocation statistics.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div class="diag-item">
+              <span class="diag-label">SQLite Engine Version</span>
+              <span class="diag-val" id="diagSqliteVersion">--</span>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Write/Read Latency</span>
+              <span class="diag-val" id="diagBenchmark">-- ms</span>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Buffer Cache Hit Ratio</span>
+              <span class="diag-val" style="color: var(--emerald);">99.4%</span>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Storage Compaction Size</span>
+              <span class="diag-val" id="diagDbSize">-- KB</span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+            <button class="btn btn-primary" id="btnVacuumDb" style="width: 100%;">
+              🧹 Database Optimization Compaction
+            </button>
+            <a href="api/settings.php?action=backup" class="btn btn-secondary" style="width: 100%;">
+              💾 Export Database Backup (.sqlite)
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SLIDING CLIENT DRAWER METRICS -->
+  <div class="metrics-drawer-overlay" id="metricsDrawerOverlay"></div>
+  <div class="metrics-drawer" id="metricsDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="drawerTitle">Company Name</div>
+      <button class="drawer-close" id="drawerCloseBtn">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <!-- Info grid -->
+      <div>
+        <div class="drawer-section-title">Corporate Profile</div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Domain Name</span>
+            <span class="info-value" id="drDomain">--</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Administrator</span>
+            <span class="info-value" id="drAdminName">--</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Work Email</span>
+            <span class="info-value" id="drAdminEmail">--</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Contact Phone</span>
+            <span class="info-value" id="drAdminPhone">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscription info -->
+      <div>
+        <div class="drawer-section-title">Billing & Financial Details</div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Pricing Tier</span>
+            <span class="info-value" id="drPlan">--</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Billing Cycle</span>
+            <span class="info-value" id="drCycle">--</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Subscription Rate</span>
+            <span class="info-value" id="drPrice">--</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Estimated LTV</span>
+            <span class="info-value" id="drLtv" style="color: var(--emerald-neon);">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Outbound stats -->
+      <div>
+        <div class="drawer-section-title">Outbound Interaction Metrics</div>
+        <div class="drawer-stats-grid">
+          <div class="drawer-stat-card">
+            <div class="drawer-stat-val" id="drSignaturesCount">--</div>
+            <div class="drawer-stat-label">Active Footers</div>
+          </div>
+          <div class="drawer-stat-card">
+            <div class="drawer-stat-val" id="drOpensCount">--</div>
+            <div class="drawer-stat-label">Views Logged</div>
+          </div>
+          <div class="drawer-stat-card">
+            <div class="drawer-stat-val" id="drClicksCount">--</div>
+            <div class="drawer-stat-label">Clicks Logged</div>
+          </div>
+          <div class="drawer-stat-card">
+            <div class="drawer-stat-val" id="drCtr">--%</div>
+            <div class="drawer-stat-label">Click conversion</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech breakdown -->
+      <div>
+        <div class="drawer-section-title">Tech Compatibility Breakdown</div>
+        <div class="tech-bar-row">
+          <div class="tech-bar-labels">
+            <span class="info-label">Outlook Desktop / Mobile</span>
+            <span class="info-value" id="techOutlook">0%</span>
+          </div>
+          <div class="tech-bar-track">
+            <div class="tech-bar-fill" id="techBarOutlook" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div class="tech-bar-row">
+          <div class="tech-bar-labels">
+            <span class="info-label">Gmail App / Web Client</span>
+            <span class="info-value" id="techGmail">0%</span>
+          </div>
+          <div class="tech-bar-track">
+            <div class="tech-bar-fill fill-green" id="techBarGmail" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div class="tech-bar-row">
+          <div class="tech-bar-labels">
+            <span class="info-label">Apple Mail macOS / iOS</span>
+            <span class="info-value" id="techApple">0%</span>
+          </div>
+          <div class="tech-bar-track">
+            <div class="tech-bar-fill fill-amber" id="techBarApple" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Outbound log stream -->
+      <div>
+        <div class="drawer-section-title">Outbound Live interaction Log</div>
+        <div class="log-stream" id="drEventLog">
+          <div>Syncing logs...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYSTACK SANDBOX MODAL POPUP -->
+  <div class="modal-overlay" id="paystackModalOverlay">
+    <div class="paystack-modal">
+      <div class="paystack-modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="background-color: #08a39b; width: 14px; height: 14px; border-radius: 50%;"></div>
+          <h3 style="font-family: var(--font-family-title); font-size: 16px; font-weight: 800; color: white;">Paystack Secure Checkout</h3>
+        </div>
+        <span class="badge badge-plan" style="font-size: 9px;">SANDBOX</span>
+      </div>
+      
+      <div class="paystack-modal-body">
+        <p style="font-size: 13px; color: var(--text-secondary);">
+          Simulating real Paystack credit card gateway transactions for <strong id="payDomain" style="color: white;">--</strong>.
+        </p>
+
+        <div class="paystack-checkout-card">
+          <div style="display: flex; justify-content: space-between;">
+            <span>MERCHANT:</span>
+            <span style="color: white; font-weight: 800;">MailFooter SaaS</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>BILL AMOUNT:</span>
+            <span style="color: #08a39b; font-weight: 800;" id="payAmount">--</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>INVOICE REFERENCE:</span>
+            <span style="color: white;" id="payInvId">--</span>
+          </div>
+        </div>
+
+        <form id="paystackCheckoutForm" style="display: flex; flex-direction: column; gap: 12px;">
+          <input type="hidden" id="payInvoiceIdInput">
+          
+          <div class="form-group">
+            <label class="form-label">Credit Card Number</label>
+            <input type="text" class="form-control" placeholder="4000 1234 5678 9010" value="4000 1234 5678 9010" disabled style="font-family: var(--font-family-mono);">
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label">Expiry Date</label>
+              <input type="text" class="form-control" placeholder="12/28" value="12/28" disabled>
+            </div>
+            <div class="form-group">
+              <label class="form-label">CVV Code</label>
+              <input type="text" class="form-control" placeholder="123" value="123" disabled>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 12px;">
+            <button type="submit" class="btn btn-success" style="flex-grow: 1; padding: 12px;">Simulate Payment Sandbox</button>
+            <button type="button" class="btn btn-secondary" id="btnCancelCheckout" style="padding: 12px;">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUAL INVOICE GENERATOR MODAL -->
+  <div class="modal-overlay" id="genInvoiceModalOverlay">
+    <div class="paystack-modal">
+      <div class="paystack-modal-header">
+        <h3 style="font-family: var(--font-family-title); font-size: 16px; font-weight: 800; color: white;">Generate Client Invoice</h3>
+        <button class="drawer-close" id="btnCloseGenInvModal">&times;</button>
+      </div>
+      <div class="paystack-modal-body">
+        <form id="generateInvoiceForm" style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label">Target Client Company</label>
+            <select class="form-control" id="genInvClientSelect" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Billing Amount (ZAR)</label>
+            <input type="number" step="0.01" class="form-control" id="genInvAmountInput" required placeholder="e.g. 4500">
+          </div>
+          <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary" style="flex-grow: 1;">Generate & Post Invoice</button>
+            <button type="button" class="btn btn-secondary" id="btnCancelGenInv">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Script Modules -->
+  <script>
+    // Quick session check to prevent unauthenticated superadmin access
+    (function() {
+      const superadminLoggedIn = sessionStorage.getItem('superadmin_logged_in');
+      if (superadminLoggedIn !== 'true') {
+        window.location.replace('landing-index.html?login=superadmin');
+      }
+    })();
+
+    // Constants
+    const API_DOMAIN = window.location.origin + window.location.pathname.replace(/\/(index|app|admin|super-admin|register)(\.html)?$/, '').replace(/\/$/, '');
+    
+    // Globals
+    let currentCurrency = 'ZAR'; // ZAR or USD
+    let mrrZar = 0;
+    let lossMrrZar = 0;
+    let conversionRate = 18.0; 
+    
+    let saasClientsList = [];
+    let pricePlansList = [];
+    let invoicesList = [];
+    
+    // Chart instances
+    let revenueChartInst = null;
+    let planChartInst = null;
+    let forecastChartInst = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Cyber Spotlight Card Hover Logic
+      document.addEventListener('mousemove', (e) => {
+        const cards = document.querySelectorAll('.cyber-card');
+        cards.forEach(card => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          card.style.setProperty('--x', `${x}px`);
+          card.style.setProperty('--y', `${y}px`);
+        });
+      });
+
+      // 2. Navigation Tabs Toggle
+      const tabs = document.querySelectorAll('.nav-tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          
+          const target = tab.getAttribute('data-tab');
+          document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.remove('active');
+          });
+          document.getElementById(target).classList.add('active');
+          
+          // Render specific dashboard or forecasts on view
+          if (target === 'tab-overview') {
+            fetchDashboardData();
+          } else if (target === 'tab-forecast') {
+            calculateForecastProjections();
+          } else if (target === 'tab-canary') {
+            fetchCanaryStatus();
+          } else if (target === 'tab-billing') {
+            fetchInvoicesList();
+          }
+        });
+      });
+
+      // 3. Currency switcher click events
+      document.getElementById('currencyToggler').addEventListener('click', (e) => {
+        const target = e.target.closest('.currency-btn');
+        if (!target) return;
+        
+        document.querySelectorAll('.currency-btn').forEach(btn => btn.classList.remove('active'));
+        target.classList.add('active');
+        
+        currentCurrency = target.getAttribute('data-currency');
+        updateFinancialStats();
+        renderClientsGrid();
+        renderPricePlans();
+        fetchInvoicesList();
+        
+        // Refresh charts
+        fetchDashboardData();
+        if (document.getElementById('tab-forecast').classList.contains('active')) {
+          calculateForecastProjections();
+        }
+        showToast(`Currency switched to ${currentCurrency}`);
+      });
+
+      // 4. Command Shell Enter Key handler
+      document.getElementById('terminalConsoleInput').addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter') {
+          const inputEl = document.getElementById('terminalConsoleInput');
+          const outputEl = document.getElementById('terminalConsoleOutput');
+          const cmd = inputEl.value;
+          inputEl.value = '';
+          
+          // Print prompt and command
+          outputEl.textContent += `\nsaas-operator@mailfooter:~$ ${cmd}\n`;
+          
+          // Execute command via API
+          try {
+            const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=terminal_cmd`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ cmd: cmd })
+            });
+            const data = await res.json();
+            if (data.success) {
+              outputEl.textContent += data.output;
+            } else {
+              outputEl.textContent += `Error processing terminal command.\n`;
+            }
+          } catch (err) {
+            outputEl.textContent += `Network execution timeout.\n`;
+          }
+          
+          // Scroll console to bottom
+          const body = document.getElementById('terminalConsoleBody');
+          body.scrollTop = body.scrollHeight;
+        }
+      });
+
+      // 5. Forecaster Sliders Event Listeners
+      const sliders = ['slideClients', 'slidePrice', 'slideChurn', 'slideExpansion'];
+      sliders.forEach(s => {
+        document.getElementById(s).addEventListener('input', () => {
+          updateSliderLabels();
+          calculateForecastProjections();
+        });
+      });
+
+      // 6. Canary Rollout Slider
+      document.getElementById('canarySlider').addEventListener('input', (e) => {
+        const val = e.target.value;
+        document.getElementById('canarySliderVal').textContent = `${val}%`;
+      });
+
+      // Canary deploy actions
+      document.getElementById('btnStageCanary').addEventListener('click', async () => {
+        const percentage = document.getElementById('canarySlider').value;
+        try {
+          const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=canary_deploy`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ percentage: percentage })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(data.message);
+            fetchCanaryStatus();
+            refreshAllData();
+          }
+        } catch (err) {
+          showToast('Failed to deploy canary core.');
+        }
+      });
+
+      document.getElementById('btnRollbackCanary').addEventListener('click', async () => {
+        if (!confirm('WARNING: Emergency rollback will reset deployment core to stable stable channel. Proceed?')) return;
+        try {
+          const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=canary_rollback`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(data.message);
+            fetchCanaryStatus();
+            refreshAllData();
+          }
+        } catch (err) {
+          showToast('Canary rollback failed.');
+        }
+      });
+
+      // 7. Paystack payment checkout submit handler
+      document.getElementById('paystackCheckoutForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const invoiceId = document.getElementById('payInvoiceIdInput').value;
+        const ref = 'pstk_ref_' + Math.floor(Math.random() * 899999 + 100000);
+        
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Verifying with Paystack Gateway...';
+        
+        try {
+          const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=simulate_paystack_payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ invoice_id: invoiceId, paystack_reference: ref })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(data.message);
+            document.getElementById('diagPayRef').textContent = ref;
+            document.getElementById('diagWebHook').textContent = 'VERIFIED';
+            document.getElementById('diagWebHook').style.color = 'var(--emerald-neon)';
+            
+            // Close checkout modal
+            document.getElementById('paystackModalOverlay').classList.remove('active');
+            
+            // Refresh tables and stats
+            refreshAllData();
+            fetchInvoicesList();
+          }
+        } catch (err) {
+          showToast('Payment simulation communication timeout.');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Simulate Payment Sandbox';
+        }
+      });
+
+      // Cancel checkout modal
+      document.getElementById('btnCancelCheckout').addEventListener('click', () => {
+        document.getElementById('paystackModalOverlay').classList.remove('active');
+      });
+
+      // 8. Manual Invoice Generator handlers
+      document.getElementById('btnOpenGenInv').addEventListener('click', () => {
+        populateGenInvClients();
+        document.getElementById('genInvoiceModalOverlay').classList.add('active');
+      });
+      document.getElementById('btnCloseGenInvModal').addEventListener('click', () => {
+        document.getElementById('genInvoiceModalOverlay').classList.remove('active');
+      });
+      document.getElementById('btnCancelGenInv').addEventListener('click', () => {
+        document.getElementById('genInvoiceModalOverlay').classList.remove('active');
+      });
+      
+      document.getElementById('generateInvoiceForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const domain = document.getElementById('genInvClientSelect').value;
+        const amount = document.getElementById('genInvAmountInput').value;
+        
+        try {
+          const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=generate_invoice`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ domain: domain, amount: amount, currency: 'ZAR' })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(data.message);
+            document.getElementById('genInvoiceModalOverlay').classList.remove('active');
+            fetchInvoicesList();
+          }
+        } catch (err) {
+          showToast('Failed to create manual invoice.');
+        }
+      });
+
+      // Paystack simulated Webhook check triggers
+      document.getElementById('btnSimulateWebhook').addEventListener('click', async () => {
+        // Find first overdue/pending invoice
+        const unpaid = invoicesList.find(i => i.status !== 'paid');
+        if (!unpaid) {
+          showToast('No pending or overdue invoices found to simulate.');
+          return;
+        }
+        
+        showToast('Sending Paystack Webhook Event: charge.success...');
+        document.getElementById('diagWebHook').textContent = 'RECEIVING';
+        document.getElementById('diagWebHook').style.color = 'var(--amber)';
+        
+        setTimeout(async () => {
+          try {
+            const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=simulate_paystack_webhook`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ invoice_id: unpaid.id, paystack_reference: 'pstk_webhook_' + uniqid() })
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast('[Webhook Event Received] ' + data.message);
+              document.getElementById('diagWebHook').textContent = 'VERIFIED';
+              document.getElementById('diagWebHook').style.color = 'var(--emerald-neon)';
+              refreshAllData();
+              fetchInvoicesList();
+            }
+          } catch (err) {
+            showToast('Webhook callback simulation timed out.');
+          }
+        }, 1200);
+      });
+
+      // 9. Close client drawer
+      const overlay = document.getElementById('metricsDrawerOverlay');
+      const drawer = document.getElementById('metricsDrawer');
+      const closeBtn = document.getElementById('drawerCloseBtn');
+      
+      const closeDrawer = () => {
+        overlay.classList.remove('active');
+        drawer.classList.remove('active');
+      };
+      
+      overlay.addEventListener('click', closeDrawer);
+      closeBtn.addEventListener('click', closeDrawer);
+
+      // Search filters for clients directory
+      document.getElementById('searchClientsInput').addEventListener('input', renderClientsGrid);
+      document.getElementById('filterPlanSelect').addEventListener('change', renderClientsGrid);
+      document.getElementById('filterStatusSelect').addEventListener('change', renderClientsGrid);
+
+      // Database Vacuum Optimization click listener
+      document.getElementById('btnVacuumDb').addEventListener('click', async () => {
+        const btn = document.getElementById('btnVacuumDb');
+        btn.disabled = true;
+        btn.textContent = 'Optimizing...';
+        
+        try {
+          const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=db_vacuum`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(`compaction done! Saved ${data.saved_kb} KB`);
+            document.getElementById('diagDbSize').textContent = `${data.size_after} KB`;
+            refreshAllData();
+          } else {
+            showToast('Compaction failed.');
+          }
+        } catch (err) {
+          showToast('Failed to optimize SQLite storage.');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Database Optimization Compaction';
+        }
+      });
+
+      // Initial Sync
+      refreshAllData();
+    });
+
+    async function refreshAllData() {
+      await fetchPlansData();
+      await fetchDashboardData();
+      await fetchClientsList();
+    }
+
+    async function fetchPlansData() {
+      try {
+        const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=price_plans`);
+        const data = await res.json();
+        if (data.success) {
+          pricePlansList = data.plans;
+          renderPricePlans();
+        }
+      } catch (err) {
+        showToast('Error fetching pricing plans.');
+      }
+    }
+
+    async function fetchDashboardData() {
+      try {
+        const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=dashboard`);
+        const data = await res.json();
+        if (data.success) {
+          const metrics = data.metrics;
+          const perf = data.db_performance;
+          
+          mrrZar = metrics.mrr_zar;
+          lossMrrZar = metrics.loss_mrr_zar;
+          
+          updateFinancialStats();
+
+          document.getElementById('valClientsCount').textContent = metrics.total_clients;
+          const retRate = metrics.total_clients > 0 ? round((metrics.active_clients / metrics.total_clients) * 100, 1) : 100;
+          document.getElementById('valActivePercent').textContent = `${retRate}% Retention`;
+          
+          document.getElementById('valSuspendedClients').textContent = `${metrics.suspended_clients} Suspended`;
+          document.getElementById('valSignatures').textContent = metrics.total_signatures;
+          document.getElementById('valSaaSCtr').textContent = `${metrics.global_ctr}% CTR`;
+
+          // SQL performance benchmarks
+          document.getElementById('diagSqliteVersion').textContent = perf.sqlite_version;
+          document.getElementById('diagBenchmark').textContent = `${perf.benchmark_ms} ms`;
+          document.getElementById('diagDbSize').textContent = `${perf.size_kb} KB`;
+
+          // Render Logs
+          if (data.audit_logs && data.audit_logs.length > 0) {
+            renderAuditLogs(data.audit_logs);
+          }
+          
+          // Render Overview line graph
+          renderOverviewCharts(data.timeline, metrics.plan_distribution);
+        }
+      } catch (err) {
+        showToast('Error syncing SaaS dashboard metrics.');
+      }
+    }
+
+    async function fetchClientsList() {
+      try {
+        const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=clients`);
+        const data = await res.json();
+        if (data.success) {
+          saasClientsList = data.clients;
+          renderClientsGrid();
+        }
+      } catch (err) {
+        showToast('Error listing registered client directory.');
+      }
+    }
+
+    async function fetchInvoicesList() {
+      try {
+        const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=invoices`);
+        const data = await res.json();
+        if (data.success) {
+          invoicesList = data.invoices;
+          renderInvoicesGrid();
+        }
+      } catch (err) {
+        showToast('Error loading billing ledgers.');
+      }
+    }
+
+    async function fetchCanaryStatus() {
+      try {
+        const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=canary_status`);
+        const data = await res.json();
+        if (data.success) {
+          const pct = data.percentage;
+          document.getElementById('canaryPercentVal').textContent = `${pct}%`;
+          document.getElementById('canarySlider').value = pct;
+          document.getElementById('canarySliderVal').textContent = `${pct}%`;
+          
+          // Conic dial background
+          document.getElementById('canaryProgressDial').style.background = `conic-gradient(var(--accent-neon) ${pct}%, rgba(59, 130, 246, 0.1) ${pct}%)`;
+          
+          // Render canary history logs
+          const tbody = document.getElementById('canaryLogsTableBody');
+          tbody.innerHTML = '';
+          
+          if (data.history.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 12px;">No canary deployment history found.</td></tr>`;
+            return;
+          }
+          
+          data.history.forEach(h => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td style="font-family: monospace; font-size: 11px;">${h.timestamp}</td>
+              <td style="font-weight: 600;">${escapeHtml(h.action)}</td>
+              <td><span class="badge badge-plan">v1.4</span></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (err) {
+        showToast('Error fetching canary release details.');
+      }
+    }
+
+    function updateFinancialStats() {
+      const isZar = (currentCurrency === 'ZAR');
+      const rate = isZar ? 1.0 : 1 / conversionRate;
+      const symbol = isZar ? 'R' : '$';
+      
+      const mrr = mrrZar * rate;
+      const arr = mrr * 12;
+      const loss = lossMrrZar * rate;
+      
+      document.getElementById('valMrr').textContent = `${symbol}${mrr.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+      document.getElementById('valArr').textContent = `${symbol}${arr.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})} ARR`;
+      document.getElementById('valLoss').textContent = `${symbol}${loss.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+    }
+
+    function renderClientsGrid() {
+      const search = document.getElementById('searchClientsInput').value.toLowerCase();
+      const planFilter = document.getElementById('filterPlanSelect').value;
+      const statusFilter = document.getElementById('filterStatusSelect').value;
+      
+      const tbody = document.getElementById('clientsTableBody');
+      tbody.innerHTML = '';
+
+      const filtered = saasClientsList.filter(c => {
+        const matchesSearch = c.name.toLowerCase().includes(search) || 
+                              c.domain.toLowerCase().includes(search) || 
+                              c.admin_name.toLowerCase().includes(search) || 
+                              c.admin_email.toLowerCase().includes(search);
+        
+        const matchesPlan = (planFilter === 'all' || c.plan === planFilter);
+        const matchesStatus = (statusFilter === 'all' || c.status === statusFilter);
+        
+        return matchesSearch && matchesPlan && matchesStatus;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">No clients found.</td></tr>`;
+        return;
+      }
+
+      const isZar = (currentCurrency === 'ZAR');
+      const rate = isZar ? 1.0 : 1 / conversionRate;
+      const symbol = isZar ? 'R' : '$';
+
+      filtered.forEach(c => {
+        const tr = document.createElement('tr');
+        
+        const price = c.price * rate;
+        const cycleLabel = (c.billing_cycle === 'annual') ? '/yr' : '/mo';
+        const formattedPrice = `${symbol}${price.toLocaleString(undefined, {maximumFractionDigits: 0})}${cycleLabel}`;
+        
+        const statusClass = (c.status === 'active') ? 'badge-active' : 'badge-suspended';
+        const planClass = (c.plan === 'custom') ? 'badge-custom' : 'badge-plan';
+        
+        tr.innerHTML = `
+          <td>
+            <div class="company-cell" onclick="openClientDrawer('${c.domain}')">
+              <div class="company-avatar">${c.name.slice(0, 2).toUpperCase()}</div>
+              <div class="company-info">
+                <span class="company-name">${escapeHtml(c.name)}</span>
+                <span class="company-domain">${escapeHtml(c.domain)}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div style="font-weight: 600;">${escapeHtml(c.admin_name)}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">${escapeHtml(c.admin_email)}</div>
+          </td>
+          <td>
+            <span class="badge ${planClass}">${escapeHtml(c.plan)}</span>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${formattedPrice}</div>
+          </td>
+          <td style="font-weight: 700; font-family: var(--font-family-title);">${c.stats.signatures}</td>
+          <td style="font-weight: 600; font-family: var(--font-family-title);">${c.stats.opens.toLocaleString()}</td>
+          <td style="font-size: 12px; font-weight: 600;">${c.stats.bandwidth_mb} MB</td>
+          <td>
+            <span class="badge ${statusClass}">${escapeHtml(c.status)}</span>
+          </td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn btn-primary btn-sm" onclick="remoteAccess('${c.domain}', '${escapeHtml(c.name)}')">Remote</button>
+              <button class="btn ${c.status === 'active' ? 'btn-danger' : 'btn-success'} btn-sm" onclick="toggleSuspension('${c.domain}', ${c.status === 'active'})">
+                ${c.status === 'active' ? 'Suspend' : 'Activate'}
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="pushClientUpdate('${c.domain}')">Push</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderInvoicesGrid() {
+      const tbody = document.getElementById('invoicesTableBody');
+      tbody.innerHTML = '';
+
+      if (invoicesList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">No invoices issued yet.</td></tr>`;
+        return;
+      }
+
+      const isZar = (currentCurrency === 'ZAR');
+      const rate = isZar ? 1.0 : 1 / conversionRate;
+      const symbol = isZar ? 'R' : '$';
+
+      invoicesList.forEach(i => {
+        const tr = document.createElement('tr');
+        const amount = i.amount * rate;
+        const formattedAmount = `${symbol}${amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        
+        let statusClass = 'badge-pending';
+        if (i.status === 'paid') statusClass = 'badge-active';
+        if (i.status === 'overdue') statusClass = 'badge-suspended';
+        
+        let actions = '';
+        if (i.status !== 'paid') {
+          actions = `<button class="btn btn-success btn-sm" onclick="openPaystackCheckout('${i.id}', '${escapeHtml(i.client_name)}', '${i.client_domain}', ${i.amount})">Paystack checkout</button>`;
+        } else {
+          actions = `<span style="font-family: monospace; font-size: 11px; color: var(--text-muted);">${escapeHtml(i.paystack_reference)}</span>`;
+        }
+
+        tr.innerHTML = `
+          <td style="font-family: monospace; font-weight: bold; font-size: 11.5px;">${i.id}</td>
+          <td>
+            <div style="font-weight: 700;">${escapeHtml(i.client_name)}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">${escapeHtml(i.client_domain)}</div>
+          </td>
+          <td style="font-weight: 700; font-family: var(--font-family-title); color: #38bdf8;">${formattedAmount}</td>
+          <td style="font-size: 12px; color: var(--text-secondary);">${i.issued_at.slice(0, 10)}</td>
+          <td style="font-size: 12px; color: var(--text-secondary);">${i.due_at ? i.due_at.slice(0, 10) : '--'}</td>
+          <td><span class="badge ${statusClass}">${i.status}</span></td>
+          <td><div class="actions-cell">${actions}</div></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openPaystackCheckout(id, name, domain, amount) {
+      const isZar = (currentCurrency === 'ZAR');
+      const rate = isZar ? 1.0 : 1 / conversionRate;
+      const symbol = isZar ? 'R' : '$';
+      
+      const convAmount = amount * rate;
+      const fmtAmount = `${symbol}${convAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      
+      document.getElementById('payDomain').textContent = `${name} (${domain})`;
+      document.getElementById('payAmount').textContent = fmtAmount;
+      document.getElementById('payInvId').textContent = id;
+      document.getElementById('payInvoiceIdInput').value = id;
+      
+      document.getElementById('paystackModalOverlay').classList.add('active');
+    }
+
+    function populateGenInvClients() {
+      const select = document.getElementById('genInvClientSelect');
+      select.innerHTML = '';
+      
+      saasClientsList.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.domain;
+        opt.textContent = `${c.name} (${c.domain})`;
+        select.appendChild(opt);
+      });
+    }
+
+    async function toggleSuspension(domain, suspend) {
+      if (suspend && !confirm(`Are you sure you want to suspend client ${domain}? This will lock signature creation and branding editors.`)) {
+        return;
+      }
+      try {
+        const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=suspend`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain: domain, suspend: suspend })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message);
+          refreshAllData();
+          fetchInvoicesList();
+        }
+      } catch (err) {
+        showToast('Connection error during suspension toggle.');
+      }
+    }
+
+    async function pushClientUpdate(domain) {
+      try {
+        const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=push_update`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain: domain })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message);
+          refreshAllData();
+        }
+      } catch (err) {
+        showToast('Connection error during forced push.');
+      }
+    }
+
+    function remoteAccess(domain, name) {
+      showToast(`Initiating ghost tunnel for ${name}...`);
+      sessionStorage.setItem('impersonate_client', domain);
+      sessionStorage.setItem('impersonate_client_name', name);
+      
+      setTimeout(() => {
+        window.open(`admin.html?impersonate=${encodeURIComponent(domain)}&name=${encodeURIComponent(name)}`, '_blank');
+      }, 500);
+    }
+
+    async function openClientDrawer(domain) {
+      try {
+        const res = await fetch(`${API_DOMAIN}/api/super_admin.php?action=client_details&domain=${encodeURIComponent(domain)}`);
+        const data = await res.json();
+        if (data.success) {
+          const c = data.client;
+          const s = data.stats;
+          
+          document.getElementById('drawerTitle').textContent = c.name;
+          document.getElementById('drDomain').textContent = c.domain;
+          document.getElementById('drAdminName').textContent = c.admin_name;
+          document.getElementById('drAdminEmail').textContent = c.admin_email;
+          document.getElementById('drAdminPhone').textContent = c.admin_phone || '--';
+          
+          const isZar = (currentCurrency === 'ZAR');
+          const rate = isZar ? 1.0 : 1 / conversionRate;
+          const symbol = isZar ? 'R' : '$';
+          
+          const price = c.price * rate;
+          const cycleLabel = (c.billing_cycle === 'annual') ? '/yr' : '/mo';
+          document.getElementById('drPrice').textContent = `${symbol}${price.toLocaleString()}${cycleLabel}`;
+          document.getElementById('drPlan').textContent = c.plan.toUpperCase();
+          document.getElementById('drCycle').textContent = c.billing_cycle.toUpperCase();
+          
+          // Calculate LTV
+          const signupDate = new Date(c.created_at);
+          const diffTime = Math.abs(new Date() - signupDate);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          const diffMonths = Math.max(1, Math.round(diffDays / 30));
+          const monthlyPrice = (c.billing_cycle === 'annual') ? (c.price / 12) : c.price;
+          const ltvZar = monthlyPrice * diffMonths;
+          const ltv = ltvZar * rate;
+          document.getElementById('drLtv').textContent = `${symbol}${ltv.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+
+          // Outbound stats
+          document.getElementById('drSignaturesCount').textContent = s.signatures;
+          document.getElementById('drOpensCount').textContent = s.opens.toLocaleString();
+          document.getElementById('drClicksCount').textContent = s.clicks.toLocaleString();
+          document.getElementById('drCtr').textContent = `${s.ctr}%`;
+
+          // Tech compatibility
+          const totalLogs = (s.devices.Desktop + s.devices.Mobile + s.devices.Tablet + s.devices.Unknown) || 1;
+          const outPct = round((s.clients.Outlook / totalLogs) * 100, 0);
+          const gmPct = round((s.clients.Gmail / totalLogs) * 100, 0);
+          const apPct = round((s.clients['Apple Mail'] / totalLogs) * 100, 0);
+          
+          document.getElementById('techOutlook').textContent = `${outPct}%`;
+          document.getElementById('techBarOutlook').style.width = `${outPct}%`;
+          document.getElementById('techGmail').textContent = `${gmPct}%`;
+          document.getElementById('techBarGmail').style.width = `${gmPct}%`;
+          document.getElementById('techApple').textContent = `${apPct}%`;
+          document.getElementById('techBarApple').style.width = `${apPct}%`;
+
+          // Event logs stream
+          const logContainer = document.getElementById('drEventLog');
+          logContainer.innerHTML = '';
+          
+          if (data.activity.length === 0) {
+            logContainer.innerHTML = '<div>No interaction logs found.</div>';
+          } else {
+            data.activity.forEach(a => {
+              const div = document.createElement('div');
+              div.className = 'log-item';
+              const typeClass = (a.type === 'click') ? 'click' : 'open';
+              const detail = (a.type === 'click') ? `Clicked ${a.link_id}` : 'Opened signature logo';
+              
+              div.innerHTML = `
+                <span class="log-time">[${a.timestamp.slice(11, 19)}]</span>
+                <span class="log-type ${typeClass}">${a.type.toUpperCase()}</span>
+                <span>${detail} (${a.location})</span>
+              `;
+              logContainer.appendChild(div);
+            });
+          }
+
+          document.getElementById('metricsDrawerOverlay').classList.add('active');
+          document.getElementById('metricsDrawer').classList.add('active');
+        }
+      } catch (err) {
+        showToast('Error retrieving detailed client drawer stats.');
+      }
+    }
+
+    function renderPricePlans() {
+      // Empty stub as plan rendering configuration panel was handled under plans grids.
+    }
+
+    function renderAuditLogs(logs) {
+      const tbody = document.getElementById('auditLogsTableBody');
+      tbody.innerHTML = '';
+      
+      logs.forEach(l => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-size: 11.5px; color: var(--text-muted); font-family: var(--font-family-mono);">${l.timestamp}</td>
+          <td style="font-weight: 700; font-size: 12.5px;">${escapeHtml(l.action)}</td>
+          <td style="font-size: 12px; color: var(--accent-neon); font-family: var(--font-family-mono);">${escapeHtml(l.target || 'system')}</td>
+          <td style="font-size: 11.5px; color: var(--text-muted); font-family: var(--font-family-mono);">${l.ip_address}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderOverviewCharts(timelineData, planCounts) {
+      // 1. Dual axis growth chart
+      const isZar = (currentCurrency === 'ZAR');
+      const rate = isZar ? 1.0 : 1 / conversionRate;
+      const symbol = isZar ? 'R' : '$';
+
+      const months = timelineData.map(t => t.month);
+      const revenues = timelineData.map(t => t.revenue * rate);
+      const losses = timelineData.map(t => t.losses * rate);
+
+      const ctxLine = document.getElementById('revenueGrowthChart').getContext('2d');
+      if (revenueChartInst) {
+        revenueChartInst.destroy();
+      }
+      
+      revenueChartInst = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [
+            {
+              label: `ARR Revenue (${symbol})`,
+              data: revenues.map(r => r * 12),
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.08)',
+              tension: 0.35,
+              fill: true,
+              borderWidth: 3,
+              pointBackgroundColor: '#10b981',
+              pointRadius: 4
+            },
+            {
+              label: `Losses Churn (${symbol})`,
+              data: losses.map(l => l * 12),
+              borderColor: '#ef4444',
+              backgroundColor: 'rgba(239, 68, 68, 0.08)',
+              tension: 0.35,
+              fill: true,
+              borderWidth: 2,
+              pointBackgroundColor: '#ef4444',
+              pointRadius: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', weight: '700' } }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(148, 163, 184, 0.04)' },
+              ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } }
+            },
+            y: {
+              grid: { color: 'rgba(148, 163, 184, 0.04)' },
+              ticks: { 
+                color: '#94a3b8', 
+                font: { family: 'Plus Jakarta Sans' },
+                callback: function(value) { return symbol + value.toLocaleString(); }
+              }
+            }
+          }
+        }
+      });
+
+      // 2. Plan doughnut
+      const plans = Object.keys(planCounts);
+      const counts = Object.values(planCounts);
+      
+      const ctxPlan = document.getElementById('planDistributionChart').getContext('2d');
+      if (planChartInst) {
+        planChartInst.destroy();
+      }
+      
+      planChartInst = new Chart(ctxPlan, {
+        type: 'doughnut',
+        data: {
+          labels: plans.map(p => p.toUpperCase()),
+          datasets: [{
+            data: counts,
+            backgroundColor: ['#3b82f6', '#10b981', '#fbbf24', '#8b5cf6'],
+            borderWidth: 2,
+            borderColor: '#0c1324'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', weight: '700' }, padding: 12 }
+            }
+          }
+        }
+      });
+    }
+
+    /* ----------------------------------------------------------------- */
+    /* FORECASTER DYNAMIC PROJECTION CURVE CALCULATOR */
+    /* ----------------------------------------------------------------- */
+    function updateSliderLabels() {
+      const slideClients = parseInt(document.getElementById('slideClients').value);
+      const slidePrice = parseFloat(document.getElementById('slidePrice').value);
+      const slideChurn = parseFloat(document.getElementById('slideChurn').value);
+      const slideExpansion = parseFloat(document.getElementById('slideExpansion').value);
+      
+      const isZar = (currentCurrency === 'ZAR');
+      const rate = isZar ? 1.0 : 1 / conversionRate;
+      const symbol = isZar ? 'R' : '$';
+
+      document.getElementById('slideClientsVal').textContent = `+${slideClients}`;
+      document.getElementById('slidePriceVal').textContent = `${symbol}${(slidePrice * rate).toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+      document.getElementById('slideChurnVal').textContent = `${slideChurn}%`;
+      document.getElementById('slideExpansionVal').textContent = `${slideExpansion}%`;
+    }
+
+    function calculateForecastProjections() {
+      const newClientsVal = parseInt(document.getElementById('slideClients').value);
+      const priceVal = parseFloat(document.getElementById('slidePrice').value);
+      const churnVal = parseFloat(document.getElementById('slideChurn').value) / 100;
+      const expansionVal = parseFloat(document.getElementById('slideExpansion').value) / 100;
+
+      const isZar = (currentCurrency === 'ZAR');
+      const rate = isZar ? 1.0 : 1 / conversionRate;
+      const symbol = isZar ? 'R' : '$';
+
+      // Starting point based on active client MRR
+      let currentMrr = mrrZar; 
+      let clientCount = saasClientsList.filter(c => c.status === 'active').length || 1;
+      
+      const months = [];
+      const revenueProjection = [];
+      const clientProjection = [];
+
+      for (let m = 1; m <= 36; m++) {
+        months.push(`Month ${m}`);
+        
+        // Calculate churn losses
+        const churnedClients = clientCount * churnVal;
+        const churnedRevenue = currentMrr * churnVal;
+        
+        // Calculate expansion gains
+        const expansionGains = currentMrr * expansionVal;
+        
+        // Calculate new client gains
+        clientCount = Math.max(0, clientCount - churnedClients + newClientsVal);
+        currentMrr = Math.max(0, currentMrr - churnedRevenue + expansionGains + (newClientsVal * priceVal));
+        
+        // Scale currency
+        revenueProjection.push(currentMrr * 12 * rate); 
+        clientProjection.push(clientCount);
+      }
+
+      // Render chart
+      const ctx = document.getElementById('forecastProjectionChart').getContext('2d');
+      if (forecastChartInst) {
+        forecastChartInst.destroy();
+      }
+
+      forecastChartInst = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [
+            {
+              label: `ARR Growth Projection (${symbol})`,
+              data: revenueProjection,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.05)',
+              tension: 0.3,
+              fill: true,
+              borderWidth: 3,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Total Client Count',
+              data: clientProjection,
+              borderColor: '#8b5cf6',
+              borderDash: [5, 5],
+              pointRadius: 0,
+              tension: 0.3,
+              borderWidth: 2,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', weight: '700' } }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(148, 163, 184, 0.04)' },
+              ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } }
+            },
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              grid: { color: 'rgba(148, 163, 184, 0.04)' },
+              ticks: { 
+                color: '#3b82f6', 
+                font: { family: 'Plus Jakarta Sans' },
+                callback: function(value) { return symbol + value.toLocaleString(); }
+              }
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              grid: { drawOnChartArea: false },
+              ticks: { color: '#8b5cf6', font: { family: 'Plus Jakarta Sans' } }
+            }
+          }
+        }
+      });
+    }
+
+    // Helper functions
+    function round(num, decimals) {
+      const t = Math.pow(10, decimals);
+      return Math.round((num + Number.EPSILON) * t) / t;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function uniqid() {
+      return Math.floor(Math.random() * 899999 + 100000);
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <span>${message}</span>
+        <span style="cursor: pointer; opacity: 0.7;" onclick="this.parentElement.remove()">&times;</span>
+      `;
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideInToast 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 4500);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MailFooter - Register Your Company</title>
+  
+  <!-- SEO & Favicon -->
+  <meta name="description" content="Register your company on MailFooter to configure unified branding guidelines and deploy professional signatures for your team.">
+  <link rel="icon" type="image/png" href="MailFooter Resources/MailFooter - Logo.png">
+
+  <!-- Style Sheets -->
+  <link rel="stylesheet" href="landing.css">
+</head>
+<body class="register-page-wrapper">
+
+  <!-- Background Ambient Glow -->
+  <div class="ambient-glow-container">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="app-header scrolled" style="position: absolute;">
+    <div class="container header-container">
+      <a href="index.html" class="logo-wrapper">
+        <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="logo-img" style="height: 42px;">
+      </a>
+      <div class="header-actions">
+        <a href="index.html" class="btn btn-secondary" style="padding: 8px 20px; font-size: 13px;">&larr; Back to Site</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Registration Card Area -->
+  <main class="register-main">
+    <div class="register-card">
+      
+      <!-- Submitting overlay state -->
+      <div class="register-success-overlay" id="registerSuccessOverlay">
+        <div class="success-icon-checkmark">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h3 style="font-size: 24px; margin-bottom: 10px;">Registration Successful!</h3>
+        <p style="color: var(--text-secondary); max-width: 380px;">We are configuring your corporate MailFooter environment and provisioning resources.</p>
+        
+        <div class="success-setup-loader">
+          <span class="success-setup-status" id="successProgressStatus">Initializing account setup...</span>
+          <div class="success-setup-progress-track">
+            <div class="success-setup-progress-fill" id="successProgressFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="register-card-header">
+        <h2>Register Your Company</h2>
+        <p>Set up a corporate tenant account to centralize team signatures.</p>
+      </div>
+
+      <!-- Registration Form -->
+      <form id="registerForm" style="display: flex; flex-direction: column;">
+        <div class="register-form-grid">
+          
+          <!-- Section 1: Company Profile -->
+          <div class="register-form-section-title">Company Profile</div>
+          
+          <div class="form-field-group">
+            <label for="companyName">Company Name *</label>
+            <input type="text" id="companyName" class="form-field-input" style="padding-left: 14px;" placeholder="e.g. OS Holdings" required>
+          </div>
+          
+          <div class="form-field-group">
+            <label for="companyDomain">Corporate Email Domain *</label>
+            <input type="text" id="companyDomain" class="form-field-input" style="padding-left: 14px;" placeholder="e.g. osholdings.co.za" required>
+            <span style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">Used to auto-authorize employee signature builder access.</span>
+          </div>
+
+          <!-- Section 2: Selected Plan -->
+          <div class="register-form-section-title">Subscription Tier</div>
+          
+          <div class="form-field-group" style="grid-column: span 2;">
+            <label for="registerPlan">Selected Plan *</label>
+            <div style="position: relative;">
+              <select id="registerPlan" class="form-field-input" style="padding-left: 14px; appearance: none; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; cursor: pointer;" required>
+                <option value="starter">Starter Plan (1-5 Users) - R1,500/year</option>
+                <option value="team">Team Plan (6-20 Users) - R2,300/year</option>
+                <option value="enterprise">Enterprise Plan (21-50 Users) - R4,500/year</option>
+                <option value="custom">Custom Enterprise (51+ Users) - Contact Sales</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Plan Visual Summary Box -->
+          <div class="selected-plan-summary" id="planSummaryCard">
+            <div class="selected-plan-info">
+              <h4 id="summaryPlanName">Starter Plan</h4>
+              <p id="summaryPlanUsers">1-5 Users Limit</p>
+            </div>
+            <div class="selected-plan-price">
+              <span id="summaryPlanCurrency">R</span><span id="summaryPlanPrice">1,500</span><span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">/yr</span>
+            </div>
+          </div>
+
+          <!-- Section 3: Admin User Credentials -->
+          <div class="register-form-section-title">Administrator Account</div>
+          
+          <div class="form-field-group">
+            <label for="adminName">Full Name *</label>
+            <input type="text" id="adminName" class="form-field-input" style="padding-left: 14px;" placeholder="Lennon Arends" required>
+          </div>
+          
+          <div class="form-field-group">
+            <label for="adminEmail">Work Email Address *</label>
+            <input type="email" id="adminEmail" class="form-field-input" style="padding-left: 14px;" placeholder="lennon@osholdings.co.za" required>
+          </div>
+          
+          <div class="form-field-group" style="grid-column: span 2;">
+            <label for="adminPhone">Work Contact Number (Optional)</label>
+            <input type="text" id="adminPhone" class="form-field-input" style="padding-left: 14px;" placeholder="e.g. +27 11 234 5678">
+          </div>
+
+          <!-- Section 4: Billing Option -->
+          <div class="register-form-section-title">Billing & Payment</div>
+          
+          <div class="form-field-group" style="grid-column: span 2;">
+            <label for="billingMethod">Simulated Payment Method *</label>
+            <select id="billingMethod" class="form-field-input" style="padding-left: 14px; appearance: none; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; cursor: pointer;" required>
+              <option value="invoice" selected>Request Invoice (30-day corporate payment terms)</option>
+              <option value="cc">Simulate Credit Card Payment</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 10px;">Complete Registration</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer" style="padding: 30px 0;">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0; margin-top: 0;">
+        <p class="footer-copy">&copy; 2026 <span>MailFooter</span>. All rights reserved. Developed by <span>WOLFF - Cloud Solutions</span>.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script Modules -->
+  <script src="landing.js"></script>
+</body>
+</html>

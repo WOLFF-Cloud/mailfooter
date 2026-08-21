@@ -1,0 +1,61 @@
+{
+  "name": "Center Focus",
+  "rows": [
+    {
+      "columns": [
+        {
+          "width": 25,
+          "sections": [
+            "logo"
+          ]
+        },
+        {
+          "width": 50,
+          "sections": [
+            "tagline"
+          ]
+        },
+        {
+          "width": 25,
+          "sections": [
+            "phone"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "width": 100,
+          "sections": [
+            "profile_image",
+            "profile_centered",
+            "contacts_centered"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "width": 35,
+          "sections": [
+            "socials_centered"
+          ]
+        },
+        {
+          "width": 30,
+          "sections": [
+            "cta_button_centered"
+          ]
+        },
+        {
+          "width": 35,
+          "sections": [
+            "website_centered"
+          ]
+        }
+      ]
+    }
+  ]
+}

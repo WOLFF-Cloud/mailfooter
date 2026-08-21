@@ -1,0 +1,29 @@
+{
+  "template_id": "executive-grid",
+  "template_name": "Executive Grid",
+  "editable_fields": [
+    "logo",
+    "profile_image",
+    "full_name",
+    "designation",
+    "department",
+    "company",
+    "phone",
+    "mobile",
+    "email",
+    "website",
+    "location",
+    "tagline",
+    "bio",
+    "facebook",
+    "linkedin",
+    "instagram",
+    "twitter",
+    "youtube",
+    "banner_image",
+    "cta_text",
+    "cta_url",
+    "brand_colour",
+    "legal_disclaimer"
+  ]
+}

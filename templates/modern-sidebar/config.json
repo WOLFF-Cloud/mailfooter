@@ -1,0 +1,50 @@
+{
+  "name": "Modern Sidebar",
+  "rows": [
+    {
+      "columns": [
+        {
+          "width": 100,
+          "sections": [
+            "logo",
+            "tagline"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "width": 30,
+          "sections": [
+            "profile_image",
+            "socials"
+          ]
+        },
+        {
+          "width": 70,
+          "sections": [
+            "profile",
+            "contacts"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "width": 35,
+          "sections": [
+            "cta_button"
+          ]
+        },
+        {
+          "width": 65,
+          "sections": [
+            "banner"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# deploy.sh wrapper script
+# Runs deploy.py using python or python3
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if command -v python3 &>/dev/null; then
+    python3 "$SCRIPT_DIR/deploy.py" "$@"
+elif command -v python &>/dev/null; then
+    python "$SCRIPT_DIR/deploy.py" "$@"
+else
+    echo "Error: Python is required to run the deployment wrapper."
+    echo "Please install Python, or use PowerShell to run: .\deploy.ps1"
+    exit 1
+fi

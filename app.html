@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MailFooter - Professional Email Signatures</title>
+  
+  <!-- SEO & Social Sharing Previews (Open Graph / WhatsApp / Slack) -->
+  <meta name="description" content="Generate sleek, professional, and beautifully branded email signatures for OS Holdings in real-time. Custom-built layouts optimized for all mail clients.">
+  <meta property="og:title" content="MailFooter - Professional Email Signatures">
+  <meta property="og:description" content="Generate sleek, professional, and beautifully branded email signatures for OS Holdings in real-time. Custom-built layouts optimized for all mail clients.">
+  <meta property="og:image" content="https://os-holdings.co.za/mailfooter/MailFooter%20Resources/MailFooter%20-%20Logo.png">
+  <meta property="og:url" content="https://os-holdings.co.za/mailfooter/">
+  <meta property="og:type" content="website">
+  
+  <!-- Twitter Card Data -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MailFooter - Professional Email Signatures">
+  <meta name="twitter:description" content="Generate sleek, professional, and beautifully branded email signatures for OS Holdings in real-time.">
+  <meta name="twitter:image" content="https://os-holdings.co.za/mailfooter/MailFooter%20Resources/MailFooter%20-%20Logo.png">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="MailFooter Resources/MailFooter - Logo.png">
+
+  <!-- Preload Critical Logo -->
+  <link rel="preload" as="image" href="MailFooter Resources/MailFooter - Logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Stylesheet (Cache-busted v2.0) -->
+  <link rel="stylesheet" href="styles.css?v=2.0">
+</head>
+<body>
+
+  <!-- Fullscreen Preloader (Inline styles as safety fallback) -->
+  <div id="preloader" class="preloader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #050811; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 20px;">
+    <!-- Direct Skip Button -->
+    <button id="btnSkipPreloader" type="button" class="btn-skip-preloader" style="position: fixed; top: 20px; right: 24px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 20px; cursor: pointer; transition: all 0.2s ease; z-index: 10001; backdrop-filter: blur(8px);">
+      Skip to Editor &rarr;
+    </button>
+    <div class="preloader-content" style="display: flex; flex-direction: column; align-items: center; gap: 30px;">
+      <div id="preloaderLogoContainer" class="preloader-logo-container" style="display: flex; justify-content: center; align-items: center; transform: scale(1.5); transform-origin: center; transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);">
+        <img id="preloaderLogoImg" src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" width="233" height="110" style="display: block; filter: drop-shadow(0 0 15px rgba(78, 224, 0, 0.3));" />
+      </div>
+      <div id="preloaderProgressContainer" class="preloader-progress-container" style="width: 240px; height: 3px; background-color: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden; position: relative;">
+        <div class="preloader-progress-bar"></div>
+      </div>
+      <div id="preloaderWelcome" class="preloader-welcome">
+        <span class="welcome-text">Welcome to</span>
+        <span id="welcomeClientName" class="client-name">MailFooter</span>
+      </div>
+    </div>
+
+    <!-- Onboarding choice portal -->
+    <div id="preloaderOnboarding" class="preloader-onboarding">
+      <div class="onboarding-cards-container">
+        <!-- Card 1: New Signature -->
+        <div class="onboarding-card" id="cardNewUser">
+          <div class="onboarding-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="onboarding-svg-icon">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="17" y1="11" x2="23" y2="11"></line>
+            </svg>
+          </div>
+          <h3>New Signature</h3>
+          <p>First time setting up your profile? Start fresh here.</p>
+          <button type="button" id="btnStartFresh" class="btn btn-primary" style="width: 100%;">Start Fresh</button>
+        </div>
+
+        <!-- Card 2: Retrieve Saved -->
+        <div class="onboarding-card" id="cardReturningUser">
+          <div class="onboarding-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="onboarding-svg-icon">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <h3>Retrieve Saved</h3>
+          <p>Retrieve and edit your existing email signature details.</p>
+          <div class="retrieve-form-group">
+            <input type="email" id="retrieveEmail" placeholder="Enter your work email" class="form-control" style="background-color: var(--bg-tertiary);" />
+            <button type="button" id="btnRetrieve" class="btn btn-secondary" style="width: 100%;">Retrieve</button>
+          </div>
+          <div id="retrieveError" class="retrieve-error hidden"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <a href="index.html" id="headerLogo" class="brand" style="opacity: 0; display: flex; align-items: center; text-decoration: none;">
+        <img id="headerLogoImg" src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" width="169" height="80" style="display: block;" />
+      </a>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <a href="light.html" class="btn btn-secondary" style="border-color: rgba(78, 224, 0, 0.4); color: #4ee000; text-decoration: none;">⚡ Light Portal</a>
+        <button id="btnBackToPortal" class="btn btn-secondary back-to-portal-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          Back to Portal
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+      
+      <!-- Editor Column (Left) -->
+      <section class="editor-panel">
+        <div class="panel-header">
+          <h2><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path></svg> Edit Signature Details</h2>
+        </div>
+        <p class="panel-subtitle" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; margin-top: -10px;">Fill in your professional details below. Your signature preview will update automatically in real-time.</p>
+        
+        <form id="signatureForm" class="editor-form">
+          
+          <!-- Template Selection Group -->
+          <div class="form-section">
+            <h3 class="section-title">1. Choose Template</h3>
+            <div class="form-group">
+              <label for="templateSelect">Layout Style</label>
+              <div class="select-wrapper">
+                <select id="templateSelect" class="form-control">
+                  <option value="" selected>Loading templates...</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal Information Group -->
+          <div class="form-section">
+            <h3 class="section-title">2. Personal Information</h3>
+            
+            <div class="form-group">
+              <label for="fullName">Full Name</label>
+              <input type="text" id="fullName" class="form-control" placeholder="" maxlength="30">
+              <small class="helper-text">Enter your first and last name as it should appear in your emails.</small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="jobTitle">Job Title</label>
+                <input type="text" id="jobTitle" class="form-control" placeholder="" maxlength="30">
+                <small class="helper-text">Your official business or corporate role.</small>
+              </div>
+              <div class="form-group col">
+                <label for="department">Department (Optional)</label>
+                <input type="text" id="department" class="form-control" placeholder="" maxlength="30">
+                <small class="helper-text">Your department division, or leave empty.</small>
+              </div>
+            </div>
+
+            <div class="form-group" style="display: none;">
+              <label for="tagline">Slogan / Tagline (Bottom Footer)</label>
+              <textarea id="tagline" class="form-control" rows="2" placeholder="e.g. Innovate | Excel | Grow" maxlength="60">Innovate | Excel | Grow</textarea>
+            </div>
+            
+            <div class="form-group" style="display: none;">
+              <label for="companyBio">Company Description / Bio (Other Templates)</label>
+              <textarea id="companyBio" class="form-control" rows="2" placeholder="e.g. OS Holdings is a diversified software solution..." maxlength="100">OS Holdings is a diversified software solution company committed to creating lasting value.</textarea>
+            </div>
+          </div>
+
+          <!-- Contact Details Group -->
+          <div class="form-section">
+            <h3 class="section-title">3. Contact Details</h3>
+            
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="phone">Contact Number</label>
+                <input type="text" id="phone" class="form-control" placeholder="">
+                <small class="helper-text">Your direct phone number or WhatsApp contact details.</small>
+              </div>
+              <div class="form-group col">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" class="form-control" placeholder="">
+                <small class="helper-text">Your official business email address.</small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="website">Website URL <span class="admin-only-badge" style="font-size: 10px; background: rgba(241, 138, 34, 0.1); color: var(--secondary); padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: 500;">Admin Managed</span></label>
+              <input type="text" id="website" class="form-control" placeholder="" disabled readonly style="background-color: var(--bg-secondary); cursor: not-allowed; opacity: 0.8;">
+              <small class="helper-text">Corporate website domain name (managed by Administrator).</small>
+            </div>
+          </div>
+
+          <!-- Media Assets Group (Hidden for Admin Panel) -->
+          <div class="form-section" style="display: none;">
+            <h3 class="section-title">Branding & Images</h3>
+            
+            <div class="form-group">
+              <label for="logoUrl">Logo Image URL</label>
+              <input type="url" id="logoUrl" class="form-control" value="Resources/1x/logo.png" placeholder="Public URL to logo image">
+              <small class="helper-text">Defaults to local exported logo.png.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="headshotUrl">Headshot Image URL (Other Templates)</label>
+              <input type="url" id="headshotUrl" class="form-control" value="" placeholder="Public URL to headshot photo">
+              <small class="helper-text">Leave blank to hide photo in compact/modern templates.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="sideImageUrl">Brand Graphic URL (Premium Right Column)</label>
+              <input type="url" id="sideImageUrl" class="form-control" value="Resources/1x/brand-graphic-colour-top-right.png" placeholder="Public URL for the brand graphic image">
+              <small class="helper-text">Defaults to local brand-graphic-colour-top-right.png.</small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="primaryColor">Primary Color</label>
+                <div class="color-picker-wrapper">
+                  <input type="color" id="primaryColor" value="#0d4b8e">
+                  <input type="text" id="primaryColorHex" class="form-control hex-input" value="#0d4b8e">
+                </div>
+              </div>
+              <div class="form-group col">
+                <label for="secondaryColor">Accent Color</label>
+                <div class="color-picker-wrapper">
+                  <input type="color" id="secondaryColor" value="#f18a22">
+                  <input type="text" id="secondaryColorHex" class="form-control hex-input" value="#f18a22">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social Media Links (Admin Managed, Read-only for users) -->
+          <div class="form-section">
+            <h3 class="section-title">4. Social Networks <span class="admin-only-badge" style="font-size: 10px; background: rgba(241, 138, 34, 0.1); color: var(--secondary); padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: 500;">Admin Managed</span></h3>
+            <div class="form-row" style="display: flex; gap: 15px;">
+              <div class="form-group col" style="flex: 1;">
+                <label for="linkedinUrl">LinkedIn URL</label>
+                <input type="url" id="linkedinUrl" class="form-control" disabled readonly style="background-color: var(--bg-secondary); cursor: not-allowed; opacity: 0.8;">
+              </div>
+              <div class="form-group col" style="flex: 1;">
+                <label for="twitterUrl">Twitter/X URL</label>
+                <input type="url" id="twitterUrl" class="form-control" disabled readonly style="background-color: var(--bg-secondary); cursor: not-allowed; opacity: 0.8;">
+              </div>
+            </div>
+            <div class="form-row" style="display: flex; gap: 15px; margin-top: 10px;">
+              <div class="form-group col" style="flex: 1;">
+                <label for="facebookUrl">Facebook URL</label>
+                <input type="url" id="facebookUrl" class="form-control" disabled readonly style="background-color: var(--bg-secondary); cursor: not-allowed; opacity: 0.8;">
+              </div>
+              <div class="form-group col" style="flex: 1;">
+                <label for="instagramUrl">Instagram URL</label>
+                <input type="url" id="instagramUrl" class="form-control" disabled readonly style="background-color: var(--bg-secondary); cursor: not-allowed; opacity: 0.8;">
+              </div>
+            </div>
+            <div class="form-group" style="margin-top: 10px;">
+              <label for="youtubeUrl">YouTube URL</label>
+              <input type="url" id="youtubeUrl" class="form-control" disabled readonly style="background-color: var(--bg-secondary); cursor: not-allowed; opacity: 0.8;">
+            </div>
+          </div>
+
+          <!-- Marketing Campaign Banner -->
+          <div class="form-section">
+            <h3 class="section-title">5. Marketing Campaign</h3>
+            
+            <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 10px;">
+              <input type="checkbox" id="includeCampaign" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;">
+              <label for="includeCampaign" style="cursor: pointer; user-select: none;">Include Campaign Banner</label>
+            </div>
+
+            <div class="form-group">
+              <label for="campaignSelect">Active Campaign</label>
+              <div class="select-wrapper">
+                <select id="campaignSelect" class="form-control">
+                  <option value="sage-300-people" selected>OS Holdings - Sage 300 Ad</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="display: none;">
+              <label for="campaignImgUrl">Campaign Left Image (Non-clickable Graphic)</label>
+              <input type="url" id="campaignImgUrl" class="form-control" value="Resources/1x/cta-banner-left.png" placeholder="e.g. Resources/1x/cta-banner-left.png">
+              <small class="helper-text">Defaults to local cta-banner-left.png.</small>
+            </div>
+            <div class="form-group" style="display: none;">
+              <label for="campaignPartnerUrl">Sage Partner Badge URL</label>
+              <input type="url" id="campaignPartnerUrl" class="form-control" value="Resources/1x/cta-banner-right-top.png" placeholder="e.g. Resources/1x/cta-banner-right-top.png">
+              <small class="helper-text">Defaults to local cta-banner-right-top.png.</small>
+            </div>
+            <div class="form-group" style="display: none;">
+              <label for="campaignBtnUrl">Campaign Button Image URL (Clickable CTA)</label>
+              <input type="url" id="campaignBtnUrl" class="form-control" value="Resources/1x/cta-banner-right-bottom.png" placeholder="e.g. Resources/1x/cta-banner-right-bottom.png">
+              <small class="helper-text">Defaults to local cta-banner-right-bottom.png.</small>
+            </div>
+            
+            <div class="form-group" style="display: none;">
+              <label for="campaignLink">Campaign Target Link</label>
+              <input type="url" id="campaignLink" class="form-control" value="https://www.osholdings.com/sage-demo" placeholder="e.g. https://domain.com/promo-landing-page">
+              <small class="helper-text">The URL customers land on when clicking the request button.</small>
+            </div>
+          </div>
+
+        </form>
+      </section>
+
+      <!-- Preview & Export Column (Right) -->
+      <section class="preview-panel">
+        
+        <!-- Live Preview Container -->
+        <div class="preview-card" style="position: relative;">
+          <!-- Copy Preloader Overlay (Styled inline as safety block) -->
+          <div id="copyLoader" class="copy-loader" style="display: none; opacity: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; align-items: center; justify-content: center; background-color: rgba(5, 8, 17, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 20px;">
+            <div class="copy-loader-content" style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+              <div class="copy-loader-spinner" style="animation: spinner-scale 1s infinite ease-in-out;">
+                <img src="MailFooter Resources/MailFooter - Logo.png" alt="Logo" width="102" height="48" style="display: block; filter: drop-shadow(0 0 10px rgba(78, 224, 0, 0.4));" />
+              </div>
+              <p id="copyLoaderText" class="copy-loader-text" style="font-size: 14px; font-weight: 600; color: #ffffff; letter-spacing: 0.5px; margin: 0;">Compiling Signature...</p>
+            </div>
+          </div>
+
+          <div class="panel-header">
+            <h2><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> Live Preview</h2>
+            <div class="preview-toggles">
+              <button type="button" class="toggle-btn active" data-view="desktop">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg> Desktop
+              </button>
+              <button type="button" class="toggle-btn" data-view="mobile">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Mobile
+              </button>
+            </div>
+          </div>
+          
+          <div class="preview-window desktop" id="previewWindow">
+            <div class="preview-loading">Generating preview...</div>
+          </div>
+        </div>
+
+        <!-- Export Buttons Card -->
+        <div class="export-card">
+          <h3>Export Options</h3>
+          <p class="export-intro">Use the buttons below to copy the signature to your clipboard or grab the raw HTML code.</p>
+          
+          <div class="export-actions-grid">
+            <button id="copySignatureBtn" class="btn btn-primary btn-large">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy Rich Signature
+            </button>
+            <button id="copyHtmlBtn" class="btn btn-secondary btn-large">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+              Copy HTML Code
+            </button>
+          </div>
+          <div id="toastNotification" class="toast hidden">Copied to clipboard!</div>
+        </div>
+
+        <!-- Guide and Help Info -->
+        <div class="guide-card">
+          <div class="guide-toggle">
+            <h3><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> How to Install Your Signature</h3>
+          </div>
+          
+          <div class="guide-content-layout">
+            <!-- Left Side: Tabs & Step Instructions -->
+            <div class="guide-left-pane">
+              <div class="tabs">
+                <button type="button" class="tab-btn active" data-target="guide-outlook">Outlook (Desktop)</button>
+                <button type="button" class="tab-btn" data-target="guide-gmail">Gmail</button>
+                <button type="button" class="tab-btn" data-target="guide-webmail">Outlook Web</button>
+                <button type="button" class="tab-btn" data-target="guide-apple">Apple Mail</button>
+              </div>
+              
+              <div class="tab-panes">
+                <div id="guide-outlook" class="tab-pane active">
+                  <ol>
+                    <li>Click <strong>"Copy Rich Signature"</strong> above.</li>
+                    <li>Open Outlook, and go to <strong>File &gt; Options &gt; Mail &gt; Signatures</strong>.</li>
+                    <li>Click <strong>New</strong>, give it a name, and click inside the edit box.</li>
+                    <li>Paste using <strong>Ctrl+V</strong> (or right-click and paste keeping original formatting).</li>
+                    <li>Click <strong>OK</strong> to save.</li>
+                  </ol>
+                </div>
+                <div id="guide-gmail" class="tab-pane">
+                  <ol>
+                    <li>Click <strong>"Copy Rich Signature"</strong> above.</li>
+                    <li>Open Gmail, click the <strong>Settings Cog &gt; See all settings</strong>.</li>
+                    <li>Scroll down to the <strong>Signature</strong> section and click <strong>Create new</strong>.</li>
+                    <li>Paste into the signature text box using <strong>Ctrl+V</strong>.</li>
+                    <li>Scroll to the bottom of Gmail settings and click <strong>Save Changes</strong>.</li>
+                  </ol>
+                </div>
+                <div id="guide-webmail" class="tab-pane">
+                  <ol>
+                    <li>Click <strong>"Copy Rich Signature"</strong> above.</li>
+                    <li>Go to Outlook Web Mail, click the <strong>Settings Gear &gt; View all Outlook settings</strong>.</li>
+                    <li>Go to <strong>Mail &gt; Compose and reply &gt; Email signature</strong>.</li>
+                    <li>Paste into the editor box using <strong>Ctrl+V</strong>.</li>
+                    <li>Click <strong>Save</strong>.</li>
+                  </ol>
+                </div>
+                <div id="guide-apple" class="tab-pane">
+                  <ol>
+                    <li>Click <strong>"Copy Rich Signature"</strong> above.</li>
+                    <li>Open Apple Mail, and go to <strong>Mail &gt; Settings &gt; Signatures</strong>.</li>
+                    <li>Select your email account, click the <strong>"+"</strong> button to add a new signature.</li>
+                    <li>Uncheck the option <strong>"Always match my default message font"</strong>.</li>
+                    <li>Clear any default text and paste using <strong>Cmd+V</strong>.</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Side: Platform Action Cards -->
+            <div class="guide-right-pane">
+              <div class="platform-cards">
+                <!-- Outlook Desktop -->
+                <div class="platform-card" data-target="guide-outlook">
+                  <div class="platform-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect>
+                      <path d="M3 8h18"></path>
+                      <path d="M8 21h8"></path>
+                      <path d="M12 17v4"></path>
+                      <path d="M10 12l2 2 4-4"></path>
+                    </svg>
+                  </div>
+                  <div class="platform-name">Outlook Desktop</div>
+                  <button type="button" class="platform-btn">View Guide</button>
+                </div>
+                
+                <!-- Outlook Web -->
+                <div class="platform-card" data-target="guide-webmail">
+                  <div class="platform-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                  </div>
+                  <div class="platform-name">Outlook Web</div>
+                  <button type="button" class="platform-btn">View Guide</button>
+                </div>
+                
+                <!-- Gmail -->
+                <div class="platform-card" data-target="guide-gmail">
+                  <div class="platform-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                      <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                  </div>
+                  <div class="platform-name">Gmail</div>
+                  <button type="button" class="platform-btn">View Guide</button>
+                </div>
+                
+                <!-- Apple Mail -->
+                <div class="platform-card" data-target="guide-apple">
+                  <div class="platform-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2c.5 1.5-1 3.5-3 3.5s-2.5-2-2-3.5 3-1.5 5 0z" fill="currentColor"/>
+                      <path d="M12 5.5c-2.3 0-4.5 1.8-4.5 4.8 0 3.7 2.2 7.2 4.5 7.2 1 0 1.5-.5 2.5-.5s1.5.5 2.5.5c2.3 0 4.5-3.5 4.5-7.2 0-3-2.2-4.8-4.5-4.8-.8 0-1.5.3-2.5.3s-1.7-.3-2.5-.3z" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <div class="platform-name">Apple Mail</div>
+                  <button type="button" class="platform-btn">View Guide</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <footer class="app-footer">
+      <p>&copy; 2026 <span class="brand-green">MailFooter</span>. All rights reserved. Developed by <span class="brand-green">WOLFF - Cloud Solutions</span>.</p>
+    </footer>
+
+  </div>
+
+  <script src="templates.js?v=2.0"></script>
+  <script src="script.js?v=2.0"></script>
+</body>
+</html>

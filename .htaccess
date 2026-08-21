@@ -1,0 +1,23 @@
+RewriteEngine On
+
+# Allow normal files/directories to load directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Route Admin Portal
+RewriteRule ^admin/?$ admin.html [L,QSA]
+RewriteRule ^super-admin/?$ super-admin.html [L,QSA]
+
+# Route REST API Endpoints
+RewriteRule ^api/users/?$ api/users.php [L,QSA]
+RewriteRule ^api/stats/?$ api/stats.php [L,QSA]
+RewriteRule ^api/campaigns/?$ api/campaigns.php [L,QSA]
+RewriteRule ^api/settings/?$ api/settings.php [L,QSA]
+RewriteRule ^api/templates/?$ api/templates.php [L,QSA]
+
+# Route Tracking Pixel and Click Redirect Endpoints
+RewriteRule ^track/open/?$ track/open.php [L,QSA]
+RewriteRule ^track/logo/?$ track/logo.php [L,QSA]
+RewriteRule ^track/banner/?$ track/banner.php [L,QSA]
+RewriteRule ^track/click/?$ track/click.php [L,QSA]

@@ -1,0 +1,61 @@
+{
+  "name": "Brand Showcase",
+  "rows": [
+    {
+      "columns": [
+        {
+          "width": 25,
+          "sections": [
+            "logo"
+          ]
+        },
+        {
+          "width": 50,
+          "sections": [
+            "tagline"
+          ]
+        },
+        {
+          "width": 25,
+          "sections": [
+            "phone"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "width": 100,
+          "sections": [
+            "banner",
+            "profile",
+            "contacts"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "width": 30,
+          "sections": [
+            "socials"
+          ]
+        },
+        {
+          "width": 40,
+          "sections": [
+            "tagline_small"
+          ]
+        },
+        {
+          "width": 30,
+          "sections": [
+            "cta_button"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+# Deployment and Credentials
+deploy-config.json
+.env
+.env.*
+*.pem
+*.key
+
+# Dependencies
+node_modules/
+vendor/
+
+# System & OS Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Editor / IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+
+# Runtime & Logs
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+
+# SQLite Runtime Databases & Journal Files
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.db-journal
+
+# Build / Output Artifacts
+dist/
+build/
+*.zip
+*.tar.gz
+
