@@ -170,9 +170,19 @@
           </div>
         </div>
 
+        <!-- Drag and Drop CSV Upload Zone -->
+        <div class="csv-upload-dropzone" id="csvDropzone">
+          <input type="file" id="csvFileInput" accept=".csv, .txt, .tsv" style="display: none;">
+          <div class="dropzone-icon">📥</div>
+          <div class="dropzone-text" id="dropzoneText">
+            <strong>Click to select a CSV file</strong> or drag & drop spreadsheet file here
+          </div>
+          <div class="dropzone-subtext">Supports RFC 4180 .csv, .txt, and .tsv formats with auto-header matching</div>
+        </div>
+
         <!-- Text Area Input -->
-        <label class="form-label" style="margin-bottom: 6px; font-size: 13px; font-weight: 700;">Paste CSV / Excel Spreadsheet Data Here:</label>
-        <textarea id="csvTextArea" class="mc-textarea" placeholder="Paste raw data block here... E.g.&#10;First Name, Surname, Role, Department, Email Address, Job Title, Phone&#10;Jonathan, Sterling, Director, Executive, j.sterling@os-holdings.co.za, Managing Director, +27 11 463 1000&#10;Samantha, Vanderbilt, Manager, Marketing, s.vanderbilt@os-holdings.co.za, Marketing Head, +27 11 463 1005"></textarea>
+        <label class="form-label" style="margin-bottom: 6px; font-size: 13px; font-weight: 700;">Or Paste CSV / Excel Spreadsheet Data Below:</label>
+        <textarea id="csvTextArea" class="mc-textarea" placeholder="Paste raw CSV block here... E.g.&#10;First Name, Surname, Role, Job Title, Department, Email Address, Phone Number, Mobile Number, Company, Location&#10;Jonathan, Sterling, Director, Managing Director, Executive, j.sterling@company.com, +27 11 463 1000, +27 82 123 4567, OS Holdings, Sandton&#10;Samantha, Vanderbilt, Manager, Marketing Head, Marketing, s.vanderbilt@company.com, +27 11 463 1005, +27 83 234 5678, OS Holdings, Sandton"></textarea>
 
         <div class="bulk-actions-row">
           <button id="loadSampleCsvBtn" class="mc-btn mc-btn-dark">

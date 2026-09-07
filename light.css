@@ -905,3 +905,37 @@ body {
     opacity: 1;
   }
 }
+
+/* CSV File Dropzone Styling */
+.csv-upload-dropzone {
+  border: 2px dashed var(--color-green-border);
+  background: rgba(78, 224, 0, 0.03);
+  border-radius: var(--radius-lg);
+  padding: 22px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
+}
+
+.csv-upload-dropzone:hover, .csv-upload-dropzone.dragover {
+  border-color: var(--color-green-primary);
+  background: rgba(78, 224, 0, 0.08);
+  box-shadow: var(--shadow-green-glow);
+}
+
+.dropzone-icon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.dropzone-text {
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.dropzone-subtext {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}

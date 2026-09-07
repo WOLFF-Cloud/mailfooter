@@ -596,13 +596,94 @@
     }
   };
 
-  // Bulk Add Tab & Automated Role Parser
+  // ==========================================================================
+  // Fortified RFC 4180 CSV Engine (Import & Export)
+  // ==========================================================================
+
+  // Full 19 Standardized Directory Export Headers
+  const STANDARD_CSV_HEADERS = [
+    'First Name', 'Surname', 'Role', 'Job Title', 'Department', 'Email Address',
+    'Phone Number', 'Mobile Number', 'Company', 'Location', 'Website',
+    'Primary Color', 'Secondary Color', 'Template', 'LinkedIn', 'Twitter',
+    'Facebook', 'Instagram', 'YouTube'
+  ];
+
+  // Robust RFC 4180 CSV Parser (Handles quotes, commas inside quotes, multiline fields, tab/semicolon/comma)
+  function parseCsvText(text) {
+    const rows = [];
+    let curRow = [];
+    let curField = '';
+    let insideQuotes = false;
+
+    const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+    // Auto detect delimiter
+    let delimiter = ',';
+    const firstLine = normalized.split('\n')[0] || '';
+    if (firstLine.includes('\t')) delimiter = '\t';
+    else if (firstLine.includes(';') && !firstLine.includes(',')) delimiter = ';';
+
+    for (let i = 0; i < normalized.length; i++) {
+      const char = normalized[i];
+      const nextChar = normalized[i + 1];
+
+      if (insideQuotes) {
+        if (char === '"') {
+          if (nextChar === '"') {
+            curField += '"';
+            i++;
+          } else {
+            insideQuotes = false;
+          }
+        } else {
+          curField += char;
+        }
+      } else {
+        if (char === '"') {
+          insideQuotes = true;
+        } else if (char === delimiter) {
+          curRow.push(curField.trim());
+          curField = '';
+        } else if (char === '\n') {
+          curRow.push(curField.trim());
+          if (curRow.some(cell => cell.length > 0)) {
+            rows.push(curRow);
+          }
+          curRow = [];
+          curField = '';
+        } else {
+          curField += char;
+        }
+      }
+    }
+
+    if (curField.length > 0 || curRow.length > 0) {
+      curRow.push(curField.trim());
+      if (curRow.some(cell => cell.length > 0)) {
+        rows.push(curRow);
+      }
+    }
+
+    return rows;
+  }
+
+  // Header Index Lookup Helper with exhaustive alias mapping
+  function getHeaderIndex(headers, possibleAliases) {
+    return headers.findIndex(h => {
+      const clean = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return possibleAliases.some(alias => clean === alias.toLowerCase().replace(/[^a-z0-9]/g, ''));
+    });
+  }
+
   function initBulkAddTab() {
     const ingestBtn = document.getElementById('ingestDataBtn');
     const textarea = document.getElementById('csvTextArea');
     const sampleCsvBtn = document.getElementById('loadSampleCsvBtn');
     const dlBlankBtn = document.getElementById('downloadBlankCsvBtn');
     const dlSampleBtn = document.getElementById('downloadSampleCsvBtn');
+    const fileInput = document.getElementById('csvFileInput');
+    const dropzone = document.getElementById('csvDropzone');
+    const dropzoneText = document.getElementById('dropzoneText');
 
     if (sampleCsvBtn) {
       sampleCsvBtn.addEventListener('click', () => {
@@ -620,11 +701,55 @@
       dlSampleBtn.addEventListener('click', downloadCurrentCSV);
     }
 
+    // Drag & Drop File Upload Listeners
+    if (dropzone && fileInput) {
+      dropzone.addEventListener('click', () => fileInput.click());
+
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          handleSelectedFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          handleSelectedFile(e.target.files[0]);
+        }
+      });
+    }
+
+    function handleSelectedFile(file) {
+      if (!file) return;
+      if (dropzoneText) {
+        dropzoneText.innerHTML = '<strong>📄 Selected File:</strong> ' + escapeHtml(file.name) + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+      }
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const fileContent = evt.target.result || '';
+        if (textarea) {
+          textarea.value = fileContent;
+        }
+        showToast('Loaded file: ' + file.name);
+      };
+      reader.readAsText(file);
+    }
+
     if (ingestBtn) {
       ingestBtn.addEventListener('click', () => {
         const rawText = (textarea?.value || '').trim();
         if (!rawText) {
-          showToast('Please paste CSV or tab-separated text data into the box first.', 'error');
+          showToast('Please paste CSV data or select a file to import.', 'error');
           return;
         }
         processAndIngestCsv(rawText);
@@ -633,60 +758,89 @@
   }
 
   function getSampleCsvString() {
-    return "First Name,Surname,Role,Department,Email Address,Job Title,Phone Number\r\nJohn,Doe,Director,Executive,john.doe@company.com,Managing Director,+27 11 000 0000\r\nJane,Smith,Manager,Marketing,jane.smith@company.com,Marketing Lead,+27 11 000 0001\r\n";
+    let csv = STANDARD_CSV_HEADERS.join(',') + '\r\n';
+    csv += 'Sarah,Jenkins,Director,Chief Executive Officer,Executive,sarah.jenkins@os-holdings.co.za,+27 11 463 1000,+27 82 123 4567,OS Holdings,"Sandton, Johannesburg",https://os-holdings.co.za/,#0d4b8e,#f18a22,os-flat-banner\r\n';
+    csv += 'Marcus,Vance,Director,Chief Technology Officer,Engineering,marcus.vance@os-holdings.co.za,+27 11 463 1000,+27 83 234 5678,OS Holdings,"Sandton, Johannesburg",https://os-holdings.co.za/,#0d4b8e,#f18a22,os-flat-banner\r\n';
+    csv += 'Elena,Rostova,Manager,Head of Marketing & Brand,Marketing,elena.rostova@os-holdings.co.za,+27 11 463 1000,+27 84 345 6789,OS Holdings,"Sandton, Johannesburg",https://os-holdings.co.za/,#0d4b8e,#f18a22,os-flat-banner\r\n';
+    return csv;
   }
 
   async function processAndIngestCsv(text) {
-    const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-    if (lines.length === 0) return;
+    const rows = parseCsvText(text);
+    if (rows.length === 0) {
+      showToast('No valid lines found in CSV data.', 'error');
+      return;
+    }
 
-    let delimiter = ',';
-    if (lines[0].includes('\t')) delimiter = '\t';
-    else if (lines[0].includes(';')) delimiter = ';';
-
-    const parseLine = (line) => {
-      return line.split(delimiter).map(cell => cell.trim().replace(/^"|"$/g, ''));
-    };
-
-    let headers = parseLine(lines[0]).map(h => h.toLowerCase());
+    let headers = rows[0].map(h => h.trim());
     let startIdx = 1;
 
-    const hasHeader = headers.some(h => ['firstname', 'first name', 'email', 'role', 'department', 'surname', 'last name'].includes(h));
+    // Detect header row
+    const hasHeader = headers.some(h => {
+      const clean = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return ['firstname', 'first', 'email', 'emailaddress', 'role', 'department', 'surname', 'lastname', 'title'].includes(clean);
+    });
+
     if (!hasHeader) {
-      headers = ['first name', 'surname', 'role', 'department', 'email', 'job title', 'phone'];
+      headers = STANDARD_CSV_HEADERS;
       startIdx = 0;
     }
 
-    const getIndex = (possibleNames) => {
-      return headers.findIndex(h => possibleNames.includes(h.toLowerCase()));
-    };
-
-    const fnIdx = getIndex(['first name', 'firstname', 'first', 'name']);
-    const snIdx = getIndex(['surname', 'last name', 'lastname', 'last']);
-    const roleIdx = getIndex(['role', 'tier', 'seniority', 'position']);
-    const deptIdx = getIndex(['department', 'dept', 'division']);
-    const emailIdx = getIndex(['email address', 'email', 'e-mail']);
-    const titleIdx = getIndex(['job title', 'title', 'designation']);
-    const phoneIdx = getIndex(['phone number', 'phone', 'telephone', 'mobile']);
+    // Map column indices dynamically using header aliases
+    const fnIdx = getHeaderIndex(headers, ['firstname', 'first name', 'given name', 'first', 'name']);
+    const snIdx = getHeaderIndex(headers, ['lastname', 'last name', 'surname', 'family name', 'last']);
+    const roleIdx = getHeaderIndex(headers, ['role', 'role tier', 'seniority', 'tier', 'position']);
+    const titleIdx = getHeaderIndex(headers, ['jobtitle', 'job title', 'title', 'designation', 'occupation']);
+    const deptIdx = getHeaderIndex(headers, ['department', 'dept', 'division', 'team']);
+    const emailIdx = getHeaderIndex(headers, ['email', 'email address', 'e-mail', 'e-mail address', 'mail']);
+    const phoneIdx = getHeaderIndex(headers, ['phone', 'phone number', 'telephone', 'tel', 'office phone', 'work phone']);
+    const mobileIdx = getHeaderIndex(headers, ['mobile', 'mobile number', 'cell', 'cellphone', 'personal phone']);
+    const companyIdx = getHeaderIndex(headers, ['company', 'company name', 'organization', 'org', 'business']);
+    const locationIdx = getHeaderIndex(headers, ['location', 'address', 'office location', 'city', 'office']);
+    const webIdx = getHeaderIndex(headers, ['web', 'website', 'site', 'url', 'company website']);
+    const primaryColorIdx = getHeaderIndex(headers, ['primarycolor', 'primary color', 'brand color', 'primary']);
+    const secondaryColorIdx = getHeaderIndex(headers, ['secondarycolor', 'secondary color', 'accent color', 'secondary']);
+    const templateIdx = getHeaderIndex(headers, ['template', 'signature template', 'layout']);
+    const linkedinIdx = getHeaderIndex(headers, ['linkedin', 'linkedin url', 'linkedin profile']);
+    const twitterIdx = getHeaderIndex(headers, ['twitter', 'x', 'twitter url', 'x url']);
+    const facebookIdx = getHeaderIndex(headers, ['facebook', 'facebook url']);
+    const instagramIdx = getHeaderIndex(headers, ['instagram', 'instagram url']);
+    const youtubeIdx = getHeaderIndex(headers, ['youtube', 'youtube url']);
 
     const newUsers = [];
     let directorsCount = 0;
     let managersCount = 0;
     let staffCount = 0;
+    let skippedCount = 0;
 
-    for (let i = startIdx; i < lines.length; i++) {
-      const cols = parseLine(lines[i]);
-      if (cols.length < 2) continue;
+    for (let i = startIdx; i < rows.length; i++) {
+      const cols = rows[i];
+      if (!cols || cols.length === 0 || (cols.length === 1 && !cols[0])) continue;
 
-      const fName = fnIdx !== -1 ? cols[fnIdx] : cols[0] || 'Employee';
+      const fName = fnIdx !== -1 ? cols[fnIdx] : (cols[0] || 'Employee');
       const sName = snIdx !== -1 ? cols[snIdx] : (cols[1] && !cols[1].includes('@') ? cols[1] : '');
-      const rawRole = roleIdx !== -1 ? cols[roleIdx] : (cols[2] || 'Staff');
+      const rawRole = roleIdx !== -1 ? cols[roleIdx] : 'Staff';
+      const title = titleIdx !== -1 ? cols[titleIdx] : 'Team Member';
       const dept = deptIdx !== -1 ? cols[deptIdx] : 'General';
       const email = emailIdx !== -1 ? cols[emailIdx] : (cols.find(c => c.includes('@')) || '');
-      const title = titleIdx !== -1 ? cols[titleIdx] : 'Team Member';
       const phone = phoneIdx !== -1 ? cols[phoneIdx] : '';
+      const mobile = mobileIdx !== -1 ? cols[mobileIdx] : phone;
+      const company = companyIdx !== -1 ? cols[companyIdx] : '';
+      const location = locationIdx !== -1 ? cols[locationIdx] : '';
+      const web = webIdx !== -1 ? cols[webIdx] : '';
+      const primaryColor = primaryColorIdx !== -1 ? cols[primaryColorIdx] : '#0d4b8e';
+      const secondaryColor = secondaryColorIdx !== -1 ? cols[secondaryColorIdx] : '#f18a22';
+      const template = templateIdx !== -1 ? cols[templateIdx] : 'os-flat-banner';
+      const linkedin = linkedinIdx !== -1 ? cols[linkedinIdx] : '';
+      const twitter = twitterIdx !== -1 ? cols[twitterIdx] : '';
+      const facebook = facebookIdx !== -1 ? cols[facebookIdx] : '';
+      const instagram = instagramIdx !== -1 ? cols[instagramIdx] : '';
+      const youtube = youtubeIdx !== -1 ? cols[youtubeIdx] : '';
 
-      if (!email) continue;
+      if (!email || !email.includes('@')) {
+        skippedCount++;
+        continue;
+      }
 
       let role = 'Staff';
       const roleLower = (rawRole || '').toLowerCase();
@@ -709,14 +863,20 @@
         role: role,
         title: title,
         department: dept,
-        email: email,
+        email: email.toLowerCase().trim(),
         phone: phone,
-        mobile: phone,
-        company: '',
-        location: '',
-        primaryColor: '#0d4b8e',
-        secondaryColor: '#f18a22',
-        template: 'os-flat-banner'
+        mobile: mobile,
+        company: company,
+        location: location,
+        web: web,
+        primaryColor: primaryColor,
+        secondaryColor: secondaryColor,
+        template: template,
+        linkedin: linkedin,
+        twitter: twitter,
+        facebook: facebook,
+        instagram: instagram,
+        youtube: youtube
       });
     }
 
@@ -738,7 +898,12 @@
       if (data && data.success) {
         const reportBox = document.getElementById('ingestReportBox');
         if (reportBox) {
-          reportBox.innerHTML = '<strong>✓ Successfully Ingested ' + data.inserted + ' Personnel Records into Server Database!</strong><br/><span>Role Breakdown: <strong>' + directorsCount + ' Directors</strong>, <strong>' + managersCount + ' Managers</strong>, <strong>' + staffCount + ' Staff</strong>.</span>';
+          let reportHtml = '<strong>✓ Successfully Ingested ' + data.inserted + ' Personnel Records into Server Database!</strong><br/>' +
+            '<span>Role Breakdown: <strong>' + directorsCount + ' Directors</strong>, <strong>' + managersCount + ' Managers</strong>, <strong>' + staffCount + ' Staff</strong>.</span>';
+          if (skippedCount > 0) {
+            reportHtml += '<br/><span style="color: #f87171;">⚠️ Skipped ' + skippedCount + ' rows missing valid email addresses.</span>';
+          }
+          reportBox.innerHTML = reportHtml;
           reportBox.classList.add('show');
         }
         showToast('Ingested ' + data.inserted + ' personnel records into database!');
@@ -753,20 +918,43 @@
     }
   }
 
-  // Template Exporters
+  // Fortified 1-to-1 CSV Exporters (RFC 4180 compliant + UTF-8 BOM)
   function downloadBlankCSV() {
-    const csvContent = '\uFEFFFirst Name,Surname,Role,Department,Email Address,Job Title,Phone Number\n';
+    const csvContent = '\uFEFF' + STANDARD_CSV_HEADERS.map(h => `"${h}"`).join(',') + '\r\n';
     triggerDownload(csvContent, 'Mailfooter_Blank_Staff_Template.csv', 'text/csv;charset=utf-8;');
-    showToast('Downloaded Blank CSV Template.');
+    showToast('Downloaded complete blank CSV template with all 19 standard headers.');
   }
 
   function downloadCurrentCSV() {
-    let csv = '\uFEFFFirst Name,Surname,Role,Department,Email Address,Job Title,Phone Number,Company,Location\n';
+    let csv = '\uFEFF' + STANDARD_CSV_HEADERS.map(h => `"${h}"`).join(',') + '\r\n';
+    
     staffList.forEach(s => {
-      csv += '"' + (s.firstName || '') + '","' + (s.lastName || '') + '","' + (s.role || '') + '","' + (s.department || '') + '","' + (s.email || '') + '","' + (s.title || '') + '","' + (s.phone || '') + '","' + (s.company || '') + '","' + (s.location || '') + '"\n';
+      const row = [
+        s.firstName || '',
+        s.lastName || '',
+        s.role || 'Staff',
+        s.title || '',
+        s.department || '',
+        s.email || '',
+        s.phone || '',
+        s.mobile || '',
+        s.company || '',
+        s.location || '',
+        s.web || '',
+        s.primaryColor || '#0d4b8e',
+        s.secondaryColor || '#f18a22',
+        s.template || 'os-flat-banner',
+        s.linkedin || '',
+        s.twitter || '',
+        s.facebook || '',
+        s.instagram || '',
+        s.youtube || ''
+      ];
+      csv += row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(',') + '\r\n';
     });
+
     triggerDownload(csv, 'Mailfooter_Staff_Directory.csv', 'text/csv;charset=utf-8;');
-    showToast('Downloaded Directory CSV file.');
+    showToast('Downloaded complete directory CSV file with ' + staffList.length + ' records.');
   }
 
   function triggerDownload(content, filename, mimeType) {
