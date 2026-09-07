@@ -31,7 +31,23 @@ try {
             campaign_id TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
-        
+    ");
+
+    // Auto-migrate additional user fields for Light Portal compatibility
+    $userCols = [
+        "first_name TEXT", "last_name TEXT", "role TEXT DEFAULT 'Staff'", "mobile TEXT",
+        "location TEXT", "company TEXT", "web TEXT", "primary_color TEXT", "secondary_color TEXT",
+        "linkedin TEXT", "twitter TEXT", "facebook TEXT", "instagram TEXT", "youtube TEXT"
+    ];
+    foreach ($userCols as $colDef) {
+        try {
+            $pdo->exec("ALTER TABLE users ADD COLUMN " . $colDef);
+        } catch (Exception $e) {
+            // Column already exists
+        }
+    }
+
+    $pdo->exec("
         CREATE TABLE IF NOT EXISTS opens (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT,

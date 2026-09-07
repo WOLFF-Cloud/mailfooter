@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Mailfooter Light Version - Clean OS Holdings Production Portal Engine
+   Mailfooter Light Version - Enterprise Production Portal Engine
    ========================================================================== */
 
 (function () {
@@ -8,199 +8,12 @@
   // Base URL calculation for absolute assets
   const BASE_URL = window.location.origin + window.location.pathname.replace(/\/(light|index|app|admin|super-admin|register)(\.html)?$/, '').replace(/\/$/, '') + '/';
 
-  // Official OS Holdings Corporate Personnel Directory
-  const DEFAULT_OSH_STAFF = [
-    {
-      "id": "osh-001",
-      "firstName": "Sarah",
-      "lastName": "Jenkins",
-      "role": "Director",
-      "title": "Managing Director",
-      "department": "Executive",
-      "email": "sarah.jenkins@os-holdings.co.za",
-      "phone": "+27 (0) 11 463 1000",
-      "mobile": "+27 (0) 82 123 4567",
-      "company": "OS Holdings",
-      "location": "Sandton, Johannesburg",
-      "web": "https://os-holdings.co.za/",
-      "logo": "Resources/2x/logo.png",
-      "primaryColor": "#0d4b8e",
-      "secondaryColor": "#f18a22",
-      "linkedin": "https://www.linkedin.com/company/osholdings",
-      "twitter": "https://x.com/holdings_os",
-      "facebook": "https://www.facebook.com/osholdings",
-      "instagram": "https://www.instagram.com/osholdings/",
-      "youtube": "https://www.youtube.com/osholdings",
-      "template": "os-flat-banner"
-    },
-    {
-      "id": "osh-002",
-      "firstName": "Marcus",
-      "lastName": "Vance",
-      "role": "Director",
-      "title": "Chief Technology Officer",
-      "department": "Engineering",
-      "email": "marcus.vance@os-holdings.co.za",
-      "phone": "+27 (0) 11 463 1000",
-      "mobile": "+27 (0) 83 234 5678",
-      "company": "OS Holdings",
-      "location": "Sandton, Johannesburg",
-      "web": "https://os-holdings.co.za/",
-      "logo": "Resources/2x/logo.png",
-      "primaryColor": "#0d4b8e",
-      "secondaryColor": "#f18a22",
-      "linkedin": "https://www.linkedin.com/company/osholdings",
-      "twitter": "https://x.com/holdings_os",
-      "facebook": "https://www.facebook.com/osholdings",
-      "instagram": "https://www.instagram.com/osholdings/",
-      "youtube": "https://www.youtube.com/osholdings",
-      "template": "os-flat-banner"
-    },
-    {
-      "id": "osh-003",
-      "firstName": "Elena",
-      "lastName": "Rostova",
-      "role": "Manager",
-      "title": "Head of Marketing & Brand",
-      "department": "Marketing",
-      "email": "elena.rostova@os-holdings.co.za",
-      "phone": "+27 (0) 11 463 1000",
-      "mobile": "+27 (0) 84 345 6789",
-      "company": "OS Holdings",
-      "location": "Sandton, Johannesburg",
-      "web": "https://os-holdings.co.za/",
-      "logo": "Resources/2x/logo.png",
-      "primaryColor": "#0d4b8e",
-      "secondaryColor": "#f18a22",
-      "linkedin": "https://www.linkedin.com/company/osholdings",
-      "twitter": "https://x.com/holdings_os",
-      "facebook": "https://www.facebook.com/osholdings",
-      "instagram": "https://www.instagram.com/osholdings/",
-      "youtube": "https://www.youtube.com/osholdings",
-      "template": "os-flat-banner"
-    },
-    {
-      "id": "osh-004",
-      "firstName": "David",
-      "lastName": "Miller",
-      "role": "Manager",
-      "title": "Head of Customer Success",
-      "department": "Operations",
-      "email": "david.miller@os-holdings.co.za",
-      "phone": "+27 (0) 11 463 1000",
-      "mobile": "+27 (0) 82 456 7890",
-      "company": "OS Holdings",
-      "location": "Sandton, Johannesburg",
-      "web": "https://os-holdings.co.za/",
-      "logo": "Resources/2x/logo.png",
-      "primaryColor": "#0d4b8e",
-      "secondaryColor": "#f18a22",
-      "linkedin": "https://www.linkedin.com/company/osholdings",
-      "twitter": "https://x.com/holdings_os",
-      "facebook": "https://www.facebook.com/osholdings",
-      "instagram": "https://www.instagram.com/osholdings/",
-      "youtube": "https://www.youtube.com/osholdings",
-      "template": "os-flat-banner"
-    },
-    {
-      "id": "osh-005",
-      "firstName": "Jessica",
-      "lastName": "Taylor",
-      "role": "Staff",
-      "title": "Lead Product Designer",
-      "department": "Design & UX",
-      "email": "jessica.taylor@os-holdings.co.za",
-      "phone": "+27 (0) 11 463 1000",
-      "mobile": "+27 (0) 83 567 8901",
-      "company": "OS Holdings",
-      "location": "Sandton, Johannesburg",
-      "web": "https://os-holdings.co.za/",
-      "logo": "Resources/2x/logo.png",
-      "primaryColor": "#0d4b8e",
-      "secondaryColor": "#f18a22",
-      "linkedin": "https://www.linkedin.com/company/osholdings",
-      "twitter": "https://x.com/holdings_os",
-      "facebook": "https://www.facebook.com/osholdings",
-      "instagram": "https://www.instagram.com/osholdings/",
-      "youtube": "https://www.youtube.com/osholdings",
-      "template": "os-flat-banner"
-    },
-    {
-      "id": "osh-006",
-      "firstName": "Alex",
-      "lastName": "Rivera",
-      "role": "Staff",
-      "title": "Senior Cloud Architect",
-      "department": "Engineering",
-      "email": "alex.rivera@os-holdings.co.za",
-      "phone": "+27 (0) 11 463 1000",
-      "mobile": "+27 (0) 84 678 9012",
-      "company": "OS Holdings",
-      "location": "Sandton, Johannesburg",
-      "web": "https://os-holdings.co.za/",
-      "logo": "Resources/2x/logo.png",
-      "primaryColor": "#0d4b8e",
-      "secondaryColor": "#f18a22",
-      "linkedin": "https://www.linkedin.com/company/osholdings",
-      "twitter": "https://x.com/holdings_os",
-      "facebook": "https://www.facebook.com/osholdings",
-      "instagram": "https://www.instagram.com/osholdings/",
-      "youtube": "https://www.youtube.com/osholdings",
-      "template": "os-flat-banner"
-    },
-    {
-      "id": "osh-007",
-      "firstName": "Michael",
-      "lastName": "Chang",
-      "role": "Staff",
-      "title": "Data Analytics Lead",
-      "department": "Intelligence",
-      "email": "michael.chang@os-holdings.co.za",
-      "phone": "+27 (0) 11 463 1000",
-      "mobile": "+27 (0) 82 789 0123",
-      "company": "OS Holdings",
-      "location": "Sandton, Johannesburg",
-      "web": "https://os-holdings.co.za/",
-      "logo": "Resources/2x/logo.png",
-      "primaryColor": "#0d4b8e",
-      "secondaryColor": "#f18a22",
-      "linkedin": "https://www.linkedin.com/company/osholdings",
-      "twitter": "https://x.com/holdings_os",
-      "facebook": "https://www.facebook.com/osholdings",
-      "instagram": "https://www.instagram.com/osholdings/",
-      "youtube": "https://www.youtube.com/osholdings",
-      "template": "os-flat-banner"
-    },
-    {
-      "id": "osh-008",
-      "firstName": "Rachel",
-      "lastName": "Adams",
-      "role": "Manager",
-      "title": "People & Culture Lead",
-      "department": "Corporate",
-      "email": "rachel.adams@os-holdings.co.za",
-      "phone": "+27 (0) 11 463 1000",
-      "mobile": "+27 (0) 83 890 1234",
-      "company": "OS Holdings",
-      "location": "Sandton, Johannesburg",
-      "web": "https://os-holdings.co.za/",
-      "logo": "Resources/2x/logo.png",
-      "primaryColor": "#0d4b8e",
-      "secondaryColor": "#f18a22",
-      "linkedin": "https://www.linkedin.com/company/osholdings",
-      "twitter": "https://x.com/holdings_os",
-      "facebook": "https://www.facebook.com/osholdings",
-      "instagram": "https://www.instagram.com/osholdings/",
-      "youtube": "https://www.youtube.com/osholdings",
-      "template": "os-flat-banner"
-    }
-  ];
-
-  // Application State
+  // Application State (Clean server-backed state, no local demo fallbacks)
   let staffList = [];
   let currentTab = 'overview';
   let currentOverviewSubtab = 'all'; // 'all', 'managers', 'staff'
   let activeEditingEmployee = null;
+  let saveDebounceTimer = null;
 
   // DOM Ready Initialization
   document.addEventListener('DOMContentLoaded', () => {
@@ -209,69 +22,85 @@
     initOverviewTable();
     initBulkAddTab();
     initInstallationTab();
-    updateHeaderMetrics();
   });
 
-  // Data Store Management (localStorage persistence with OS Holdings key & color sanitation)
-  function loadDataStore() {
-    const STORAGE_KEY = 'osh_mailfooter_light_staff_v6';
+  // Server Data Store Engine (Direct SQLite API Integration via api/users.php)
+  async function loadDataStore() {
     try {
-      let saved = localStorage.getItem(STORAGE_KEY);
-      if (!saved) {
-        // Check older keys for graceful migration
-        const oldSaved = localStorage.getItem('osh_mailfooter_light_staff_v5') || localStorage.getItem('osh_mailfooter_light_staff_v4');
-        if (oldSaved) {
-          saved = oldSaved;
-        }
-      }
+      const resp = await fetch('api/users.php?action=list');
+      if (!resp.ok) throw new Error('Server returned status ' + resp.status);
+      const data = await resp.json();
 
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Sanitize colors and company branding so legacy blue/teal is converted to true OS Holdings navy/orange
-          staffList = parsed.map(user => {
-            let primary = user.primaryColor;
-            let secondary = user.secondaryColor;
-            if (!primary || primary === '#1677ff' || primary === '#1890ff') primary = '#0d4b8e';
-            if (!secondary || secondary === '#13c2c2' || secondary === '#52c41a') secondary = '#f18a22';
-            
-            let company = user.company;
-            if (!company || company === 'Wolff Technologies') company = 'OS Holdings';
-            
-            let email = user.email || '';
-            if (email.includes('@wolff-tech.com')) {
-              email = email.replace('@wolff-tech.com', '@os-holdings.co.za');
-            }
-
-            return {
-              ...user,
-              primaryColor: primary,
-              secondaryColor: secondary,
-              company: company,
-              email: email,
-              web: user.web || 'https://os-holdings.co.za/',
-              template: user.template || 'os-flat-banner'
-            };
-          });
-          saveDataStore();
-          return;
-        }
+      if (data && data.success && Array.isArray(data.users)) {
+        staffList = data.users;
+      } else {
+        staffList = [];
       }
-      staffList = JSON.parse(JSON.stringify(DEFAULT_OSH_STAFF));
-      saveDataStore();
     } catch (e) {
-      console.warn('LocalStorage error, restoring OS Holdings directory:', e);
-      staffList = JSON.parse(JSON.stringify(DEFAULT_OSH_STAFF));
+      console.warn('Could not fetch directory from server API:', e);
+      showToast('Could not fetch directory from server database. Ensure PHP server is running.', 'error');
+      staffList = [];
+    }
+
+    updateHeaderMetrics();
+
+    if (currentTab === 'overview') {
+      renderOverviewTable();
+    } else if (currentTab === 'installation') {
+      if (!activeEditingEmployee && staffList.length > 0) {
+        activeEditingEmployee = staffList[0];
+      }
+      populateInstallationForm();
     }
   }
 
-  function saveDataStore() {
-    try {
-      localStorage.setItem('osh_mailfooter_light_staff_v6', JSON.stringify(staffList));
-    } catch (e) {
-      console.error('Failed to save to localStorage:', e);
-    }
+  // Persist a single staff record to the server database
+  function saveDataStore(userToSave) {
     updateHeaderMetrics();
+    if (!userToSave || !userToSave.email) return;
+
+    if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
+    saveDebounceTimer = setTimeout(() => {
+      fetch('api/users.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userToSave)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res && res.success) {
+          console.log('Staff record persisted to server SQLite database:', userToSave.email);
+        } else {
+          showToast('Failed to save to server: ' + (res?.error || 'Unknown error'), 'error');
+        }
+      })
+      .catch(err => {
+        console.error('Failed to sync with server API:', err);
+        showToast('Connection error saving staff member to database.', 'error');
+      });
+    }, 300);
+  }
+
+  // Delete a staff record from the server database
+  async function deleteUserFromServer(email) {
+    if (!email) return;
+    try {
+      const resp = await fetch('api/users.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', email: email })
+      });
+      const data = await resp.json();
+      if (data && data.success) {
+        showToast('Deleted staff member (' + email + ') from server database.');
+        await loadDataStore();
+      } else {
+        showToast('Failed to delete staff member: ' + (data?.error || 'Unknown error'), 'error');
+      }
+    } catch (e) {
+      console.error('Error deleting staff member:', e);
+      showToast('Connection error deleting record.', 'error');
+    }
   }
 
   function updateHeaderMetrics() {
@@ -363,16 +192,12 @@
       });
     });
 
-    // Reset Action (Restore OS Holdings Default Directory)
-    const resetBtn = document.getElementById('resetDataBtn');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        if (confirm('Restore central OS Holdings corporate directory?')) {
-          staffList = JSON.parse(JSON.stringify(DEFAULT_OSH_STAFF));
-          saveDataStore();
-          renderOverviewTable();
-          showToast('Directory restored to OS Holdings corporate dataset.');
-        }
+    // Refresh Action (Reload Live Directory from Server Database)
+    const refreshBtn = document.getElementById('refreshDataBtn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        showToast('Refreshing directory from server database...');
+        loadDataStore();
       });
     }
 
@@ -442,7 +267,7 @@
     updateAnalyticsCards(filtered);
 
     if (filtered.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--text-secondary);">No personnel found matching the search criteria.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--text-secondary);">No personnel found in server database matching the search criteria. Use <strong>📥 BULK ADD TAB</strong> or <strong>Full App Builder</strong> to add staff.</td></tr>';
       document.getElementById('tableShowingCount').textContent = 'Showing 0 of ' + staffList.length + ' records';
       return;
     }
@@ -476,6 +301,7 @@
               '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg> Copy HTML' +
             '</button>' +
             '<button class="mc-btn mc-btn-sm" onclick="window.MailfooterLight.openInLiveEditor(\'' + user.id + '\')" title="Edit in Live Preview Canvas">✎ Edit</button>' +
+            '<button class="mc-btn mc-btn-sm mc-btn-dark" onclick="window.MailfooterLight.deleteByEmail(\'' + escapeHtml(user.email) + '\')" title="Delete Personnel Record">🗑 Delete</button>' +
           '</div>' +
         '</td>' +
       '</tr>';
@@ -532,9 +358,9 @@
       '</div>';
   }
 
-  // Official OS Holdings Signature Data Assembler
+  // Signature Data Assembler
   function buildSignatureHtml(user) {
-    const defaultDomain = 'os-holdings.co.za';
+    const defaultDomain = window.location.hostname || 'os-holdings.co.za';
     const emailVal = user.email || `user@${defaultDomain}`;
     const userId = encodeURIComponent(emailVal);
     const selectedTemplate = user.template || 'os-flat-banner';
@@ -547,25 +373,25 @@
       dept: user.department ? ` | ${user.department}` : '',
       department: user.department || '',
       tagline: 'Innovate | Excel | Grow',
-      phone: user.phone || user.mobile || '+27 (0) 11 463 1000',
+      phone: user.phone || user.mobile || '',
       email: emailVal,
-      web: user.web || 'https://os-holdings.co.za/',
-      webTracked: `https://os-holdings.co.za/mailfooter/track/click?user_id=${userId}&link_id=website&template=${selectedTemplate}`,
-      logo: `https://os-holdings.co.za/mailfooter/track/logo?user_id=${userId}&campaign_id=sage300_ad&template=${selectedTemplate}`,
+      web: user.web || `https://${defaultDomain}/`,
+      webTracked: `https://${defaultDomain}/track/click?user_id=${userId}&link_id=website&template=${selectedTemplate}`,
+      logo: `https://${defaultDomain}/track/logo?user_id=${userId}&template=${selectedTemplate}`,
       primary: primary,
       secondary: secondary,
-      linkedin: user.linkedin ? `https://os-holdings.co.za/mailfooter/track/click?user_id=${userId}&link_id=linkedin&template=${selectedTemplate}` : 'https://www.linkedin.com/company/osholdings',
-      twitter: user.twitter ? `https://os-holdings.co.za/mailfooter/track/click?user_id=${userId}&link_id=twitter&template=${selectedTemplate}` : 'https://x.com/holdings_os',
-      instagram: user.instagram ? `https://os-holdings.co.za/mailfooter/track/click?user_id=${userId}&link_id=instagram&template=${selectedTemplate}` : 'https://www.instagram.com/osholdings/',
-      facebook: user.facebook ? `https://os-holdings.co.za/mailfooter/track/click?user_id=${userId}&link_id=facebook&template=${selectedTemplate}` : 'https://www.facebook.com/osholdings',
-      youtube: user.youtube ? `https://os-holdings.co.za/mailfooter/track/click?user_id=${userId}&link_id=youtube&template=${selectedTemplate}` : '',
-      campaignLink: `https://os-holdings.co.za/mailfooter/track/click?user_id=${userId}&link_id=campaign_banner&template=${selectedTemplate}`,
-      campaignImg: `https://os-holdings.co.za/mailfooter/track/banner?user_id=${userId}&type=main&template=${selectedTemplate}`,
-      campaignPartner: `https://os-holdings.co.za/mailfooter/track/banner?user_id=${userId}&type=partner&template=${selectedTemplate}`,
-      campaignBtn: `https://os-holdings.co.za/mailfooter/track/banner?user_id=${userId}&type=button&template=${selectedTemplate}`,
-      companyBio: 'OS Holdings is a diversified software solution company committed to creating lasting value.',
+      linkedin: user.linkedin ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=linkedin&template=${selectedTemplate}` : '',
+      twitter: user.twitter ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=twitter&template=${selectedTemplate}` : '',
+      instagram: user.instagram ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=instagram&template=${selectedTemplate}` : '',
+      facebook: user.facebook ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=facebook&template=${selectedTemplate}` : '',
+      youtube: user.youtube ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=youtube&template=${selectedTemplate}` : '',
+      campaignLink: `https://${defaultDomain}/track/click?user_id=${userId}&link_id=campaign_banner&template=${selectedTemplate}`,
+      campaignImg: `https://${defaultDomain}/track/banner?user_id=${userId}&type=main&template=${selectedTemplate}`,
+      campaignPartner: `https://${defaultDomain}/track/banner?user_id=${userId}&type=partner&template=${selectedTemplate}`,
+      campaignBtn: `https://${defaultDomain}/track/banner?user_id=${userId}&type=button&template=${selectedTemplate}`,
+      companyBio: '',
       sideImage: 'Resources/2x/brand-graphic-colour-top-right.png',
-      location: user.location || 'Sandton, Johannesburg'
+      location: user.location || ''
     };
 
     if (typeof renderOsFlatBanner === 'function' && (selectedTemplate === 'os-flat-banner' || selectedTemplate === 'os-sleek')) {
@@ -581,7 +407,6 @@
       return makePathsAbsolute(renderOsPremium(data));
     }
 
-    // Built-in standalone fallback
     return makePathsAbsolute(renderFallbackSignature(data));
   }
 
@@ -600,7 +425,7 @@
                     <tr>
                       <td valign="middle" width="130" style="width: 130px; text-align: left;">
                         <a href="${data.web}" target="_blank" style="text-decoration: none; display: block;">
-                          <img src="Resources/2x/logo.png" alt="OS Holdings Logo" width="120" height="30" style="border: 0; display: block; max-width: 120px; height: 30px;" />
+                          <img src="Resources/2x/logo.png" alt="Company Logo" width="120" height="30" style="border: 0; display: block; max-width: 120px; height: 30px;" />
                         </a>
                       </td>
                       <td valign="middle" width="1" style="width: 1px; border-left: 1px solid #d2d2d2; font-size: 1px; line-height: 1px;">&nbsp;</td>
@@ -615,21 +440,13 @@
                       <td valign="middle" width="1" style="width: 1px; border-left: 1px solid #d2d2d2; font-size: 1px; line-height: 1px;">&nbsp;</td>
                       <td valign="middle" width="163" style="width: 163px; padding-left: 12px; font-size: 10px; color: #555555; text-align: left;">
                         <table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #555555;">
-                          <tr>
-                            <td valign="middle" style="padding-bottom: 3px; line-height: 12px; color: #333333; font-weight: 500;">
-                              📞 ${escapeHtml(data.phone)}
-                            </td>
-                          </tr>
+                          ${data.phone ? `<tr><td valign="middle" style="padding-bottom: 3px; line-height: 12px; color: #333333; font-weight: 500;">📞 ${escapeHtml(data.phone)}</td></tr>` : ''}
                           <tr>
                             <td valign="middle" style="padding-bottom: 3px; line-height: 12px;">
                               ✉️ <a href="mailto:${escapeHtml(data.email)}" style="color: #333333; text-decoration: none; font-weight: 500;">${escapeHtml(data.email)}</a>
                             </td>
                           </tr>
-                          <tr>
-                            <td valign="middle" style="line-height: 12px;">
-                              🌐 <a href="${data.web}" target="_blank" style="color: #333333; text-decoration: none; font-weight: 500;">${escapeHtml(data.web)}</a>
-                            </td>
-                          </tr>
+                          ${data.web ? `<tr><td valign="middle" style="line-height: 12px;">🌐 <a href="${data.web}" target="_blank" style="color: #333333; text-decoration: none; font-weight: 500;">${escapeHtml(data.web)}</a></td></tr>` : ''}
                         </table>
                       </td>
                       <td valign="middle" width="119" style="width: 119px; text-align: right; line-height: 0;">
@@ -646,20 +463,17 @@
     `;
   }
 
-  // Cross-Platform Clipboard Delivery Engine (Outlook Desktop, Outlook Web, Gmail, Apple Mail)
+  // Cross-Platform Clipboard Delivery Engine
   function copyRichTextSignature(employeeData) {
     return new Promise((resolve, reject) => {
       const signatureHtml = buildSignatureHtml(employeeData);
       const name = `${employeeData.firstName || ''} ${employeeData.lastName || ''}`.trim();
-      const plainText = `${name}\n${employeeData.title || ''}\n${employeeData.phone || ''} | ${employeeData.email || ''}\n${employeeData.web || 'https://os-holdings.co.za/'}`;
+      const plainText = `${name}\n${employeeData.title || ''}\n${employeeData.phone || ''} | ${employeeData.email || ''}\n${employeeData.web || ''}`;
 
-      // 1. Try selection-based copy first (100% native compatibility with desktop Outlook & Apple Mail)
       const tempDiv = document.createElement('div');
       tempDiv.style.position = 'fixed';
       tempDiv.style.left = '-9999px';
       tempDiv.style.top = '0';
-      tempDiv.style.width = 'auto';
-      tempDiv.style.height = 'auto';
       tempDiv.style.opacity = '0';
       tempDiv.style.pointerEvents = 'none';
       tempDiv.innerHTML = signatureHtml;
@@ -676,7 +490,7 @@
         try {
           copied = document.execCommand('copy');
         } catch (err) {
-          console.warn('execCommand copy failed, attempting Clipboard API:', err);
+          console.warn('execCommand copy failed:', err);
         }
 
         selection.removeAllRanges();
@@ -689,7 +503,6 @@
         return;
       }
 
-      // 2. Modern Clipboard API fallback
       if (navigator.clipboard && window.ClipboardItem) {
         const type = 'text/html';
         const textType = 'text/plain';
@@ -705,7 +518,6 @@
           showToast('✓ Rich Signature copied for ' + name + '! Paste directly into Outlook, Gmail, or Apple Mail.');
           resolve();
         }).catch(err => {
-          console.warn('navigator.clipboard.write failed, falling back to text:', err);
           navigator.clipboard.writeText(signatureHtml).then(() => {
             showToast('Raw HTML copied to clipboard for ' + name + '.');
             resolve();
@@ -776,6 +588,11 @@
         activeEditingEmployee = emp;
         switchTab('installation');
       }
+    },
+    deleteByEmail: (email) => {
+      if (confirm('Are you sure you want to delete staff member (' + email + ') from the server database?')) {
+        deleteUserFromServer(email);
+      }
     }
   };
 
@@ -790,8 +607,8 @@
     if (sampleCsvBtn) {
       sampleCsvBtn.addEventListener('click', () => {
         if (textarea) {
-          textarea.value = getOSHSampleCsvString();
-          showToast('Loaded OS Holdings CSV sample data into text box.');
+          textarea.value = getSampleCsvString();
+          showToast('Loaded sample CSV data into text box.');
         }
       });
     }
@@ -815,11 +632,11 @@
     }
   }
 
-  function getOSHSampleCsvString() {
-    return "First Name,Surname,Role,Department,Email Address,Job Title,Phone Number\r\nSarah,Jenkins,Director,Executive,sarah.jenkins@os-holdings.co.za,Managing Director,+27 (0) 11 463 1000\r\nMarcus,Vance,Director,Engineering,marcus.vance@os-holdings.co.za,Chief Technology Officer,+27 (0) 11 463 1000\r\nElena,Rostova,Manager,Marketing,elena.rostova@os-holdings.co.za,Head of Marketing & Brand,+27 (0) 11 463 1000\r\nDavid,Miller,Manager,Operations,david.miller@os-holdings.co.za,Head of Customer Success,+27 (0) 11 463 1000\r\nJessica,Taylor,Staff,Design & UX,jessica.taylor@os-holdings.co.za,Lead Product Designer,+27 (0) 11 463 1000\r\nAlex,Rivera,Staff,Engineering,alex.rivera@os-holdings.co.za,Senior Cloud Architect,+27 (0) 11 463 1000\r\nMichael,Chang,Staff,Intelligence,michael.chang@os-holdings.co.za,Data Analytics Lead,+27 (0) 11 463 1000\r\nRachel,Adams,Manager,Corporate,rachel.adams@os-holdings.co.za,People & Culture Lead,+27 (0) 11 463 1000\r\n";
+  function getSampleCsvString() {
+    return "First Name,Surname,Role,Department,Email Address,Job Title,Phone Number\r\nJohn,Doe,Director,Executive,john.doe@company.com,Managing Director,+27 11 000 0000\r\nJane,Smith,Manager,Marketing,jane.smith@company.com,Marketing Lead,+27 11 000 0001\r\n";
   }
 
-  function processAndIngestCsv(text) {
+  async function processAndIngestCsv(text) {
     const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
     if (lines.length === 0) return;
 
@@ -852,7 +669,7 @@
     const titleIdx = getIndex(['job title', 'title', 'designation']);
     const phoneIdx = getIndex(['phone number', 'phone', 'telephone', 'mobile']);
 
-    let addedCount = 0;
+    const newUsers = [];
     let directorsCount = 0;
     let managersCount = 0;
     let staffCount = 0;
@@ -867,7 +684,9 @@
       const dept = deptIdx !== -1 ? cols[deptIdx] : 'General';
       const email = emailIdx !== -1 ? cols[emailIdx] : (cols.find(c => c.includes('@')) || '');
       const title = titleIdx !== -1 ? cols[titleIdx] : 'Team Member';
-      const phone = phoneIdx !== -1 ? cols[phoneIdx] : '+27 (0) 11 463 1000';
+      const phone = phoneIdx !== -1 ? cols[phoneIdx] : '';
+
+      if (!email) continue;
 
       let role = 'Staff';
       const roleLower = (rawRole || '').toLowerCase();
@@ -884,54 +703,61 @@
         staffCount++;
       }
 
-      const newRecord = {
-        id: 'osh-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+      newUsers.push({
         firstName: fName,
         lastName: sName,
         role: role,
         title: title,
         department: dept,
-        email: email || (fName.toLowerCase() + '.' + sName.toLowerCase() + '@os-holdings.co.za'),
+        email: email,
         phone: phone,
         mobile: phone,
-        company: 'OS Holdings',
-        location: 'Sandton, Johannesburg',
-        web: 'https://os-holdings.co.za/',
-        logo: 'Resources/2x/logo.png',
+        company: '',
+        location: '',
         primaryColor: '#0d4b8e',
         secondaryColor: '#f18a22',
-        linkedin: 'https://www.linkedin.com/company/osholdings',
-        twitter: 'https://x.com/holdings_os',
-        facebook: 'https://www.facebook.com/osholdings',
-        instagram: 'https://www.instagram.com/osholdings/',
-        youtube: 'https://www.youtube.com/osholdings',
         template: 'os-flat-banner'
-      };
-
-      staffList.push(newRecord);
-      addedCount++;
+      });
     }
 
-    saveDataStore();
-
-    const reportBox = document.getElementById('ingestReportBox');
-    if (reportBox) {
-      reportBox.innerHTML = '<strong>✓ Ingested ' + addedCount + ' Personnel Records into OS Holdings Directory!</strong><br/><span>Role Breakdown: <strong>' + directorsCount + ' Directors</strong>, <strong>' + managersCount + ' Managers</strong>, <strong>' + staffCount + ' Staff</strong>.</span>';
-      reportBox.classList.add('show');
+    if (newUsers.length === 0) {
+      showToast('No valid personnel records with email addresses found in CSV data.', 'error');
+      return;
     }
 
-    showToast('Ingested ' + addedCount + ' personnel records into directory!');
+    showToast('Uploading ' + newUsers.length + ' personnel records to server database...');
 
-    setTimeout(() => {
-      switchTab('overview');
-    }, 1200);
+    try {
+      const resp = await fetch('api/users.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ users: newUsers })
+      });
+      const data = await resp.json();
+
+      if (data && data.success) {
+        const reportBox = document.getElementById('ingestReportBox');
+        if (reportBox) {
+          reportBox.innerHTML = '<strong>✓ Successfully Ingested ' + data.inserted + ' Personnel Records into Server Database!</strong><br/><span>Role Breakdown: <strong>' + directorsCount + ' Directors</strong>, <strong>' + managersCount + ' Managers</strong>, <strong>' + staffCount + ' Staff</strong>.</span>';
+          reportBox.classList.add('show');
+        }
+        showToast('Ingested ' + data.inserted + ' personnel records into database!');
+        await loadDataStore();
+        setTimeout(() => switchTab('overview'), 1200);
+      } else {
+        showToast('Failed to ingest records: ' + (data?.error || 'Unknown error'), 'error');
+      }
+    } catch (e) {
+      console.error('Error during bulk ingestion:', e);
+      showToast('Connection error uploading CSV to server.', 'error');
+    }
   }
 
   // Template Exporters
   function downloadBlankCSV() {
     const csvContent = '\uFEFFFirst Name,Surname,Role,Department,Email Address,Job Title,Phone Number\n';
-    triggerDownload(csvContent, 'Mailfooter_OS_Holdings_Blank_Template.csv', 'text/csv;charset=utf-8;');
-    showToast('Downloaded OS Holdings Blank CSV Template.');
+    triggerDownload(csvContent, 'Mailfooter_Blank_Staff_Template.csv', 'text/csv;charset=utf-8;');
+    showToast('Downloaded Blank CSV Template.');
   }
 
   function downloadCurrentCSV() {
@@ -939,8 +765,8 @@
     staffList.forEach(s => {
       csv += '"' + (s.firstName || '') + '","' + (s.lastName || '') + '","' + (s.role || '') + '","' + (s.department || '') + '","' + (s.email || '') + '","' + (s.title || '') + '","' + (s.phone || '') + '","' + (s.company || '') + '","' + (s.location || '') + '"\n';
     });
-    triggerDownload(csv, 'Mailfooter_OS_Holdings_Staff_Directory.csv', 'text/csv;charset=utf-8;');
-    showToast('Downloaded OS Holdings Directory CSV file.');
+    triggerDownload(csv, 'Mailfooter_Staff_Directory.csv', 'text/csv;charset=utf-8;');
+    showToast('Downloaded Directory CSV file.');
   }
 
   function triggerDownload(content, filename, mimeType) {
@@ -975,7 +801,7 @@
       tplSelect.addEventListener('change', (e) => {
         if (activeEditingEmployee) {
           activeEditingEmployee.template = e.target.value;
-          saveDataStore();
+          saveDataStore(activeEditingEmployee);
           updateLiveCanvas();
         }
       });
@@ -1040,8 +866,8 @@
     setVal('inputDepartment', activeEditingEmployee.department);
     setVal('inputEmail', activeEditingEmployee.email);
     setVal('inputPhone', activeEditingEmployee.phone);
-    setVal('inputCompany', activeEditingEmployee.company || 'OS Holdings');
-    setVal('inputLocation', activeEditingEmployee.location || 'Sandton, Johannesburg');
+    setVal('inputCompany', activeEditingEmployee.company);
+    setVal('inputLocation', activeEditingEmployee.location);
     setVal('inputPrimaryColor', activeEditingEmployee.primaryColor || '#0d4b8e');
     setVal('inputSecondaryColor', activeEditingEmployee.secondaryColor || '#f18a22');
     setVal('tplSelect', activeEditingEmployee.template || 'os-flat-banner');
@@ -1067,7 +893,7 @@
     activeEditingEmployee.secondaryColor = getVal('inputSecondaryColor');
     activeEditingEmployee.template = getVal('tplSelect') || 'os-flat-banner';
 
-    saveDataStore();
+    saveDataStore(activeEditingEmployee);
     scheduleCanvasUpdate();
   }
 
