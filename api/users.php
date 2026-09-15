@@ -234,7 +234,7 @@ if (isset($data['action']) && $data['action'] === 'delete') {
         $mappedClientDomain = ($clientDomain === 'osbusinessamp.com' || $clientDomain === 'osbusinessam.com') ? 'osholdings.co.za' : $clientDomain;
         if (strcasecmp($mappedEmailDomain, $mappedClientDomain) !== 0 && strcasecmp($emailDomain, 'os-holdings.co.za') !== 0) {
             header('HTTP/1.1 403 Forbidden');
-            echo json_encode(['error' => 'Access denied to delete this domain's user records']);
+            echo json_encode(['error' => "Access denied to delete this domain's user records"]);
             exit();
         }
     }
