@@ -1642,6 +1642,205 @@ input:checked + .switch-slider:before {
   border-radius: 4px;
 }
 
+/* REGISTRATION ENHANCEMENTS & ACTIONS */
+.input-pw-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-pw-wrapper input {
+  padding-right: 42px !important;
+}
+.input-pw-toggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.input-pw-toggle:hover {
+  color: var(--text-primary);
+}
+.pw-strength-container {
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+.pw-strength-bar {
+  height: 4px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.pw-strength-fill {
+  height: 100%;
+  width: 0%;
+  background: #ef4444;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+.pw-strength-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.form-error-msg {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  margin-bottom: 16px;
+  animation: fadeIn 0.3s ease;
+}
+.onboarding-completion-wrap {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+  margin-top: 15px;
+  animation: fadeIn 0.4s ease;
+}
+.onboarding-tenant-summary {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px 20px;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.onboarding-tenant-summary strong {
+  color: var(--text-primary);
+}
+.onboarding-buttons-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.btn-launch-dashboard {
+  background: var(--primary);
+  color: #070a13 !important;
+  font-weight: 700;
+  padding: 14px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(78, 224, 0, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-launch-dashboard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 224, 0, 0.4);
+}
+.btn-view-welcome-email {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-view-welcome-email:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* WELCOME EMAIL MODAL */
+.email-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.email-modal-card {
+  background: #ffffff;
+  color: #1e293b;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalPop {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.email-modal-header {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1e293b;
+}
+.email-modal-header h3 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 700;
+}
+.email-modal-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  transition: color 0.2s;
+}
+.email-modal-close:hover {
+  color: #ffffff;
+}
+.email-modal-body {
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+  background: #f8fafc;
+}
+.email-modal-iframe {
+  width: 100%;
+  height: 520px;
+  border: none;
+  background: #ffffff;
+}
+
 /* RESPONSIVE LAYOUTS - MOBILE & TABLET MEDIA QUERIES */
 @media (max-width: 1024px) {
   .hero-grid {

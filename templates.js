@@ -1,9 +1,27 @@
 // Shared Template Rendering Engine for User & Admin Portals
-const BASE_URL = window.location.origin + window.location.pathname.replace(/\/(index|app|admin|super-admin|register|light)(\.html)?$/, '').replace(/\/$/, '') + '/';
+const PUBLIC_PRODUCTION_BASE = 'https://os-holdings.co.za/mailfooter/';
+const BASE_URL = (function() {
+  if (typeof window !== 'undefined' && window.location) {
+    const proto = window.location.protocol;
+    const origin = window.location.origin;
+    const host = window.location.hostname;
+    if (proto === 'file:' || host === 'localhost' || host === '127.0.0.1' || !origin || origin === 'null' || !origin.startsWith('http')) {
+      return PUBLIC_PRODUCTION_BASE;
+    }
+    return origin + window.location.pathname.replace(/\/(index|app|admin|super-admin|register|light)(\.html)?$/, '').replace(/\/$/, '') + '/';
+  }
+  return PUBLIC_PRODUCTION_BASE;
+})();
 
 function makePathsAbsolute(html) {
   if (!html) return '';
   let processed = html;
+  
+  // Clean up any existing local file:// URLs to public base
+  processed = processed.replace(/src=["']file:\/\/[^"']+\/Resources\//gi, `src="${BASE_URL}Resources/`);
+  processed = processed.replace(/src=["']file:\/\/[^"']+\/MailFooter%20Resources\//gi, `src="${BASE_URL}MailFooter Resources/`);
+  processed = processed.replace(/src=["']file:\/\/[^"']+\/MailFooter Resources\//gi, `src="${BASE_URL}MailFooter Resources/`);
+  processed = processed.replace(/url\(["']?file:\/\/[^"'\)]+\/Resources\//gi, `url('${BASE_URL}Resources/`);
   
   // Resources directory replacements
   processed = processed.replaceAll('src="Resources/', `src="${BASE_URL}Resources/`);
@@ -197,27 +215,53 @@ function renderCustomTemplate(htmlContent, data) {
 function renderOsPremium(data) {
   const primaryHex = data.primary.replace('#', '');
   const secondaryHex = data.secondary.replace('#', '');
+  const isMidnight = data.darkModeStrategy === 'midnight';
+  const isAdaptive = data.darkModeStrategy === 'adaptive';
+
+  // Strategy-based background and text tokens (Default: Locked White Card with zero drop-shadow and zero outer border)
+  const cardBg = isMidnight ? '#111827' : '#ffffff';
+  const cardGradient = (isMidnight || isAdaptive) ? 'none' : 'linear-gradient(#ffffff, #ffffff)';
+  const sliceBg = isMidnight ? '#111827' : '#ffffff';
+  const sliceGradient = (isMidnight || isAdaptive) ? 'none' : 'linear-gradient(#ffffff, #ffffff)';
+  const nameColor = isMidnight ? '#38bdf8' : data.primary;
+  const titleColor = isMidnight ? '#fb923c' : data.secondary;
+  const textColor = isMidnight ? '#e2e8f0' : '#333333';
+  const linkColor = isMidnight ? '#cbd5e1' : '#333333';
+  const dividerColor = isMidnight ? '#334155' : '#d2d2d2';
+  const topBorderColor = isMidnight ? '#1f2937' : '#e5e7eb';
+
+  const topCellBg = isMidnight
+    ? 'background-color: #111827;'
+    : (isAdaptive
+        ? 'background-image: url(\'Resources/2x/brand-graphic-grey-top-left.png\'); background-repeat: no-repeat; background-position: left top; background-color: #ffffff;'
+        : 'background-image: url(\'Resources/2x/brand-graphic-grey-top-left.png\'), linear-gradient(#ffffff, #ffffff); background-repeat: no-repeat; background-position: left top; background-color: #ffffff;');
+
+  const bottomCellBg = isMidnight
+    ? 'background-color: #111827;'
+    : (isAdaptive
+        ? 'background-image: url(\'Resources/2x/brand-graphic-grey-bottom-right.png\'); background-repeat: no-repeat; background-position: right bottom; background-color: #ffffff;'
+        : 'background-image: url(\'Resources/2x/brand-graphic-grey-bottom-right.png\'), linear-gradient(#ffffff, #ffffff); background-repeat: no-repeat; background-position: right bottom; background-color: #ffffff;');
 
   const campaignPromoSlice = data.campaignImg ? `
     <!-- SLICE 02: CAMPAIGN PROMO BANNER -->
     <tr>
-      <td valign="top" align="center" style="padding: 15px; background-color: #ffffff;">
-        <table cellpadding="0" cellspacing="0" border="0" width="548" style="width: 548px; max-width: 548px; background-color: #0b0c0d; border-radius: 8px; border-collapse: collapse; overflow: hidden;">
+      <td valign="top" align="center" class="osh-campaign-td" style="padding: 15px; background-color: ${sliceBg}; background-image: ${sliceGradient}; border: 0; box-shadow: none;">
+        <table cellpadding="0" cellspacing="0" border="0" width="548" style="width: 548px; max-width: 548px; background-color: #0b0c0d; border-radius: 8px; border-collapse: collapse; overflow: hidden; border: 0; box-shadow: none;">
           <tr>
-            <td valign="top" width="386" height="101" style="width: 386px; height: 101px; line-height: 0; padding: 0; margin: 0;">
-              <img src="${data.campaignImg}" alt="Campaign Info" width="386" height="101" style="border: 0; display: block; width: 386px; height: 101px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
+            <td valign="top" width="386" height="101" style="width: 386px; height: 101px; line-height: 0; padding: 0; margin: 0; border: 0;">
+              <img src="${data.campaignImg}" alt="Campaign Info" width="386" height="101" onerror="this.onerror=null;this.src='${BASE_URL}Resources/1x/cta-banner-left.png';" style="border: 0; display: block; width: 386px; height: 101px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
             </td>
-            <td valign="top" width="162" height="101" style="width: 162px; height: 101px; background-color: #0b0c0d; padding: 0; margin: 0; line-height: 0;">
-              <table cellpadding="0" cellspacing="0" border="0" width="162" style="width: 162px;">
+            <td valign="top" width="162" height="101" style="width: 162px; height: 101px; background-color: #0b0c0d; padding: 0; margin: 0; line-height: 0; border: 0;">
+              <table cellpadding="0" cellspacing="0" border="0" width="162" style="width: 162px; border: 0;">
                 <tr>
-                  <td valign="top" width="162" height="56" style="width: 162px; height: 56px; line-height: 0; padding: 0; margin: 0;">
-                    <img src="${data.campaignPartner}" alt="Sage Partner Badge" width="162" height="56" style="border: 0; display: block; width: 162px; height: 56px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
+                  <td valign="top" width="162" height="56" style="width: 162px; height: 56px; line-height: 0; padding: 0; margin: 0; border: 0;">
+                    <img src="${data.campaignPartner}" alt="Sage Partner Badge" width="162" height="56" onerror="this.onerror=null;this.src='${BASE_URL}Resources/1x/cta-banner-right-top.png';" style="border: 0; display: block; width: 162px; height: 56px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
                   </td>
                 </tr>
                 <tr>
-                  <td valign="top" width="162" height="45" style="width: 162px; height: 45px; line-height: 0; padding: 0; margin: 0;">
-                    <a href="${data.campaignLink}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
-                      <img src="${data.campaignBtn}" alt="Request A Demo Now!" width="162" height="45" style="border: 0; display: block; width: 162px; height: 45px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
+                  <td valign="top" width="162" height="45" style="width: 162px; height: 45px; line-height: 0; padding: 0; margin: 0; border: 0;">
+                    <a href="${data.campaignLink || 'https://os-holdings.co.za/'}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
+                      <img src="${data.campaignBtn}" alt="Claim Voucher" width="162" height="45" onerror="this.onerror=null;this.src='${BASE_URL}Resources/1x/cta-banner-right-bottom.png';" style="border: 0; display: block; width: 162px; height: 45px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
                     </a>
                   </td>
                 </tr>
@@ -296,80 +340,99 @@ function renderOsPremium(data) {
     </td>
   ` : '';
 
+  const adaptiveStyles = isAdaptive ? `
+    <style>
+      :root { color-scheme: light dark; supported-color-schemes: light dark; }
+      @media (prefers-color-scheme: dark) {
+        .osh-card { background-color: #14171f !important; background-image: none !important; border: 0 !important; box-shadow: none !important; }
+        .osh-cell-top { background-color: #14171f !important; background-image: none !important; border-bottom: 1px solid #272f3d !important; }
+        .osh-campaign-td { background-color: #14171f !important; background-image: none !important; }
+        .osh-cell-bottom { background-color: #14171f !important; background-image: none !important; }
+        .osh-name { color: #38bdf8 !important; }
+        .osh-title { color: #fb923c !important; }
+        .osh-text { color: #e2e8f0 !important; }
+        .osh-link { color: #cbd5e1 !important; }
+        .osh-divider { border-color: #334155 !important; }
+        .osh-slogan-img { filter: brightness(0) invert(1) !important; }
+      }
+    </style>
+  ` : '';
+
   const layout = `
-    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; width: 100%; line-height: 1.25;">
+    ${adaptiveStyles}
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: transparent; width: 100%; line-height: 1.25; border: 0; box-shadow: none;">
       <tr>
-        <td align="left" valign="top">
-          <table cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 1px solid #e5e7eb;">
+        <td align="left" valign="top" style="border: 0; padding: 0;">
+          <table cellpadding="0" cellspacing="0" border="0" width="578" class="osh-card" style="width: 578px; max-width: 578px; background-color: ${cardBg}; background-image: ${cardGradient}; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 0; outline: none; box-shadow: none; border-collapse: collapse;">
             <tr>
-              <td valign="middle" height="85" style="height: 85px; border-bottom: 1px solid #e5e7eb; padding: 10px 15px; background-image: url('Resources/2x/brand-graphic-grey-top-left.png'); background-repeat: no-repeat; background-position: left top; background-color: #ffffff;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed;">
+              <td valign="middle" height="85" class="osh-cell-top" style="height: 85px; border-bottom: 1px solid ${topBorderColor}; padding: 10px 15px; ${topCellBg} border-top: 0; border-left: 0; border-right: 0; box-shadow: none;">
+                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed; border: 0;">
                   <tr>
-                    <td valign="middle" width="130" style="width: 130px; text-align: left;">
+                    <td valign="middle" width="130" style="width: 130px; text-align: left; border: 0;">
                       <a href="${data.webTracked}" target="_blank" style="text-decoration: none; display: block;">
                         <img src="${data.logo}" alt="OS Holdings Logo" width="120" height="30" style="border: 0; display: block; max-width: 120px; height: 30px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
                       </a>
                     </td>
-                    <td valign="middle" width="1" style="width: 1px; border-left: 1px solid #d2d2d2; font-size: 1px; line-height: 1px;">&nbsp;</td>
-                    <td valign="middle" width="132" style="width: 132px; max-width: 132px; padding-left: 12px; padding-right: 5px; text-align: left; overflow: hidden;">
-                      <div style="font-size: 15px; font-weight: bold; color: ${data.primary}; margin: 0; letter-spacing: 0.2px; text-transform: none; line-height: 17px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
+                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; border-left: 1px solid ${dividerColor}; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                    <td valign="middle" width="132" style="width: 132px; max-width: 132px; padding-left: 12px; padding-right: 5px; text-align: left; overflow: hidden; border: 0;">
+                      <div class="osh-name" style="font-size: 15px; font-weight: bold; color: ${nameColor}; margin: 0; letter-spacing: 0.2px; text-transform: none; line-height: 17px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
                         ${data.name}
                       </div>
-                      <div style="font-size: 12px; color: ${data.secondary}; font-weight: bold; margin-top: 3px; line-height: 14px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
+                      <div class="osh-title" style="font-size: 12px; color: ${titleColor}; font-weight: bold; margin-top: 3px; line-height: 14px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
                         ${data.title}
                       </div>
                     </td>
-                    <td valign="middle" width="1" style="width: 1px; border-left: 1px solid #d2d2d2; font-size: 1px; line-height: 1px;">&nbsp;</td>
-                    <td valign="middle" width="163" style="width: 163px; padding-left: 12px; font-size: 10px; color: #555555; text-align: left;">
-                      <table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #555555;">
+                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; border-left: 1px solid ${dividerColor}; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                    <td valign="middle" width="163" style="width: 163px; padding-left: 12px; font-size: 10px; color: ${textColor}; text-align: left; border: 0;">
+                      <table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: ${textColor}; border: 0;">
                         ${data.phone ? `
                         <tr>
-                          <td valign="middle" style="padding-right: 6px; padding-bottom: 3px;">
-                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center;">
+                          <td valign="middle" style="padding-right: 6px; padding-bottom: 3px; border: 0;">
+                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center; border: 0;">
                               <tr>
-                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0;">
+                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0; border: 0;">
                                   <img src="https://img.icons8.com/ios-filled/14/ffffff/phone.png" width="8" height="8" style="border:0; display:block; margin: 0 auto; width:8px; height:8px;" />
                                 </td>
                               </tr>
                             </table>
                           </td>
-                          <td valign="middle" style="padding-bottom: 3px; line-height: 12px; color: #333333; font-weight: 500; white-space: nowrap;">
+                          <td valign="middle" class="osh-text" style="padding-bottom: 3px; line-height: 12px; color: ${textColor}; font-weight: 500; white-space: nowrap; border: 0;">
                             ${data.phone}
                           </td>
                         </tr>` : ''}
                         ${data.email ? `
                         <tr>
-                          <td valign="middle" style="padding-right: 6px; padding-bottom: 3px;">
-                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center;">
+                          <td valign="middle" style="padding-right: 6px; padding-bottom: 3px; border: 0;">
+                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center; border: 0;">
                               <tr>
-                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0;">
+                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0; border: 0;">
                                   <img src="https://img.icons8.com/ios-filled/14/ffffff/new-post.png" width="8" height="8" style="border:0; display:block; margin: 0 auto; width:8px; height:8px;" />
                                 </td>
                               </tr>
                             </table>
                           </td>
-                          <td valign="middle" style="padding-bottom: 3px; line-height: 12px; white-space: nowrap;">
-                            <a href="mailto:${data.email}" style="color: #333333; text-decoration: none; font-weight: 500;">${data.email}</a>
+                          <td valign="middle" style="padding-bottom: 3px; line-height: 12px; white-space: nowrap; border: 0;">
+                            <a href="mailto:${data.email}" class="osh-link" style="color: ${linkColor}; text-decoration: none; font-weight: 500;">${data.email}</a>
                           </td>
                         </tr>` : ''}
                         ${data.web ? `
                         <tr>
-                          <td valign="middle" style="padding-right: 6px;">
-                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center;">
+                          <td valign="middle" style="padding-right: 6px; border: 0;">
+                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center; border: 0;">
                               <tr>
-                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0;">
+                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0; border: 0;">
                                   <img src="https://img.icons8.com/ios-filled/14/ffffff/globe.png" width="8" height="8" style="border:0; display:block; margin: 0 auto; width:8px; height:8px;" />
                                 </td>
                               </tr>
                             </table>
                           </td>
-                          <td valign="middle" style="line-height: 12px; white-space: nowrap;">
-                            <a href="${data.webTracked}" target="_blank" style="color: #333333; text-decoration: none; font-weight: 500;">${data.web}</a>
+                          <td valign="middle" style="line-height: 12px; white-space: nowrap; border: 0;">
+                            <a href="${data.webTracked}" target="_blank" class="osh-link" style="color: ${linkColor}; text-decoration: none; font-weight: 500;">${data.web}</a>
                           </td>
                         </tr>` : ''}
                       </table>
                     </td>
-                    <td valign="middle" width="119" style="width: 119px; text-align: right; line-height: 0;">
+                    <td valign="middle" width="119" style="width: 119px; text-align: right; line-height: 0; border: 0;">
                       <img src="${data.sideImage}" alt="Brand Graphic" width="119" height="70" style="border: 0; display: block; width: 119px; height: 70px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
                     </td>
                   </tr>
@@ -378,20 +441,20 @@ function renderOsPremium(data) {
             </tr>
             ${campaignPromoSlice}
             <tr>
-              <td valign="middle" height="55" style="height: 55px; padding: 5px 15px; background-image: url('Resources/2x/brand-graphic-grey-bottom-right.png'); background-repeat: no-repeat; background-position: right bottom; background-color: #ffffff;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed;">
+              <td valign="middle" height="55" class="osh-cell-bottom" style="height: 55px; padding: 5px 15px; ${bottomCellBg} border: 0; box-shadow: none;">
+                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed; border: 0;">
                   <tr>
-                    <td valign="middle" width="165" style="width: 165px; text-align: left;">
+                    <td valign="middle" width="165" style="width: 165px; text-align: left; border: 0;">
                       ${socialsHtml}
                     </td>
                     ${verticalLineHtml}
-                    <td valign="middle" align="center" width="249" style="width: 249px; padding: 0 10px; line-height: 0;">
-                      <img src="Resources/2x/slogan.png" alt="Innovate | Excel | Grow" width="126" height="15" style="border:0; display:block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
+                    <td valign="middle" align="center" width="249" style="width: 249px; padding: 0 10px; line-height: 0; border: 0;">
+                      <img src="Resources/2x/slogan.png" alt="Innovate | Excel | Grow" class="osh-slogan-img" width="126" height="15" style="border:0; display:block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; ${isMidnight ? 'filter: brightness(0) invert(1);' : ''}" />
                     </td>
-                    <td valign="middle" width="1" style="width: 1px; line-height: 0;">
+                    <td valign="middle" width="1" style="width: 1px; line-height: 0; border: 0;">
                       <img src="Resources/2x/separator-line-2.png" width="1" height="40" style="border:0; display:block; width:1px; height:40px;" />
                     </td>
-                    <td valign="middle" align="right" width="130" style="width: 130px; line-height: 0;">
+                    <td valign="middle" align="right" width="130" style="width: 130px; line-height: 0; border: 0;">
                       <a href="${data.webTracked}" target="_blank" style="text-decoration: none; display: inline-block; line-height: 0;">
                         <img src="Resources/2x/connect-with-us-cta-button.png" alt="Connect With Us" width="118" height="25" style="border: 0; display: block; width: 118px; height: 25px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
                       </a>
@@ -401,9 +464,10 @@ function renderOsPremium(data) {
               </td>
             </tr>
           </table>
-          ${data.openPixel}
+          ${data.openPixel || ''}
         </td>
       </tr>
+    </table>
   `;
   return makePathsAbsolute(layout);
 }
@@ -411,29 +475,25 @@ function renderOsPremium(data) {
 function renderOsFlatBanner(data) {
   const primaryHex = data.primary.replace('#', '');
   const secondaryHex = data.secondary.replace('#', '');
+  const isMidnight = data.darkModeStrategy === 'midnight';
+  const isAdaptive = data.darkModeStrategy === 'adaptive';
 
-  const campaignPromoSlice = data.campaignImg ? `
-    <!-- SLICE 02: CAMPAIGN PROMO BANNER -->
-    <tr>
-      <td valign="top" align="center" style="padding: 0; background-color: #ffffff;">
-        <table cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #0b0c0d; border-collapse: collapse; overflow: hidden;">
-          <tr>
-            <td valign="top" width="578" height="103" style="width: 578px; height: 103px; line-height: 0; padding: 0; margin: 0;">
-              <a href="${data.campaignLink}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
-                <img src="Resources/2x/cta-banner.png" alt="Campaign Banner" width="578" height="103" style="border: 0; display: block; width: 578px; height: 103px;" />
-              </a>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  ` : '';
+  // Strategy-based background and text tokens (Default: Clean White Card with zero drop-shadow and zero outer border)
+  const cardBg = isMidnight ? '#111827' : '#ffffff';
+  const cardGradient = (isMidnight || isAdaptive) ? 'none' : 'linear-gradient(#ffffff, #ffffff)';
+  const nameColor = isMidnight ? '#38bdf8' : data.primary;
+  const titleColor = isMidnight ? '#fb923c' : data.secondary;
+  const textColor = isMidnight ? '#e2e8f0' : '#333333';
+  const linkColor = isMidnight ? '#cbd5e1' : '#333333';
+  const dividerColor = isMidnight ? '#334155' : '#d2d2d2';
+  const topBorderColor = isMidnight ? '#1f2937' : '#e5e7eb';
+  const bottomCellBg = isMidnight ? 'background-color: #111827;' : 'background-color: #ffffff;';
 
   // Generate dynamic socials html list
   let socialsList = [];
   if (data.linkedin) {
     socialsList.push(`
-      <td style="padding-right: 5px; line-height: 0;">
+      <td style="padding-right: 5px; line-height: 0; border: 0;">
         <a href="${data.linkedin}" target="_blank" style="text-decoration: none; display: block;">
           <img src="Resources/2x/icon-linkedin.png" width="27" height="27" style="border:0; display:block; width:27px; height:27px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
         </a>
@@ -442,7 +502,7 @@ function renderOsFlatBanner(data) {
   }
   if (data.instagram) {
     socialsList.push(`
-      <td style="padding-right: 5px; line-height: 0;">
+      <td style="padding-right: 5px; line-height: 0; border: 0;">
         <a href="${data.instagram}" target="_blank" style="text-decoration: none; display: block;">
           <img src="Resources/2x/icon-instagram.png" width="27" height="27" style="border:0; display:block; width:27px; height:27px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
         </a>
@@ -451,7 +511,7 @@ function renderOsFlatBanner(data) {
   }
   if (data.twitter) {
     socialsList.push(`
-      <td style="padding-right: 5px; line-height: 0;">
+      <td style="padding-right: 5px; line-height: 0; border: 0;">
         <a href="${data.twitter}" target="_blank" style="text-decoration: none; display: block;">
           <img src="Resources/2x/icon-twitter.png" width="27" height="27" style="border:0; display:block; width:27px; height:27px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
         </a>
@@ -460,7 +520,7 @@ function renderOsFlatBanner(data) {
   }
   if (data.facebook) {
     socialsList.push(`
-      <td style="padding-right: 5px; line-height: 0;">
+      <td style="padding-right: 5px; line-height: 0; border: 0;">
         <a href="${data.facebook}" target="_blank" style="text-decoration: none; display: block;">
           <img src="Resources/2x/icon-facebook.png" width="27" height="27" style="border:0; display:block; width:27px; height:27px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
         </a>
@@ -469,7 +529,7 @@ function renderOsFlatBanner(data) {
   }
   if (data.youtube) {
     socialsList.push(`
-      <td style="line-height: 0;">
+      <td style="line-height: 0; border: 0;">
         <a href="${data.youtube}" target="_blank" style="text-decoration: none; display: block;">
           <img src="Resources/2x/icon-youtube.png" width="27" height="27" style="border:0; display:block; width:27px; height:27px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
         </a>
@@ -479,11 +539,11 @@ function renderOsFlatBanner(data) {
   
   if (socialsList.length > 0) {
     const lastIndex = socialsList.length - 1;
-    socialsList[lastIndex] = socialsList[lastIndex].replace('style="padding-right: 5px;', 'style="');
+    socialsList[lastIndex] = socialsList[lastIndex].replace('style="padding-right: 5px; line-height: 0; border: 0;"', 'style="line-height: 0; border: 0;"');
   }
 
   const socialsHtml = socialsList.length > 0 ? `
-    <table cellpadding="0" cellspacing="0" border="0" style="display: inline-block;">
+    <table cellpadding="0" cellspacing="0" border="0" style="display: inline-block; border: 0;">
       <tr>
         ${socialsList.join('')}
       </tr>
@@ -491,85 +551,120 @@ function renderOsFlatBanner(data) {
   ` : '';
 
   const verticalLineHtml = socialsHtml ? `
-    <td valign="middle" width="1" style="width: 1px; line-height: 0;">
+    <td valign="middle" width="1" style="width: 1px; line-height: 0; border: 0;">
       <img src="Resources/2x/separator-line.png" width="1" height="40" style="border:0; display:block; width:1px; height:40px;" />
     </td>
   ` : '';
 
+  const campaignPromoSlice = (data.campaignImg && data.campaign_enabled !== false) ? `
+    <!-- SLICE 02: CAMPAIGN PROMO BANNER (FLAT BANNER) -->
+    <tr>
+      <td valign="top" align="center" style="padding: 0; line-height: 0; border: 0; box-shadow: none;">
+        <table cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #0b0c0d; border-collapse: collapse; overflow: hidden; border: 0; box-shadow: none;">
+          <tr>
+            <td valign="top" width="578" height="103" style="width: 578px; height: 103px; line-height: 0; padding: 0; margin: 0; border: 0;">
+              <a href="${data.campaignLink || 'https://os-holdings.co.za/'}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
+                <img src="${data.campaignImg}" alt="Campaign Banner" width="578" height="103" onerror="this.onerror=null;this.src='${BASE_URL}Resources/2x/cta-banner.png';" style="border: 0; display: block; width: 578px; height: 103px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
+              </a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  ` : '';
+
+  const adaptiveStyles = isAdaptive ? `
+    <style>
+      :root { color-scheme: light dark; supported-color-schemes: light dark; }
+      @media (prefers-color-scheme: dark) {
+        .osh-card { background-color: #14171f !important; background-image: none !important; border: 0 !important; box-shadow: none !important; }
+        .osh-cell-top { background-color: #14171f !important; background-image: none !important; border-bottom: 1px solid #272f3d !important; }
+        .osh-cell-bottom { background-color: #14171f !important; background-image: none !important; }
+        .osh-name { color: #38bdf8 !important; }
+        .osh-title { color: #fb923c !important; }
+        .osh-text { color: #e2e8f0 !important; }
+        .osh-link { color: #cbd5e1 !important; }
+        .osh-divider { border-color: #334155 !important; }
+        .osh-slogan-img { filter: brightness(0) invert(1) !important; }
+      }
+    </style>
+  ` : '';
+
   const layout = `
-    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; width: 100%; line-height: 1.25;">
+    ${adaptiveStyles}
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: transparent; width: 100%; line-height: 1.25; border: 0; box-shadow: none;">
       <tr>
-        <td align="left" valign="top">
-          <table cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 1px solid #e5e7eb;">
+        <td align="left" valign="top" style="border: 0; padding: 0;">
+          <table cellpadding="0" cellspacing="0" border="0" width="578" class="osh-card" style="width: 578px; max-width: 578px; background-color: ${cardBg}; background-image: ${cardGradient}; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 0; outline: none; box-shadow: none; border-collapse: collapse;">
             <tr>
-              <td valign="middle" height="85" style="height: 85px; border-bottom: 1px solid #e5e7eb; padding: 10px 10px; background-color: #ffffff;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed;">
+              <td valign="middle" height="85" class="osh-cell-top" style="height: 85px; border-bottom: 1px solid ${topBorderColor}; padding: 10px 10px; background-color: ${cardBg}; background-image: ${cardGradient}; border-top: 0; border-left: 0; border-right: 0; box-shadow: none;">
+                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed; border: 0;">
                   <tr>
-                    <td valign="middle" width="130" style="width: 130px; text-align: left;">
+                    <td valign="middle" width="130" style="width: 130px; text-align: left; border: 0;">
                       <a href="${data.webTracked}" target="_blank" style="text-decoration: none; display: block;">
-                        <img src="${data.logo}" alt="OS Holdings Logo" width="120" height="30" style="border: 0; display: block; max-width: 120px; height: 30px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
+                        <img src="${data.logo}" alt="OS Holdings Logo" width="120" height="30" style="border: 0; display: block; max-width: 120px; height: 30px; filter: drop-shadow(0 0 1px rgba(255,255,255,0.7)); image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
                       </a>
                     </td>
-                    <td valign="middle" width="1" style="width: 1px; border-left: 1px solid #d2d2d2; font-size: 1px; line-height: 1px;">&nbsp;</td>
-                    <td valign="middle" width="152" style="width: 152px; max-width: 152px; padding-left: 12px; padding-right: 5px; text-align: left; overflow: hidden;">
-                      <div style="font-size: 15px; font-weight: bold; color: ${data.primary}; margin: 0; letter-spacing: 0.2px; text-transform: none; line-height: 17px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
+                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; border-left: 1px solid ${dividerColor}; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                    <td valign="middle" width="152" style="width: 152px; max-width: 152px; padding-left: 12px; padding-right: 5px; text-align: left; overflow: hidden; border: 0;">
+                      <div class="osh-name" style="font-size: 15px; font-weight: bold; color: ${nameColor}; text-shadow: 0 0 1px rgba(255,255,255,0.6); margin: 0; letter-spacing: 0.2px; text-transform: none; line-height: 17px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
                         ${data.name}
                       </div>
-                      <div style="font-size: 12px; color: ${data.secondary}; font-weight: bold; margin-top: 3px; line-height: 14px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
+                      <div class="osh-title" style="font-size: 12px; color: ${titleColor}; font-weight: bold; margin-top: 3px; line-height: 14px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
                         ${data.title}
                       </div>
                     </td>
-                    <td valign="middle" width="1" style="width: 1px; border-left: 1px solid #d2d2d2; font-size: 1px; line-height: 1px;">&nbsp;</td>
-                    <td valign="middle" width="153" style="width: 153px; padding-left: 12px; font-size: 10px; color: #555555; text-align: left;">
-                      <table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #555555;">
+                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; border-left: 1px solid ${dividerColor}; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                    <td valign="middle" width="153" style="width: 153px; padding-left: 12px; font-size: 10px; color: ${textColor}; text-align: left; border: 0;">
+                      <table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: ${textColor}; border: 0;">
                         ${data.phone ? `
                         <tr>
-                          <td valign="middle" style="padding-right: 6px; padding-bottom: 3px;">
-                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center;">
+                          <td valign="middle" style="padding-right: 6px; padding-bottom: 3px; border: 0;">
+                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center; border: 0;">
                               <tr>
-                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0;">
+                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0; border: 0;">
                                   <img src="https://img.icons8.com/ios-filled/14/ffffff/phone.png" width="8" height="8" style="border:0; display:block; margin: 0 auto; width:8px; height:8px;" />
                                 </td>
                               </tr>
                             </table>
                           </td>
-                          <td valign="middle" style="padding-bottom: 3px; line-height: 12px; color: #333333; font-weight: 500; white-space: nowrap;">
+                          <td valign="middle" class="osh-text" style="padding-bottom: 3px; line-height: 12px; color: ${textColor}; font-weight: 500; white-space: nowrap; border: 0;">
                             ${data.phone}
                           </td>
                         </tr>` : ''}
                         ${data.email ? `
                         <tr>
-                          <td valign="middle" style="padding-right: 6px; padding-bottom: 3px;">
-                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center;">
+                          <td valign="middle" style="padding-right: 6px; padding-bottom: 3px; border: 0;">
+                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center; border: 0;">
                               <tr>
-                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0;">
+                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0; border: 0;">
                                   <img src="https://img.icons8.com/ios-filled/14/ffffff/new-post.png" width="8" height="8" style="border:0; display:block; margin: 0 auto; width:8px; height:8px;" />
                                 </td>
                               </tr>
                             </table>
                           </td>
-                          <td valign="middle" style="padding-bottom: 3px; line-height: 12px; white-space: nowrap;">
-                            <a href="mailto:${data.email}" style="color: #333333; text-decoration: none; font-weight: 500;">${data.email}</a>
+                          <td valign="middle" style="padding-bottom: 3px; line-height: 12px; white-space: nowrap; border: 0;">
+                            <a href="mailto:${data.email}" class="osh-link" style="color: ${linkColor}; text-decoration: none; font-weight: 500;">${data.email}</a>
                           </td>
                         </tr>` : ''}
                         ${data.web ? `
                         <tr>
-                          <td valign="middle" style="padding-right: 6px;">
-                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center;">
+                          <td valign="middle" style="padding-right: 6px; border: 0;">
+                            <table cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.secondary}; border-radius: 50%; width: 14px; height: 14px; text-align: center; border: 0;">
                               <tr>
-                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0;">
+                                <td valign="middle" align="center" style="height: 14px; width: 14px; border-radius: 50%; padding: 0; line-height: 0; border: 0;">
                                   <img src="https://img.icons8.com/ios-filled/14/ffffff/globe.png" width="8" height="8" style="border:0; display:block; margin: 0 auto; width:8px; height:8px;" />
                                 </td>
                               </tr>
                             </table>
                           </td>
-                          <td valign="middle" style="line-height: 12px; white-space: nowrap;">
-                            <a href="${data.webTracked}" target="_blank" style="color: #333333; text-decoration: none; font-weight: 500;">${data.web}</a>
+                          <td valign="middle" style="line-height: 12px; white-space: nowrap; border: 0;">
+                            <a href="${data.webTracked}" target="_blank" class="osh-link" style="color: ${linkColor}; text-decoration: none; font-weight: 500;">${data.web}</a>
                           </td>
                         </tr>` : ''}
                       </table>
                     </td>
-                    <td valign="middle" width="119" style="width: 119px; text-align: right; line-height: 0;">
+                    <td valign="middle" width="119" style="width: 119px; text-align: right; line-height: 0; border: 0;">
                       <img src="${data.sideImage}" alt="Brand Graphic" width="119" height="70" style="border: 0; display: block; width: 119px; height: 70px;" />
                     </td>
                   </tr>
@@ -578,20 +673,20 @@ function renderOsFlatBanner(data) {
             </tr>
             ${campaignPromoSlice}
             <tr>
-              <td valign="middle" height="55" style="height: 55px; padding: 5px 10px; background-image: url('Resources/2x/brand-graphic-grey-bottom-right.png'); background-repeat: no-repeat; background-position: right bottom; background-color: #ffffff;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed;">
+              <td valign="middle" height="55" class="osh-cell-bottom" style="height: 55px; padding: 5px 10px; ${bottomCellBg} border: 0; box-shadow: none;">
+                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed; border: 0;">
                   <tr>
-                    <td valign="middle" width="165" style="width: 165px; text-align: left;">
+                    <td valign="middle" width="165" style="width: 165px; text-align: left; border: 0;">
                       ${socialsHtml}
                     </td>
                     ${verticalLineHtml}
-                    <td valign="middle" align="center" width="259" style="width: 259px; padding: 0 10px; line-height: 0;">
-                      <img src="Resources/2x/slogan.png" alt="Innovate | Excel | Grow" width="126" height="15" style="border:0; display:block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
+                    <td valign="middle" align="center" width="259" style="width: 259px; padding: 0 10px; line-height: 0; border: 0;">
+                      <img src="Resources/2x/slogan.png" alt="Innovate | Excel | Grow" class="osh-slogan-img" width="126" height="15" style="border:0; display:block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; ${isMidnight ? 'filter: brightness(0) invert(1);' : ''}" />
                     </td>
-                    <td valign="middle" width="1" style="width: 1px; line-height: 0;">
+                    <td valign="middle" width="1" style="width: 1px; line-height: 0; border: 0;">
                       <img src="Resources/2x/separator-line-2.png" width="1" height="40" style="border:0; display:block; width:1px; height:40px;" />
                     </td>
-                    <td valign="middle" align="right" width="130" style="width: 130px; line-height: 0;">
+                    <td valign="middle" align="right" width="130" style="width: 130px; line-height: 0; border: 0;">
                       <a href="${data.webTracked}" target="_blank" style="text-decoration: none; display: inline-block; line-height: 0;">
                         <img src="Resources/2x/connect-with-us-cta-button.png" alt="Connect With Us" width="118" height="25" style="border: 0; display: block; width: 118px; height: 25px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
                       </a>
@@ -601,7 +696,7 @@ function renderOsFlatBanner(data) {
               </td>
             </tr>
           </table>
-          ${data.openPixel}
+          ${data.openPixel || ''}
         </td>
       </tr>
     </table>
@@ -625,8 +720,8 @@ function renderGridBlueprint(data) {
     <!-- SLICE 02: CAMPAIGN PROMO BANNER -->
     <tr>
       <td valign="top" style="padding: 15px 20px 20px 20px;">
-        <a href="${data.campaignLink}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
-          <img src="${data.campaignImg}" alt="Campaign Banner" width="538" style="border: 0; display: block; width: 100%; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.08);" />
+        <a href="${data.campaignLink || 'https://os-holdings.co.za/'}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
+          <img src="${data.campaignImg}" alt="Campaign Banner" width="538" onerror="this.onerror=null;this.src='${BASE_URL}Resources/2x/cta-banner.png';" style="border: 0; display: block; width: 100%; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.08);" />
         </a>
       </td>
     </tr>
@@ -728,7 +823,7 @@ function renderGridBlueprint(data) {
             ${socialBarHtml}
             ${campaignBannerHtml}
           </table>
-          ${data.openPixel}
+          ${data.openPixel || ''}
         </td>
       </tr>
     </table>
@@ -752,8 +847,8 @@ function renderCorporateBanner(data) {
     </tr>
     <tr>
       <td align="center" style="padding: 0 15px 15px 15px;">
-        <a href="${data.campaignLink}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
-          <img src="${data.campaignImg}" alt="Marketing Campaign" border="0" width="100%" style="display: block; max-width: 570px; height: auto; border-radius: 4px;" />
+        <a href="${data.campaignLink || 'https://os-holdings.co.za/'}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
+          <img src="${data.campaignImg}" alt="Marketing Campaign" border="0" width="100%" onerror="this.onerror=null;this.src='${BASE_URL}Resources/2x/cta-banner.png';" style="display: block; max-width: 570px; height: auto; border-radius: 4px;" />
         </a>
       </td>
     </tr>
@@ -818,7 +913,7 @@ function renderCorporateBanner(data) {
             </tr>
             ${campaignHtml}
           </table>
-          ${data.openPixel}
+          ${data.openPixel || ''}
         </td>
       </tr>
     </table>
@@ -842,8 +937,8 @@ function renderModernSplit(data) {
     </tr>
     <tr>
       <td colspan="3" align="center" style="padding-top: 10px;">
-        <a href="${data.campaignLink}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
-          <img src="${data.campaignImg}" alt="Marketing Campaign" border="0" width="100%" style="display: block; max-width: 520px; height: auto; border-radius: 4px;" />
+        <a href="${data.campaignLink || 'https://os-holdings.co.za/'}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
+          <img src="${data.campaignImg}" alt="Marketing Campaign" border="0" width="100%" onerror="this.onerror=null;this.src='${BASE_URL}Resources/2x/cta-banner.png';" style="display: block; max-width: 520px; height: auto; border-radius: 4px;" />
         </a>
       </td>
     </tr>
@@ -904,7 +999,7 @@ function renderModernSplit(data) {
             </tr>
             ${campaignHtml}
           </table>
-          ${data.openPixel}
+          ${data.openPixel || ''}
         </td>
       </tr>
     </table>
@@ -919,8 +1014,8 @@ function renderCompactStacked(data) {
     </tr>
     <tr>
       <td align="left">
-        <a href="${data.campaignLink}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
-          <img src="${data.campaignImg}" alt="Marketing Campaign" border="0" width="100%" style="display: block; max-width: 400px; height: auto; border-radius: 4px;" />
+        <a href="${data.campaignLink || 'https://os-holdings.co.za/'}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
+          <img src="${data.campaignImg}" alt="Marketing Campaign" border="0" width="100%" onerror="this.onerror=null;this.src='${BASE_URL}Resources/2x/cta-banner.png';" style="display: block; max-width: 400px; height: auto; border-radius: 4px;" />
         </a>
       </td>
     </tr>
@@ -966,7 +1061,7 @@ function renderCompactStacked(data) {
             </tr>
             ${campaignHtml}
           </table>
-          ${data.openPixel}
+          ${data.openPixel || ''}
         </td>
       </tr>
     </table>

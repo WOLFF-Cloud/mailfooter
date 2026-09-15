@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
   const paramClient = urlParams.get('client');
   const paramEmail = urlParams.get('email');
+  const paramName = urlParams.get('name');
+  const paramCreate = urlParams.get('create') === '1' || urlParams.get('create') === 'true';
   const paramInstant = urlParams.get('instant') === 'true';
   
   if (paramClient) {
@@ -26,7 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Company Config/Defaults (Admin Portal Constants) ---
-  const TRACKING_DOMAIN = window.location.origin + window.location.pathname.replace(/\/(index|app|admin|super-admin|register)(\.html)?$/, '').replace(/\/$/, '');
+  const isLocalFile = window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null' || !window.location.origin.startsWith('http');
+  const TRACKING_DOMAIN = isLocalFile
+    ? 'https://os-holdings.co.za/mailfooter'
+    : window.location.origin + window.location.pathname.replace(/\/(index|app|admin|super-admin|register|light)(\.html)?$/, '').replace(/\/$/, '');
   let dbTemplates = [];
   const COMPANY_DEFAULTS = {
     companyName: 'OS Holdings',
@@ -50,11 +55,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Deployment Config ---
   // Dynamically compute base URL relative to current domain & path (ensures dynamic tracking across client domains)
-  const BASE_URL = window.location.origin + window.location.pathname.replace(/\/(index|app|admin|super-admin|register)(\.html)?$/, '').replace(/\/$/, '') + '/';
+  const PUBLIC_PRODUCTION_BASE = 'https://os-holdings.co.za/mailfooter/';
+  const BASE_URL = (function() {
+    if (typeof window !== 'undefined' && window.location) {
+      const proto = window.location.protocol;
+      const origin = window.location.origin;
+      const host = window.location.hostname;
+      if (proto === 'file:' || host === 'localhost' || host === '127.0.0.1' || !origin || origin === 'null' || !origin.startsWith('http')) {
+        return PUBLIC_PRODUCTION_BASE;
+      }
+      return origin + window.location.pathname.replace(/\/(index|app|admin|super-admin|register)(\.html)?$/, '').replace(/\/$/, '') + '/';
+    }
+    return PUBLIC_PRODUCTION_BASE;
+  })();
 
   // Helper to convert relative image paths to absolute public URLs for email clients
   function makePathsAbsolute(html) {
+    if (!html) return '';
     let processed = html;
+    
+    // Clean up any existing local file:// URLs to public production base
+    processed = processed.replace(/src=["']file:\/\/[^"']+\/Resources\//gi, `src="${BASE_URL}Resources/`);
+    processed = processed.replace(/src=["']file:\/\/[^"']+\/MailFooter%20Resources\//gi, `src="${BASE_URL}MailFooter Resources/`);
+    processed = processed.replace(/src=["']file:\/\/[^"']+\/MailFooter Resources\//gi, `src="${BASE_URL}MailFooter Resources/`);
+    processed = processed.replace(/url\(["']?file:\/\/[^"'\)]+\/Resources\//gi, `url('${BASE_URL}Resources/`);
     
     // Process Resources paths
     processed = processed.replaceAll('src="Resources/', `src="${BASE_URL}Resources/`);
@@ -117,9 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const includeCampaign = document.getElementById('includeCampaign');
   const website = document.getElementById('website');
   
-  const previewWindow = document.getElementById('previewWindow');
+  const signatureCanvasViewport = document.getElementById('signatureCanvasViewport');
+  const previewWindow = signatureCanvasViewport || document.getElementById('previewWindow');
   const copySignatureBtn = document.getElementById('copySignatureBtn');
   const copyHtmlBtn = document.getElementById('copyHtmlBtn');
+  const downloadHtmlBtn = document.getElementById('downloadHtmlBtn');
   const toast = document.getElementById('toastNotification');
   
   const toggleBtns = document.querySelectorAll('.toggle-btn');
@@ -278,8 +304,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Form Event Listeners ---
-  if (form) form.addEventListener('input', schedulePreviewUpdate);
+  if (form) {
+    form.addEventListener('input', schedulePreviewUpdate);
+    form.addEventListener('change', schedulePreviewUpdate);
+  }
   if (templateSelect) templateSelect.addEventListener('change', schedulePreviewUpdate);
+  if (includeCampaign) {
+    includeCampaign.addEventListener('change', () => {
+      schedulePreviewUpdate();
+      const campGroup = document.getElementById('campaignSelectContainer');
+      if (campGroup) {
+        campGroup.style.opacity = includeCampaign.checked ? '1' : '0.4';
+        campGroup.style.pointerEvents = includeCampaign.checked ? 'auto' : 'none';
+      }
+    });
+  }
+  const campaignSelectEl = document.getElementById('campaignSelect');
+  if (campaignSelectEl) {
+    campaignSelectEl.addEventListener('change', schedulePreviewUpdate);
+  }
 
   // --- Tab Switcher (Guide Card) ---
   tabBtns.forEach(btn => {
@@ -296,21 +339,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Platform Card Action Switcher ---
   const platformCards = document.querySelectorAll('.platform-card');
   platformCards.forEach(card => {
-    const btn = card.querySelector('.platform-btn');
-    if (btn) {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetId = card.getAttribute('data-target');
-        
-        // Find corresponding tab button and click it
-        const tabBtn = Array.from(tabBtns).find(b => b.getAttribute('data-target') === targetId);
-        if (tabBtn) {
-          tabBtn.click();
-          // Scroll smoothly to the tabs if on mobile
-          tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      });
-    }
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = card.getAttribute('data-target');
+      
+      // Find corresponding tab button and click it
+      const tabBtn = Array.from(tabBtns).find(b => b.getAttribute('data-target') === targetId);
+      if (tabBtn) {
+        tabBtn.click();
+        // Scroll smoothly to the tabs if on mobile
+        tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
   });
 
   // --- Desktop/Mobile Toggles ---
@@ -337,37 +377,72 @@ document.addEventListener('DOMContentLoaded', () => {
     const emailVal = email.value || `username@${defaultDomain}`;
     const userId = emailVal ? encodeURIComponent(emailVal) : 'unknown';
     const campaignId = isCampaignEnabled ? 'sage300_ad' : 'none';
-    const selectedTemplate = templateSelect ? templateSelect.value : 'all';
+    const rawTemplate = templateSelect ? templateSelect.value : '';
+    const selectedTemplate = (rawTemplate && rawTemplate !== '') ? rawTemplate : 'os-flat-banner';
+
+    // Resolved Campaign Image URLs
+    const resolvedCampaignImg = isCampaignEnabled
+      ? (isLocalFile
+          ? `${BASE_URL}Resources/2x/cta-banner.png`
+          : `${TRACKING_DOMAIN}/track/banner.php?user_id=${userId}&type=main&template=${selectedTemplate}`)
+      : '';
+    const resolvedCampaignPartner = isCampaignEnabled
+      ? (isLocalFile
+          ? `${BASE_URL}Resources/1x/cta-banner-right-top.png`
+          : `${TRACKING_DOMAIN}/track/banner.php?user_id=${userId}&type=partner&template=${selectedTemplate}`)
+      : '';
+    const resolvedCampaignBtn = isCampaignEnabled
+      ? (isLocalFile
+          ? `${BASE_URL}Resources/1x/cta-banner-right-bottom.png`
+          : `${TRACKING_DOMAIN}/track/banner.php?user_id=${userId}&type=button&template=${selectedTemplate}`)
+      : '';
+    const resolvedCampaignLink = isCampaignEnabled
+      ? (isLocalFile
+          ? (COMPANY_DEFAULTS.campaignLink || 'https://os-holdings.co.za/')
+          : `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=campaign_banner&template=${selectedTemplate}`)
+      : '';
+    const resolvedLogo = isLocalFile
+      ? `${BASE_URL}Resources/2x/logo.png`
+      : `${TRACKING_DOMAIN}/track/logo?user_id=${userId}&campaign_id=${campaignId}&template=${selectedTemplate}`;
+
+    // Reliable fallback resolution for social networks
+    const rawLinkedin = (linkedinUrl && linkedinUrl.value.trim()) || COMPANY_DEFAULTS.socialLinkedin || 'https://www.linkedin.com/company/osholdings';
+    const rawTwitter = (twitterUrl && twitterUrl.value.trim()) || COMPANY_DEFAULTS.socialTwitter || 'https://x.com/holdings_os';
+    const rawInstagram = (instagramUrl && instagramUrl.value.trim()) || COMPANY_DEFAULTS.socialInstagram || 'https://www.instagram.com/osholdings/';
+    const rawFacebook = (facebookUrl && facebookUrl.value.trim()) || COMPANY_DEFAULTS.socialFacebook || 'https://www.facebook.com/osholdings';
+    const rawYoutube = (youtubeUrl && youtubeUrl.value.trim()) || COMPANY_DEFAULTS.socialYoutube || '';
 
     const data = {
       name: fullName.value || 'Your Name',
       title: jobTitle.value || 'Your Title',
       dept: department.value ? ` | ${department.value}` : '',
       tagline: COMPANY_DEFAULTS.tagline,
-      phone: phone.value || '064 064 5038',
+      phone: phone.value || '+27 (0) 11 463 1000',
       email: emailVal,
       web: website.value || COMPANY_DEFAULTS.website, // Plain website text for UI display
       
       // Spam-proof visible logo open tracking
-      logo: `${TRACKING_DOMAIN}/track/logo?user_id=${userId}&campaign_id=${campaignId}&template=${selectedTemplate}`,
+      logo: resolvedLogo,
       
       headshot: headshotBase64 || (headshotUrl ? headshotUrl.value : '') || '',
       primary: COMPANY_DEFAULTS.primaryColor,
       secondary: COMPANY_DEFAULTS.secondaryColor,
       
       // Spam-proof parameter-free click redirects
-      linkedin: linkedinUrl.value ? `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=linkedin&template=${selectedTemplate}` : '',
-      twitter: twitterUrl.value ? `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=twitter&template=${selectedTemplate}` : '',
-      instagram: instagramUrl.value ? `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=instagram&template=${selectedTemplate}` : '',
-      facebook: facebookUrl.value ? `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=facebook&template=${selectedTemplate}` : '',
-      youtube: youtubeUrl.value ? `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=youtube&template=${selectedTemplate}` : '',
+      linkedin: rawLinkedin ? (isLocalFile ? rawLinkedin : `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=linkedin&template=${selectedTemplate}`) : '',
+      twitter: rawTwitter ? (isLocalFile ? rawTwitter : `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=twitter&template=${selectedTemplate}`) : '',
+      instagram: rawInstagram ? (isLocalFile ? rawInstagram : `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=instagram&template=${selectedTemplate}`) : '',
+      facebook: rawFacebook ? (isLocalFile ? rawFacebook : `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=facebook&template=${selectedTemplate}`) : '',
+      youtube: rawYoutube ? (isLocalFile ? rawYoutube : `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=youtube&template=${selectedTemplate}`) : '',
       webTracked: `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=website&template=${selectedTemplate}`,
       
       // Dynamic campaign banner graphics & target links
-      campaignLink: `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=campaign_banner&template=${selectedTemplate}`,
-      campaignImg: isCampaignEnabled ? `${TRACKING_DOMAIN}/track/banner?user_id=${userId}&type=main&template=${selectedTemplate}` : '',
-      campaignPartner: `${TRACKING_DOMAIN}/track/banner?user_id=${userId}&type=partner&template=${selectedTemplate}`,
-      campaignBtn: `${TRACKING_DOMAIN}/track/banner?user_id=${userId}&type=button&template=${selectedTemplate}`,
+      campaignLink: resolvedCampaignLink,
+      campaignImg: resolvedCampaignImg,
+      campaignPartner: resolvedCampaignPartner,
+      campaignBtn: resolvedCampaignBtn,
+      campaign_enabled: isCampaignEnabled,
+      isCampaignEnabled: isCampaignEnabled,
       
       companyBio: COMPANY_DEFAULTS.companyBio,
       sideImage: COMPANY_DEFAULTS.sideImage,
@@ -384,6 +459,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    if (!isCampaignEnabled) {
+      data.campaignImg = '';
+      data.campaignPartner = '';
+      data.campaignBtn = '';
+      data.campaignLink = '';
+      data.campaign_enabled = false;
+    }
+
     // Check if it is a custom template in the database
     const customTemplate = dbTemplates.find(t => t.id === selectedTemplate);
     if (customTemplate) {
@@ -392,16 +475,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (selectedTemplate === 'os-premium') {
       return renderOsPremium(data);
-    } else if (selectedTemplate === 'os-flat-banner') {
-      return renderOsFlatBanner(data);
     } else if (selectedTemplate === 'grid-blueprint') {
       return renderGridBlueprint(data);
     } else if (selectedTemplate === 'corporate-banner') {
       return renderCorporateBanner(data);
     } else if (selectedTemplate === 'modern-split') {
       return renderModernSplit(data);
-    } else {
+    } else if (selectedTemplate === 'compact-stacked') {
       return renderCompactStacked(data);
+    } else {
+      // Default to the flagship OS Holdings Flat Banner
+      return renderOsFlatBanner(data);
     }
   }
 
@@ -409,96 +493,25 @@ document.addEventListener('DOMContentLoaded', () => {
   function updatePreview() {
     const signatureHtml = getSignatureHtml();
     
-    // Create an iframe to isolate styles
-    let iframe = previewWindow.querySelector('iframe');
-    if (!iframe) {
-      previewWindow.innerHTML = '';
-      iframe = document.createElement('iframe');
-      iframe.setAttribute('scrolling', 'no');
-      iframe.style.width = '100%';
-      iframe.style.height = '100%';
-      iframe.style.border = 'none';
-      iframe.style.backgroundColor = '#ffffff';
-      previewWindow.appendChild(iframe);
-    }
-    
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    doc.open();
-    doc.write(signatureHtml);
-    doc.close();
-
-    // Prevent scrollbars in preview iframe body
-    if (doc.body) {
-      doc.body.style.overflow = 'hidden';
-      doc.body.style.margin = '0';
-      doc.body.style.padding = '0';
-      
-      // Force crisp image rendering inside the iframe
-      const styleTag = doc.createElement('style');
-      styleTag.textContent = `
-        img {
-          image-rendering: -webkit-optimize-contrast !important;
-          image-rendering: crisp-edges !important;
-        }
-      `;
-      doc.head.appendChild(styleTag);
-      
-      // Attach onload to all images inside the iframe to trigger resizing immediately when they finish loading
-      const images = doc.querySelectorAll('img');
-      images.forEach(img => {
-        img.addEventListener('load', adjustIframeSize);
-        if (img.complete) {
-          adjustIframeSize();
-        }
-      });
+    // Dynamically update From: header in simulated mail preview
+    const previewSender = document.getElementById('mailPreviewSender');
+    if (previewSender) {
+      const senderName = (fullName && fullName.value.trim()) || 'Andrew';
+      const senderEmail = (email && email.value.trim()) || `username@${clientDomain || 'osholdings.co.za'}`;
+      previewSender.textContent = `${senderName} <${senderEmail}>`;
     }
 
-    // Call size adjustment immediately and at several progressive intervals to handle race conditions
-    adjustIframeSize();
-    setTimeout(adjustIframeSize, 50);
-    setTimeout(adjustIframeSize, 150);
-    setTimeout(adjustIframeSize, 300);
-    setTimeout(adjustIframeSize, 600);
+    // Direct native virtual canvas rendering (crisp, pixel-perfect, 60fps)
+    const canvasViewport = document.getElementById('signatureCanvasViewport') || previewWindow;
+    if (canvasViewport) {
+      canvasViewport.innerHTML = signatureHtml;
+    }
   }
 
-  // --- Scale iframe dynamic helper ---
+  // --- Scale / size helper ---
   function adjustIframeSize() {
-    const iframe = previewWindow.querySelector('iframe');
-    if (!iframe) return;
-
-    const isMobile = previewWindow.classList.contains('mobile');
-    const selectedTemplate = templateSelect.value;
-    const targetWidth = isMobile ? 360 : ((selectedTemplate === 'os-premium' || selectedTemplate === 'os-flat-banner') ? 608 : 600);
-    
-    iframe.style.width = targetWidth + 'px';
-    iframe.style.height = 'auto'; // Reset
-    
-    // Force a height calculation inside the iframe
-    try {
-      const doc = iframe.contentDocument || iframe.contentWindow.document;
-      const height = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight, 260) + 12;
-      iframe.style.height = height + 'px';
-
-      // Auto-scale if container is smaller than targetWidth
-      const paddingX = 50; // 25px left + 25px right
-      const paddingY = 50; // 25px top + 25px bottom
-      const containerWidth = previewWindow.clientWidth - paddingX;
-      if (containerWidth < targetWidth) {
-        const scale = containerWidth / targetWidth;
-        iframe.style.transform = `scale(${scale})`;
-        iframe.style.transformOrigin = 'top center';
-        previewWindow.style.height = (height * scale + paddingY) + 'px';
-      } else {
-        iframe.style.transform = 'none';
-        previewWindow.style.height = 'auto';
-      }
-    } catch (e) {
-      console.warn("IFrame sizing error", e);
-    }
+    // Virtual canvas viewport auto-adjusts smoothly with native layout
   }
-
-  // Handle window resizing to scale preview
-  window.addEventListener('resize', adjustIframeSize);
 
   // --- Copy Loader Helper ---
   function showCopyLoader(message, successMessage, callback) {
@@ -578,87 +591,88 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- Copy Signature as Rich Text ---
+  // --- Copy Signature as Rich Text (Universal iOS / Android / Mac / Windows / Outlook / Apple Mail Engine) ---
   function copySignatureToClipboard() {
     return new Promise((resolve, reject) => {
       const signatureHtml = makePathsAbsolute(getSignatureHtml());
       const plainText = `${fullName.value}\n${jobTitle.value}\n${phone.value} | ${email.value}\n${COMPANY_DEFAULTS.website}`;
       
-      // 1. Try selection-based copy first (highly compatible with Apple Mail settings & Outlook desktop)
-      const tempDiv = document.createElement('div');
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
-      tempDiv.style.top = '0';
-      tempDiv.style.width = 'auto';
-      tempDiv.style.height = 'auto';
-      tempDiv.style.opacity = '0';
-      tempDiv.style.pointerEvents = 'none';
-      tempDiv.innerHTML = signatureHtml;
-      document.body.appendChild(tempDiv);
-      
-      const range = document.createRange();
-      range.selectNodeContents(tempDiv);
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      
-      let copied = false;
-      try {
-        copied = document.execCommand('copy');
-      } catch (err) {
-        console.error('execCommand copy failed:', err);
-      }
-      
-      selection.removeAllRanges();
-      document.body.removeChild(tempDiv);
-      
-      if (copied) {
-        showToast('Signature copied as Rich Text! You can now paste it directly into your email settings.');
-        registerUserOnServer(); // Run in background
-        resolve();
-        return;
-      }
-      
-      // 2. Fallback to Clipboard API
-      try {
+      // 1. Try modern ClipboardItem API first (executed in immediate user gesture tick)
+      if (navigator.clipboard && window.ClipboardItem) {
         const type = 'text/html';
         const textType = 'text/plain';
         const blobHtml = new Blob([signatureHtml], { type: type });
         const blobText = new Blob([plainText], { type: textType });
         
-        const data = [new ClipboardItem({
-          [type]: blobHtml,
-          [textType]: blobText
-        })];
-        
-        navigator.clipboard.write(data).then(() => {
-          showToast('Signature copied as Rich Text! You can now paste it directly into your email settings.');
+        navigator.clipboard.write([
+          new ClipboardItem({
+            [type]: blobHtml,
+            [textType]: blobText
+          })
+        ]).then(() => {
+          showToast('✓ Rich Signature copied! You can now paste directly into Outlook, Gmail, or Apple Mail.');
           registerUserOnServer();
           resolve();
         }).catch(err => {
-          console.error('navigator.clipboard.write failed:', err);
-          // Fallback to text copy
-          navigator.clipboard.writeText(signatureHtml).then(() => {
-            showToast('Rich copy failed. Raw HTML copied to clipboard instead.', true);
-            registerUserOnServer();
-            resolve();
-          }).catch(fallbackErr => {
-            console.error('All copy fallback methods failed:', fallbackErr);
-            showToast('Copy failed. Please manually copy the preview.', true);
-            reject(fallbackErr);
-          });
+          console.warn('navigator.clipboard.write failed, falling back to in-viewport selection:', err);
+          fallbackSelectionCopy(signatureHtml, plainText).then(resolve).catch(reject);
         });
+      } else {
+        fallbackSelectionCopy(signatureHtml, plainText).then(resolve).catch(reject);
+      }
+    });
+  }
+
+  function fallbackSelectionCopy(signatureHtml, plainText) {
+    return new Promise((resolve, reject) => {
+      // In-viewport contenteditable container (WebKit / iOS Safari / macOS Mail compatible)
+      const container = document.createElement('div');
+      container.setAttribute('contenteditable', 'true');
+      container.style.position = 'fixed';
+      container.style.top = '0';
+      container.style.left = '0';
+      container.style.width = '1px';
+      container.style.height = '1px';
+      container.style.padding = '0';
+      container.style.margin = '0';
+      container.style.border = 'none';
+      container.style.outline = 'none';
+      container.style.opacity = '0.01';
+      container.style.pointerEvents = 'none';
+      container.style.overflow = 'hidden';
+      container.style.webkitUserSelect = 'text';
+      container.style.userSelect = 'text';
+      container.innerHTML = signatureHtml;
+      document.body.appendChild(container);
+      
+      let copied = false;
+      try {
+        const range = document.createRange();
+        range.selectNodeContents(container);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        copied = document.execCommand('copy');
+        selection.removeAllRanges();
       } catch (err) {
-        console.error('Clipboard API setup failed:', err);
-        // Last-resort text fallback
+        console.warn('execCommand copy failed:', err);
+      } finally {
+        document.body.removeChild(container);
+      }
+      
+      if (copied) {
+        showToast('✓ Rich Signature copied! You can now paste directly into Outlook, Gmail, or Apple Mail.');
+        registerUserOnServer();
+        resolve();
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(signatureHtml).then(() => {
-          showToast('Rich copy failed. Raw HTML copied to clipboard instead.', true);
+          showToast('Raw HTML copied to clipboard.', true);
           registerUserOnServer();
           resolve();
-        }).catch(fallbackErr => {
-          console.error('All fallback copy methods failed:', fallbackErr);
-          reject(fallbackErr);
-        });
+        }).catch(reject);
+      } else {
+        showToast('Copy failed. Please manually copy the preview.', true);
+        reject(new Error('Clipboard unsupported'));
       }
     });
   }
@@ -722,11 +736,56 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Event Listeners for Export Buttons ---
-  copySignatureBtn.addEventListener('click', copySignatureToClipboard);
-  copyHtmlBtn.addEventListener('click', copyHtmlToClipboard);
+  if (copySignatureBtn) copySignatureBtn.addEventListener('click', copySignatureToClipboard);
+  if (copyHtmlBtn) copyHtmlBtn.addEventListener('click', copyHtmlToClipboard);
+
+  function triggerDownload(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }
+
+  if (downloadHtmlBtn) {
+    downloadHtmlBtn.addEventListener('click', () => {
+      const html = makePathsAbsolute(getSignatureHtml());
+      const cleanName = (fullName.value || 'signature').trim().toLowerCase().replace(/[^a-z0-9]+/gi, '_');
+      triggerDownload(html, `${cleanName}_email_signature.html`, 'text/html');
+      showToast('Signature HTML downloaded successfully!');
+    });
+  }
+
+  // --- Simulator Light / Dark Mode Controls ---
+  const btnSimLight = document.getElementById('btnSimLightMode');
+  const btnSimDark = document.getElementById('btnSimDarkMode');
+  const mailWin = document.getElementById('mailPreviewWindow');
+
+  if (btnSimLight && btnSimDark && mailWin) {
+    btnSimLight.addEventListener('click', () => {
+      mailWin.classList.remove('sim-dark-mode');
+      btnSimLight.classList.add('active');
+      btnSimDark.classList.remove('active');
+    });
+    btnSimDark.addEventListener('click', () => {
+      mailWin.classList.add('sim-dark-mode');
+      btnSimDark.classList.add('active');
+      btnSimLight.classList.remove('active');
+    });
+  }
 
   // --- Fetch Templates dynamically from Database ---
   async function fetchDbTemplates() {
+    if (isLocalFile) {
+      updatePreview();
+      return;
+    }
     try {
       const url = clientDomain
         ? `${TRACKING_DOMAIN}/api/templates.php?client=${encodeURIComponent(clientDomain)}`
@@ -734,35 +793,48 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
-        if (data.success && data.templates) {
+        if (data.success && data.templates && data.templates.length > 0) {
           dbTemplates = data.templates;
           
           // Populate templateSelect dropdown
           if (templateSelect) {
             let optionsHtml = '';
             if (clientDomain && clientDomain !== 'osholdings.co.za' && clientDomain !== 'os-holdings.co.za') {
-              // For custom clients, ONLY show their dynamic database templates
+              // For custom clients, show their dynamic database templates
               dbTemplates.forEach(t => {
                 optionsHtml += `<option value="${t.id}">${t.name}</option>`;
               });
             } else {
-              // Keep only the flat banner template for OS Holdings
+              // Keep default corporate templates
               optionsHtml = `
                 <option value="os-flat-banner" selected>OS Holdings Q1 Email Signature (Flat Banner)</option>
+                <option value="os-premium">OS Holdings Modern Branded Card</option>
+                <option value="corporate-banner">Corporate Banner Layout</option>
+                <option value="modern-split">Modern Split Layout</option>
+                <option value="compact-stacked">Clean & Compact Stacked</option>
               `;
             }
+            const currentVal = templateSelect.value;
             templateSelect.innerHTML = optionsHtml;
+            if (currentVal && templateSelect.querySelector(`option[value="${currentVal}"]`)) {
+              templateSelect.value = currentVal;
+            } else {
+              templateSelect.value = 'os-flat-banner';
+            }
             updatePreview();
           }
+          return;
         }
       }
     } catch (err) {
-      console.warn("Failed to load custom templates from database.", err);
+      console.warn("Could not fetch remote database templates, maintaining standard layouts.", err);
     }
+    updatePreview();
   }
 
   // --- Fetch Settings dynamically from Database ---
   async function fetchGlobalSettings() {
+    if (isLocalFile) return;
     try {
       const url = clientDomain
         ? `${TRACKING_DOMAIN}/api/settings.php?client=${encodeURIComponent(clientDomain)}`
@@ -811,24 +883,24 @@ document.addEventListener('DOMContentLoaded', () => {
           // Update disabled social and website inputs
           if (website && s.company_website) website.value = s.company_website;
           if (linkedinUrl) {
-            linkedinUrl.value = s.social_linkedin || '';
-            COMPANY_DEFAULTS.socialLinkedin = s.social_linkedin || '';
+            linkedinUrl.value = s.social_linkedin || COMPANY_DEFAULTS.socialLinkedin || 'https://www.linkedin.com/company/osholdings';
+            if (s.social_linkedin) COMPANY_DEFAULTS.socialLinkedin = s.social_linkedin;
           }
           if (twitterUrl) {
-            twitterUrl.value = s.social_twitter || '';
-            COMPANY_DEFAULTS.socialTwitter = s.social_twitter || '';
+            twitterUrl.value = s.social_twitter || COMPANY_DEFAULTS.socialTwitter || 'https://x.com/holdings_os';
+            if (s.social_twitter) COMPANY_DEFAULTS.socialTwitter = s.social_twitter;
           }
           if (facebookUrl) {
-            facebookUrl.value = s.social_facebook || '';
-            COMPANY_DEFAULTS.socialFacebook = s.social_facebook || '';
+            facebookUrl.value = s.social_facebook || COMPANY_DEFAULTS.socialFacebook || 'https://www.facebook.com/osholdings';
+            if (s.social_facebook) COMPANY_DEFAULTS.socialFacebook = s.social_facebook;
           }
           if (instagramUrl) {
-            instagramUrl.value = s.social_instagram || '';
-            COMPANY_DEFAULTS.socialInstagram = s.social_instagram || '';
+            instagramUrl.value = s.social_instagram || COMPANY_DEFAULTS.socialInstagram || 'https://www.instagram.com/osholdings/';
+            if (s.social_instagram) COMPANY_DEFAULTS.socialInstagram = s.social_instagram;
           }
           if (youtubeUrl) {
-            youtubeUrl.value = s.social_youtube || '';
-            COMPANY_DEFAULTS.socialYoutube = s.social_youtube || '';
+            youtubeUrl.value = s.social_youtube || COMPANY_DEFAULTS.socialYoutube || '';
+            if (s.social_youtube) COMPANY_DEFAULTS.socialYoutube = s.social_youtube;
           }
           
           // Trigger preview update
@@ -1225,10 +1297,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (includeCampaign) {
       includeCampaign.addEventListener('change', () => {
+        schedulePreviewUpdate();
         if (email && email.value && validateEmail(email.value.trim())) {
           registerUserOnServer();
         }
       });
+    }
+  }
+
+  // --- Dynamic Year Attribution ---
+  const yearEl = document.getElementById('appCurrentYear');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  // --- Header Client Logo Interactive Replacement ---
+  const clientLogoDropzone = document.getElementById('clientLogoDropzone');
+  const clientLogoFileInput = document.getElementById('clientLogoFileInput');
+  const headerClientLogoImg = document.getElementById('headerClientLogoImg');
+
+  if (clientLogoDropzone && clientLogoFileInput) {
+    clientLogoDropzone.addEventListener('click', () => {
+      clientLogoFileInput.click();
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      clientLogoDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        clientLogoDropzone.classList.add('dragover');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      clientLogoDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        clientLogoDropzone.classList.remove('dragover');
+      });
+    });
+
+    clientLogoDropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt && dt.files;
+      if (files && files[0]) {
+        handleNewLogoFile(files[0]);
+      }
+    });
+
+    clientLogoFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleNewLogoFile(e.target.files[0]);
+      }
+    });
+
+    function handleNewLogoFile(file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Please select a valid image file (PNG, JPG, SVG)', true);
+        return;
+      }
+      clientLogoDropzone.classList.add('is-changing');
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        if (headerClientLogoImg) headerClientLogoImg.src = dataUrl;
+        COMPANY_DEFAULTS.logo = dataUrl;
+        schedulePreviewUpdate();
+        setTimeout(() => {
+          clientLogoDropzone.classList.remove('is-changing');
+          showToast('Client logo updated successfully!');
+        }, 500);
+      };
+      reader.onerror = () => {
+        clientLogoDropzone.classList.remove('is-changing');
+      };
+      reader.readAsDataURL(file);
     }
   }
 
@@ -1238,8 +1379,13 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchDbTemplates();
   setupAutoSave();
 
-  // --- Auto-Retrieve User profile from URL query param ---
-  if (queryEmail && validateEmail(queryEmail)) {
+  // --- Auto-Retrieve User profile from URL query param or Handle Create New ---
+  if (paramCreate) {
+    if (paramName && fullName) fullName.value = paramName;
+    if (paramEmail && email) email.value = paramEmail;
+    updatePreview();
+    exitOnboarding();
+  } else if (queryEmail) {
     if (retrieveEmail) retrieveEmail.value = queryEmail;
     retrieveUserProfile(queryEmail);
   }

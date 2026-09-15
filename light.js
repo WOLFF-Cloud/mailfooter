@@ -6,7 +6,19 @@
   'use strict';
 
   // Base URL calculation for absolute assets
-  const BASE_URL = window.location.origin + window.location.pathname.replace(/\/(light|index|app|admin|super-admin|register)(\.html)?$/, '').replace(/\/$/, '') + '/';
+  const PUBLIC_PRODUCTION_BASE = 'https://os-holdings.co.za/mailfooter/';
+  const BASE_URL = (function() {
+    if (typeof window !== 'undefined' && window.location) {
+      const proto = window.location.protocol;
+      const origin = window.location.origin;
+      const host = window.location.hostname;
+      if (proto === 'file:' || host === 'localhost' || host === '127.0.0.1' || !origin || origin === 'null' || !origin.startsWith('http')) {
+        return PUBLIC_PRODUCTION_BASE;
+      }
+      return origin + window.location.pathname.replace(/\/(light|index|app|admin|super-admin|register)(\.html)?$/, '').replace(/\/$/, '') + '/';
+    }
+    return PUBLIC_PRODUCTION_BASE;
+  })();
 
   // Application State (Clean server-backed state, no local demo fallbacks)
   let staffList = [];
@@ -22,7 +34,64 @@
     initOverviewTable();
     initBulkAddTab();
     initInstallationTab();
+    initBackupsManager();
+    initAddStaffModal();
+    updateHeaderMetrics();
+    initHeaderLogoChanger();
+
+    const yearEl = document.getElementById('appCurrentYear');
+    if (yearEl) {
+      yearEl.textContent = new Date().getFullYear();
+    }
   });
+
+  const STORAGE_KEY = 'osh_mailfooter_light_staff_v6';
+  const BACKUP_STORAGE_KEY = 'osh_mailfooter_backups_v1';
+
+  function sanitizeStaffData(list) {
+    if (!Array.isArray(list)) return [];
+    return list.map(user => {
+      let primary = user.primaryColor;
+      let secondary = user.secondaryColor;
+      if (!primary || primary === '#1677ff' || primary === '#1890ff') primary = '#0d4b8e';
+      if (!secondary || secondary === '#13c2c2' || secondary === '#52c41a') secondary = '#f18a22';
+      
+      let company = user.company;
+      if (!company || company === 'Wolff Technologies') company = 'OS Holdings';
+      
+      let email = user.email || '';
+      if (email.includes('@wolff-tech.com')) {
+        email = email.replace('@wolff-tech.com', '@os-holdings.co.za');
+      }
+
+      const fName = user.firstName || (user.name ? user.name.split(' ')[0] : 'Employee');
+      const lName = user.lastName || (user.name ? user.name.split(' ').slice(1).join(' ') : '');
+
+      return {
+        id: user.id || ('osh-' + Date.now() + '-' + Math.floor(Math.random() * 1000)),
+        firstName: fName,
+        lastName: lName,
+        role: user.role || 'Staff',
+        title: user.title || user.jobTitle || 'Team Member',
+        department: user.department || user.dept || 'General',
+        email: email,
+        phone: user.phone || user.mobile || '+27 (0) 11 463 1000',
+        mobile: user.mobile || user.phone || '+27 (0) 11 463 1000',
+        company: company,
+        location: user.location || 'Sandton, Johannesburg',
+        primaryColor: primary,
+        secondaryColor: secondary,
+        web: user.web || 'https://os-holdings.co.za/',
+        logo: user.logo || 'Resources/2x/logo.png',
+        linkedin: user.linkedin || 'https://www.linkedin.com/company/osholdings',
+        twitter: user.twitter || 'https://x.com/holdings_os',
+        facebook: user.facebook || 'https://www.facebook.com/osholdings',
+        instagram: user.instagram || 'https://www.instagram.com/osholdings/',
+        youtube: user.youtube || 'https://www.youtube.com/osholdings',
+        template: user.template || 'os-flat-banner'
+      };
+    });
+  }
 
   // Server Data Store Engine (Direct SQLite API Integration via api/users.php)
   async function loadDataStore() {
@@ -36,6 +105,16 @@
       } else {
         staffList = [];
       }
+    } catch (e) {
+      console.warn('Could not fetch directory from server API, checking local storage:', e);
+      let saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) staffList = sanitizeStaffData(parsed);
+        } catch (err) {}
+      }
+    }
     } catch (e) {
       console.warn('Could not fetch directory from server API:', e);
       showToast('Could not fetch directory from server database. Ensure PHP server is running.', 'error');
@@ -52,10 +131,67 @@
       }
       populateInstallationForm();
     }
+
+    // Seed initial backup snapshot if none exists
+    const existingBackups = getBackups();
+    if (existingBackups.length === 0 && staffList.length > 0) {
+      createBackupSnapshot('Initial Directory State');
+    }
+
+    // Asynchronously synchronize with cloud backend so other devices see latest
+    syncWithCloudBackend();
   }
 
-  // Persist a single staff record to the server database
-  function saveDataStore(userToSave) {
+  // Persist staff records to server database and local cache
+  function saveDataStore(userToSave, createSnapshot = false, reason = '') {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(staffList));
+      if (createSnapshot) {
+        createBackupSnapshot(reason || 'Manual Update');
+      }
+    } catch (e) {
+      console.warn('localStorage write failed:', e);
+    }
+
+    if (userToSave && userToSave.email) {
+      if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
+      saveDebounceTimer = setTimeout(async () => {
+        try {
+          const resp = await fetch('api/users.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userToSave)
+          });
+          const res = await resp.json();
+          if (res && res.success) {
+            // Updated in SQLite
+          }
+        } catch (e) {
+          console.warn('Auto-save error:', e);
+        }
+      }, 400);
+    }
+  }
+
+  async function deleteUserFromServer(email) {
+    try {
+      const resp = await fetch('api/users.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', email: email })
+      });
+      const data = await resp.json();
+      if (data && data.success) {
+        showToast('Staff member deleted successfully.');
+        await loadDataStore();
+      } else {
+        showToast('Failed to delete: ' + (data?.error || 'Unknown error'), 'error');
+      }
+    } catch (e) {
+      console.error('Delete error:', e);
+      showToast('Error connecting to server to delete staff member.', 'error');
+    }
+  }
     updateHeaderMetrics();
     if (!userToSave || !userToSave.email) return;
 
@@ -103,19 +239,34 @@
     }
   }
 
-  function updateHeaderMetrics() {
-    const totalEl = document.getElementById('statTotalCount');
-    const mgrEl = document.getElementById('statMgrCount');
-    const staffEl = document.getElementById('statStaffCount');
-
-    if (totalEl) totalEl.textContent = staffList.length;
-    if (mgrEl) {
-      const mgrCount = staffList.filter(s => s.role === 'Director' || s.role === 'Manager').length;
-      mgrEl.textContent = mgrCount;
+  // Multi-Version Backup Snapshots
+  function getBackups() {
+    try {
+      const raw = localStorage.getItem(BACKUP_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
     }
-    if (staffEl) {
-      const stCount = staffList.filter(s => s.role === 'Staff').length;
-      staffEl.textContent = stCount;
+  }
+
+  function createBackupSnapshot(reason) {
+    try {
+      const backups = getBackups();
+      const now = new Date();
+      const snapshot = {
+        id: 'bk_' + Date.now(),
+        timestamp: now.toISOString(),
+        dateStr: now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        reason: reason || 'Automatic Snapshot',
+        count: staffList.length,
+        data: JSON.parse(JSON.stringify(staffList))
+      };
+      backups.unshift(snapshot);
+      if (backups.length > 15) backups.length = 15;
+      localStorage.setItem(BACKUP_STORAGE_KEY, JSON.stringify(backups));
+      renderBackupsList();
+    } catch (e) {
+      console.warn('Failed to create backup snapshot:', e);
     }
   }
 
@@ -150,7 +301,14 @@
 
   // Path converter to make all images absolute for email client compatibility
   function makePathsAbsolute(html) {
+    if (!html) return '';
     let processed = html;
+    
+    // Clean up any existing local file:// URLs to public production base
+    processed = processed.replace(/src=["']file:\/\/[^"']+\/Resources\//gi, `src="${BASE_URL}Resources/`);
+    processed = processed.replace(/src=["']file:\/\/[^"']+\/MailFooter%20Resources\//gi, `src="${BASE_URL}MailFooter Resources/`);
+    processed = processed.replace(/src=["']file:\/\/[^"']+\/MailFooter Resources\//gi, `src="${BASE_URL}MailFooter Resources/`);
+    processed = processed.replace(/url\(["']?file:\/\/[^"'\)]+\/Resources\//gi, `url('${BASE_URL}Resources/`);
     
     // Process Resources paths
     processed = processed.replaceAll('src="Resources/', `src="${BASE_URL}Resources/`);
@@ -205,6 +363,76 @@
     const exportBtn = document.getElementById('exportDataBtn');
     if (exportBtn) {
       exportBtn.addEventListener('click', downloadCurrentCSV);
+    }
+  }
+
+  function initHeaderLogoChanger() {
+    const dropzone = document.getElementById('clientLogoDropzone');
+    const fileInput = document.getElementById('clientLogoFileInput');
+    const logoImg = document.getElementById('headerClientLogoImg');
+    if (!dropzone || !fileInput) return;
+
+    dropzone.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    ['dragenter', 'dragover'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add('dragover');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+      });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files[0]) {
+        applyNewLogo(dt.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        applyNewLogo(e.target.files[0]);
+      }
+    });
+
+    function applyNewLogo(file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Please upload a valid image (PNG, JPG, SVG).', true);
+        return;
+      }
+      dropzone.classList.add('is-changing');
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target.result;
+        if (logoImg) logoImg.src = dataUrl;
+        // Update all employee signatures default logo
+        staffList.forEach(emp => {
+          emp.logo = dataUrl;
+        });
+        saveDataStore();
+        if (activeEditingEmployee) {
+          activeEditingEmployee.logo = dataUrl;
+          populateInstallationForm();
+        }
+        setTimeout(() => {
+          dropzone.classList.remove('is-changing');
+          showToast('Updated corporate client logo across directory.');
+        }, 500);
+      };
+      reader.onerror = () => {
+        dropzone.classList.remove('is-changing');
+      };
+      reader.readAsDataURL(file);
     }
   }
 
@@ -288,20 +516,20 @@
             '</div>' +
           '</div>' +
         '</td>' +
-        '<td><span class="mc-tag ' + roleTagClass + '">' + escapeHtml(user.role || 'Staff') + '</span></td>' +
+        '<td><span class="mc-tag ' + roleTagClass + '">● ' + escapeHtml(user.role || 'Staff') + '</span></td>' +
         '<td><span class="mc-tag tag-dept">' + escapeHtml(user.department || 'General') + '</span></td>' +
-        '<td><a href="mailto:' + escapeHtml(user.email) + '" style="color: var(--color-green-primary); font-weight: 600; text-decoration: none;">' + escapeHtml(user.email) + '</a></td>' +
-        '<td>' + escapeHtml(user.phone || user.mobile || '-') + '</td>' +
-        '<td>' +
-          '<div class="action-buttons-cell">' +
-            '<button class="mc-btn mc-btn-sm btn-copy-richtext" onclick="window.MailfooterLight.copyRichTextByEmpId(\'' + user.id + '\')" title="Copy Formatted Rich Text Signature for Outlook/Apple Mail">' +
-              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy Rich Text' +
+        '<td><a href="mailto:' + escapeHtml(user.email) + '" style="color: #0284c7; font-weight: 600; text-decoration: none;">' + escapeHtml(user.email) + '</a></td>' +
+        '<td style="color: var(--text-muted); font-size: 12px;">' + escapeHtml(user.phone || user.mobile || '-') + '</td>' +
+        '<td style="text-align: right;">' +
+          '<div class="action-buttons-cell" style="justify-content: flex-end;">' +
+            '<button class="mc-btn mc-btn-sm mc-btn-emerald btn-copy-richtext" onclick="window.MailfooterLight.copyRichTextByEmpId(\'' + user.id + '\')" title="Copy 1-Click Formatted Signature for Outlook/Apple Mail">' +
+              '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy Signature' +
             '</button>' +
-            '<button class="mc-btn mc-btn-sm btn-copy-html" onclick="window.MailfooterLight.copyHtmlByEmpId(\'' + user.id + '\')" title="Copy Raw HTML Code Snippet">' +
-              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg> Copy HTML' +
+            '<button class="mc-btn mc-btn-sm mc-btn-dark btn-copy-html" onclick="window.MailfooterLight.copyHtmlByEmpId(\'' + user.id + '\')" title="Copy Raw HTML Code Snippet">' +
+              '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>' +
             '</button>' +
-            '<button class="mc-btn mc-btn-sm" onclick="window.MailfooterLight.openInLiveEditor(\'' + user.id + '\')" title="Edit in Live Preview Canvas">✎ Edit</button>' +
-            '<button class="mc-btn mc-btn-sm mc-btn-dark" onclick="window.MailfooterLight.deleteByEmail(\'' + escapeHtml(user.email) + '\')" title="Delete Personnel Record">🗑 Delete</button>' +
+            '<button class="mc-btn mc-btn-sm mc-btn-dark" onclick="window.MailfooterLight.openInLiveEditor('' + user.id + '')" title="Edit in Live Preview Canvas">✎ Edit</button>' +
+            '<button class="mc-btn mc-btn-sm mc-btn-dark" onclick="window.MailfooterLight.deleteByEmail('' + escapeHtml(user.email) + '')" title="Delete Personnel Record">🗑 Delete</button>' +
           '</div>' +
         '</td>' +
       '</tr>';
@@ -336,21 +564,27 @@
 
     cardGrid.innerHTML = '' +
       '<div class="analytic-card">' +
-        '<div class="card-icon-box">👥</div>' +
+        '<div class="card-icon-box">' +
+          '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>' +
+        '</div>' +
         '<div class="card-info">' +
           '<span class="card-title">Filtered Personnel</span>' +
           '<span class="card-num">' + totalCount + '</span>' +
         '</div>' +
       '</div>' +
       '<div class="analytic-card">' +
-        '<div class="card-icon-box card-icon-purple">👔</div>' +
+        '<div class="card-icon-box card-icon-purple">' +
+          '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>' +
+        '</div>' +
         '<div class="card-info">' +
           '<span class="card-title">Directors & Managers</span>' +
           '<span class="card-num">' + (directorsCount + managersCount) + '</span>' +
         '</div>' +
       '</div>' +
       '<div class="analytic-card">' +
-        '<div class="card-icon-box card-icon-cyan">💼</div>' +
+        '<div class="card-icon-box card-icon-cyan">' +
+          '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>' +
+        '</div>' +
         '<div class="card-info">' +
           '<span class="card-title">Staff Members</span>' +
           '<span class="card-num">' + staffCount + '</span>' +
@@ -380,18 +614,19 @@
       logo: `https://${defaultDomain}/track/logo?user_id=${userId}&template=${selectedTemplate}`,
       primary: primary,
       secondary: secondary,
-      linkedin: user.linkedin ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=linkedin&template=${selectedTemplate}` : '',
-      twitter: user.twitter ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=twitter&template=${selectedTemplate}` : '',
-      instagram: user.instagram ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=instagram&template=${selectedTemplate}` : '',
-      facebook: user.facebook ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=facebook&template=${selectedTemplate}` : '',
+      linkedin: user.linkedin ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=linkedin&template=${selectedTemplate}` : 'https://www.linkedin.com/company/osholdings',
+      twitter: user.twitter ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=twitter&template=${selectedTemplate}` : 'https://x.com/holdings_os',
+      instagram: user.instagram ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=instagram&template=${selectedTemplate}` : 'https://www.instagram.com/osholdings/',
+      facebook: user.facebook ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=facebook&template=${selectedTemplate}` : 'https://www.facebook.com/osholdings',
       youtube: user.youtube ? `https://${defaultDomain}/track/click?user_id=${userId}&link_id=youtube&template=${selectedTemplate}` : '',
       campaignLink: `https://${defaultDomain}/track/click?user_id=${userId}&link_id=campaign_banner&template=${selectedTemplate}`,
       campaignImg: `https://${defaultDomain}/track/banner?user_id=${userId}&type=main&template=${selectedTemplate}`,
       campaignPartner: `https://${defaultDomain}/track/banner?user_id=${userId}&type=partner&template=${selectedTemplate}`,
       campaignBtn: `https://${defaultDomain}/track/banner?user_id=${userId}&type=button&template=${selectedTemplate}`,
-      companyBio: '',
+      companyBio: user.companyBio || 'OS Holdings is a diversified software solution company committed to creating lasting value.',
+      openPixel: '',
       sideImage: 'Resources/2x/brand-graphic-colour-top-right.png',
-      location: user.location || ''
+      location: user.location || 'Sandton, Johannesburg'
     };
 
     if (typeof renderOsFlatBanner === 'function' && (selectedTemplate === 'os-flat-banner' || selectedTemplate === 'os-sleek')) {
@@ -415,15 +650,15 @@
     const secondary = data.secondary || '#f18a22';
 
     return `
-      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; width: 100%; line-height: 1.25;">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: transparent; width: 100%; line-height: 1.25; border: 0; box-shadow: none;">
         <tr>
-          <td align="left" valign="top">
-            <table cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 1px solid #e5e7eb;">
+          <td align="left" valign="top" style="border: 0; padding: 0;">
+            <table cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff); font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 0; outline: none; box-shadow: none; border-collapse: collapse;">
               <tr>
-                <td valign="middle" height="85" style="height: 85px; border-bottom: 1px solid #e5e7eb; padding: 10px 15px; background-image: url('Resources/2x/brand-graphic-grey-top-left.png'); background-repeat: no-repeat; background-position: left top; background-color: #ffffff;">
-                  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed;">
+                <td valign="middle" height="85" style="height: 85px; border-bottom: 1px solid #e5e7eb; padding: 10px 15px; background-image: url('Resources/2x/brand-graphic-grey-top-left.png'), linear-gradient(#ffffff, #ffffff); background-repeat: no-repeat; background-position: left top; background-color: #ffffff; border-top: 0; border-left: 0; border-right: 0; box-shadow: none;">
+                  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed; border: 0;">
                     <tr>
-                      <td valign="middle" width="130" style="width: 130px; text-align: left;">
+                      <td valign="middle" width="130" style="width: 130px; text-align: left; border: 0;">
                         <a href="${data.web}" target="_blank" style="text-decoration: none; display: block;">
                           <img src="Resources/2x/logo.png" alt="Company Logo" width="120" height="30" style="border: 0; display: block; max-width: 120px; height: 30px;" />
                         </a>
@@ -463,46 +698,14 @@
     `;
   }
 
-  // Cross-Platform Clipboard Delivery Engine
+  // Universal Multi-Device Clipboard Delivery Engine (Outlook Desktop, Outlook Web, Gmail, Apple Mail, iOS, Android)
   function copyRichTextSignature(employeeData) {
     return new Promise((resolve, reject) => {
       const signatureHtml = buildSignatureHtml(employeeData);
       const name = `${employeeData.firstName || ''} ${employeeData.lastName || ''}`.trim();
       const plainText = `${name}\n${employeeData.title || ''}\n${employeeData.phone || ''} | ${employeeData.email || ''}\n${employeeData.web || ''}`;
 
-      const tempDiv = document.createElement('div');
-      tempDiv.style.position = 'fixed';
-      tempDiv.style.left = '-9999px';
-      tempDiv.style.top = '0';
-      tempDiv.style.opacity = '0';
-      tempDiv.style.pointerEvents = 'none';
-      tempDiv.innerHTML = signatureHtml;
-      document.body.appendChild(tempDiv);
-
-      let copied = false;
-      if (document.createRange && window.getSelection) {
-        const range = document.createRange();
-        range.selectNodeContents(tempDiv);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        try {
-          copied = document.execCommand('copy');
-        } catch (err) {
-          console.warn('execCommand copy failed:', err);
-        }
-
-        selection.removeAllRanges();
-      }
-      document.body.removeChild(tempDiv);
-
-      if (copied) {
-        showToast('✓ Rich Signature copied for ' + name + '! Paste directly into Outlook, Gmail, or Apple Mail.');
-        resolve();
-        return;
-      }
-
+      // 1. Try modern asynchronous ClipboardItem API first (executed directly in user gesture tick)
       if (navigator.clipboard && window.ClipboardItem) {
         const type = 'text/html';
         const textType = 'text/plain';
@@ -518,16 +721,65 @@
           showToast('✓ Rich Signature copied for ' + name + '! Paste directly into Outlook, Gmail, or Apple Mail.');
           resolve();
         }).catch(err => {
-          navigator.clipboard.writeText(signatureHtml).then(() => {
-            showToast('Raw HTML copied to clipboard for ' + name + '.');
-            resolve();
-          }).catch(e => {
-            showToast('Copy failed. Please manually select the preview.', 'error');
-            reject(e);
-          });
+          console.warn('navigator.clipboard.write failed, falling back to in-viewport selection:', err);
+          fallbackContentEditableCopy(signatureHtml, plainText, name).then(resolve).catch(reject);
         });
       } else {
-        showToast('Copy failed. Please use Ctrl+C on the preview.', 'error');
+        fallbackContentEditableCopy(signatureHtml, plainText, name).then(resolve).catch(reject);
+      }
+    });
+  }
+
+  function fallbackContentEditableCopy(html, plainText, name) {
+    return new Promise((resolve, reject) => {
+      // In-viewport contenteditable container (WebKit / iOS Safari / macOS Mail compatible)
+      const container = document.createElement('div');
+      container.setAttribute('contenteditable', 'true');
+      container.style.position = 'fixed';
+      container.style.top = '0';
+      container.style.left = '0';
+      container.style.width = '1px';
+      container.style.height = '1px';
+      container.style.padding = '0';
+      container.style.margin = '0';
+      container.style.border = 'none';
+      container.style.outline = 'none';
+      container.style.opacity = '0.01';
+      container.style.pointerEvents = 'none';
+      container.style.overflow = 'hidden';
+      container.style.webkitUserSelect = 'text';
+      container.style.userSelect = 'text';
+      container.innerHTML = html;
+      document.body.appendChild(container);
+
+      let copied = false;
+      try {
+        const range = document.createRange();
+        range.selectNodeContents(container);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        copied = document.execCommand('copy');
+        selection.removeAllRanges();
+      } catch (err) {
+        console.warn('execCommand copy failed:', err);
+      } finally {
+        document.body.removeChild(container);
+      }
+
+      if (copied) {
+        showToast('✓ Rich Signature copied for ' + name + '! Paste directly into Outlook, Gmail, or Apple Mail.');
+        resolve();
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(html).then(() => {
+          showToast('HTML code copied to clipboard for ' + name + '.');
+          resolve();
+        }).catch(e => {
+          showToast('Copy failed. Please manually select the preview.', 'error');
+          reject(e);
+        });
+      } else {
+        showToast('Copy failed. Please manually select the preview.', 'error');
         reject(new Error('Clipboard unsupported'));
       }
     });
@@ -556,7 +808,11 @@
       const textarea = document.createElement('textarea');
       textarea.value = text;
       textarea.style.position = 'fixed';
-      textarea.style.left = '-9999px';
+      textarea.style.top = '0';
+      textarea.style.left = '0';
+      textarea.style.width = '1px';
+      textarea.style.height = '1px';
+      textarea.style.opacity = '0.01';
       document.body.appendChild(textarea);
       textarea.select();
       try {
@@ -592,6 +848,23 @@
     deleteByEmail: (email) => {
       if (confirm('Are you sure you want to delete staff member (' + email + ') from the server database?')) {
         deleteUserFromServer(email);
+      }
+    },
+    restoreBackupById: (backupId) => {
+      const backups = getBackups();
+      const target = backups.find(b => b.id === backupId);
+      if (target && target.data) {
+        if (confirm(`Restore snapshot from ${target.dateStr} (${target.count} records)? Current data will be backed up.`)) {
+          createBackupSnapshot('Pre-restore of snapshot: ' + target.reason);
+          staffList = sanitizeStaffData(target.data);
+          saveDataStore(null, true, 'Restored snapshot ' + target.id);
+          renderOverviewTable();
+          updateHeaderMetrics();
+          const modal = document.getElementById('backupsModal');
+          if (modal) modal.classList.remove('active');
+          showToast('✓ Directory restored to snapshot (' + staffList.length + ' records)!');
+        }
+      }
       }
     }
   };
@@ -684,6 +957,57 @@
     const fileInput = document.getElementById('csvFileInput');
     const dropzone = document.getElementById('csvDropzone');
     const dropzoneText = document.getElementById('dropzoneText');
+
+    const dropzone = document.getElementById('csvFileDropzone');
+    const fileInput = document.getElementById('csvFileInput');
+    const fileNameEl = document.getElementById('dropzoneFileName');
+
+    if (dropzone && fileInput) {
+      dropzone.addEventListener('click', () => fileInput.click());
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove('dragover');
+        });
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files[0]) {
+          handleCsvFile(dt.files[0]);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleCsvFile(e.target.files[0]);
+        }
+      });
+
+      function handleCsvFile(file) {
+        if (fileNameEl) {
+          fileNameEl.textContent = `Selected: ${file.name} (${Math.round(file.size / 1024)} KB)`;
+        }
+        dropzone.classList.add('has-file');
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const content = ev.target.result;
+          if (textarea) textarea.value = content;
+          showToast(`Loaded ${file.name}. Review or click "Process & Ingest Data".`);
+        };
+        reader.readAsText(file);
+      }
+    }
 
     if (sampleCsvBtn) {
       sampleCsvBtn.addEventListener('click', () => {
@@ -906,6 +1230,37 @@
           reportBox.innerHTML = reportHtml;
           reportBox.classList.add('show');
         }
+        createBackupSnapshot('CSV Import (' + data.inserted + ' records)');
+        showToast('Ingested ' + data.inserted + ' personnel records into database!');
+        await loadDataStore();
+        setTimeout(() => switchTab('overview'), 1200);
+      } else {
+        showToast('Failed to ingest records: ' + (data?.error || 'Unknown error'), 'error');
+      }
+    } catch (e) {
+      console.error('Error during bulk ingestion:', e);
+      showToast('Connection error uploading CSV to server.', 'error');
+    }
+
+    try {
+      const resp = await fetch('api/users.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ users: newUsers })
+      });
+      const data = await resp.json();
+
+      if (data && data.success) {
+        const reportBox = document.getElementById('ingestReportBox');
+        if (reportBox) {
+          let reportHtml = '<strong>✓ Successfully Ingested ' + data.inserted + ' Personnel Records into Server Database!</strong><br/>' +
+            '<span>Role Breakdown: <strong>' + directorsCount + ' Directors</strong>, <strong>' + managersCount + ' Managers</strong>, <strong>' + staffCount + ' Staff</strong>.</span>';
+          if (skippedCount > 0) {
+            reportHtml += '<br/><span style="color: #f87171;">⚠️ Skipped ' + skippedCount + ' rows missing valid email addresses.</span>';
+          }
+          reportBox.innerHTML = reportHtml;
+          reportBox.classList.add('show');
+        }
         showToast('Ingested ' + data.inserted + ' personnel records into database!');
         await loadDataStore();
         setTimeout(() => switchTab('overview'), 1200);
@@ -974,6 +1329,7 @@
     const form = document.getElementById('liveEditForm');
     const empSelect = document.getElementById('activeEmpSelect');
     const tplSelect = document.getElementById('tplSelect');
+    const btnSaveCloud = document.getElementById('btnSaveEmployeeCloud');
 
     if (empSelect) {
       empSelect.addEventListener('change', (e) => {
@@ -995,9 +1351,76 @@
       });
     }
 
+    // Simulator Light / Dark Mode Controls
+    const btnSimLight = document.getElementById('btnSimLightMode');
+    const btnSimDark = document.getElementById('btnSimDarkMode');
+    const mailWin = document.getElementById('mailPreviewWindow');
+
+    if (btnSimLight && btnSimDark && mailWin) {
+      btnSimLight.addEventListener('click', () => {
+        mailWin.classList.remove('sim-dark-mode');
+        btnSimLight.classList.add('active');
+        btnSimDark.classList.remove('active');
+      });
+      btnSimDark.addEventListener('click', () => {
+        mailWin.classList.add('sim-dark-mode');
+        btnSimDark.classList.add('active');
+        btnSimLight.classList.remove('active');
+      });
+    }
+
     if (form) {
       form.addEventListener('input', updateActiveEmployeeFromForm);
       form.addEventListener('change', updateActiveEmployeeFromForm);
+    }
+
+    // Dedicated Save & Sync Personnel to Cloud
+    if (btnSaveCloud) {
+      btnSaveCloud.addEventListener('click', async () => {
+        if (!activeEditingEmployee) return;
+        updateActiveEmployeeFromForm();
+
+        btnSaveCloud.disabled = true;
+        const originalText = btnSaveCloud.innerHTML;
+        btnSaveCloud.innerHTML = '<span class="stat-pulse-dot" style="display:inline-block;"></span> Saving to Cloud...';
+
+        try {
+          const payload = {
+            name: `${activeEditingEmployee.firstName || ''} ${activeEditingEmployee.lastName || ''}`.trim(),
+            email: activeEditingEmployee.email,
+            title: activeEditingEmployee.title,
+            department: activeEditingEmployee.department,
+            phone: activeEditingEmployee.phone || activeEditingEmployee.mobile,
+            template: activeEditingEmployee.template || 'os-flat-banner'
+          };
+
+          const res = await fetch(`${BASE_URL}api/users.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (data && data.success) {
+            createBackupSnapshot(`Saved: ${activeEditingEmployee.firstName} ${activeEditingEmployee.lastName}`);
+            saveDataStore(false);
+            showToast(`✓ Saved & synced ${activeEditingEmployee.firstName} to cloud database across all devices!`);
+            const feedback = document.getElementById('saveStatusFeedback');
+            if (feedback) {
+              feedback.innerHTML = `<span style="color: #10b981; font-weight: 700;">✓ Synced to cloud at ${new Date().toLocaleTimeString()}</span>`;
+            }
+          } else {
+            throw new Error(data.error || 'Server rejected save');
+          }
+        } catch (err) {
+          console.warn('Cloud API save error (offline mode):', err);
+          createBackupSnapshot(`Local edit: ${activeEditingEmployee.firstName} ${activeEditingEmployee.lastName}`);
+          saveDataStore(false);
+          showToast(`Saved to device memory. Will sync when server is reachable.`, 'info');
+        } finally {
+          btnSaveCloud.disabled = false;
+          btnSaveCloud.innerHTML = originalText;
+        }
+      });
     }
 
     // Floating Footer Triggers
@@ -1060,6 +1483,16 @@
     setVal('inputSecondaryColor', activeEditingEmployee.secondaryColor || '#f18a22');
     setVal('tplSelect', activeEditingEmployee.template || 'os-flat-banner');
 
+    const lblPri = document.getElementById('labelPrimaryColor');
+    if (lblPri) lblPri.textContent = activeEditingEmployee.primaryColor || '#0d4b8e';
+    const lblSec = document.getElementById('labelSecondaryColor');
+    if (lblSec) lblSec.textContent = activeEditingEmployee.secondaryColor || '#f18a22';
+
+    const senderHeader = document.getElementById('mailPreviewSender');
+    if (senderHeader) {
+      senderHeader.textContent = `${activeEditingEmployee.firstName || ''} ${activeEditingEmployee.lastName || ''} <${activeEditingEmployee.email || ''}>`;
+    }
+
     updateLiveCanvas();
   }
 
@@ -1081,6 +1514,16 @@
     activeEditingEmployee.secondaryColor = getVal('inputSecondaryColor');
     activeEditingEmployee.template = getVal('tplSelect') || 'os-flat-banner';
 
+    const lblPri = document.getElementById('labelPrimaryColor');
+    if (lblPri) lblPri.textContent = activeEditingEmployee.primaryColor;
+    const lblSec = document.getElementById('labelSecondaryColor');
+    if (lblSec) lblSec.textContent = activeEditingEmployee.secondaryColor;
+
+    const senderHeader = document.getElementById('mailPreviewSender');
+    if (senderHeader) {
+      senderHeader.textContent = `${activeEditingEmployee.firstName || ''} ${activeEditingEmployee.lastName || ''} <${activeEditingEmployee.email || ''}>`;
+    }
+
     saveDataStore(activeEditingEmployee);
     scheduleCanvasUpdate();
   }
@@ -1099,4 +1542,186 @@
     canvas.innerHTML = compiledHtml;
   }
 
+  // Backup Manager Engine
+  function initBackupsManager() {
+    const btnOpen = document.getElementById('btnOpenBackupsModal');
+    const modal = document.getElementById('backupsModal');
+    const btnClose = document.getElementById('btnCloseBackupsModal');
+    const btnCloseX = document.getElementById('btnCloseBackupsModalX');
+    const btnCreate = document.getElementById('btnCreateSnapshotNow');
+    const btnExport = document.getElementById('btnExportBackupJson');
+    const btnTriggerImport = document.getElementById('btnTriggerRestoreJson');
+    const fileInput = document.getElementById('backupJsonFileInput');
+
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', () => {
+        renderBackupsList();
+        modal.classList.add('active');
+      });
+    }
+
+    [btnClose, btnCloseX].forEach(b => {
+      if (b && modal) {
+        b.addEventListener('click', () => {
+          modal.classList.remove('active');
+        });
+      }
+    });
+
+    if (btnCreate) {
+      btnCreate.addEventListener('click', () => {
+        createBackupSnapshot('Manual Snapshot by Administrator');
+        showToast('✓ Created new backup snapshot with ' + staffList.length + ' records.');
+      });
+    }
+
+    if (btnExport) {
+      btnExport.addEventListener('click', () => {
+        const payload = {
+          app: 'Mailfooter Light Suite',
+          exportedAt: new Date().toISOString(),
+          totalRecords: staffList.length,
+          staff: staffList
+        };
+        const str = JSON.stringify(payload, null, 2);
+        const dateStr = new Date().toISOString().slice(0, 10);
+        triggerDownload(str, `Mailfooter_Personnel_Backup_${dateStr}.json`, 'application/json');
+        showToast('Downloaded JSON backup file.');
+      });
+    }
+
+    if (btnTriggerImport && fileInput) {
+      btnTriggerImport.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          const file = e.target.files[0];
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            try {
+              const parsed = JSON.parse(ev.target.result);
+              const list = Array.isArray(parsed) ? parsed : (parsed.staff || []);
+              if (Array.isArray(list) && list.length > 0) {
+                if (confirm(`Restore ${list.length} personnel records from file "${file.name}"? Current data will be backed up first.`)) {
+                  createBackupSnapshot('Pre-restore of file: ' + file.name);
+                  staffList = sanitizeStaffData(list);
+                  saveDataStore(true, 'Restored from JSON: ' + file.name);
+                  renderOverviewTable();
+                  updateHeaderMetrics();
+                  if (modal) modal.classList.remove('active');
+                  showToast('✓ Successfully restored ' + list.length + ' personnel records from backup file!');
+                }
+              } else {
+                showToast('Invalid backup file format: no staff records found.', 'error');
+              }
+            } catch (err) {
+              showToast('Error reading backup file: ' + err.message, 'error');
+            }
+          };
+          reader.readAsText(file);
+          fileInput.value = '';
+        }
+      });
+    }
+  }
+
+  function renderBackupsList() {
+    const listEl = document.getElementById('backupHistoryList');
+    if (!listEl) return;
+    const backups = getBackups();
+
+    if (backups.length === 0) {
+      listEl.innerHTML = '<div style="font-size: 12px; color: #94a3b8; padding: 14px; text-align: center;">No snapshots recorded yet. Click "Snapshot Current State" to create one.</div>';
+      return;
+    }
+
+    listEl.innerHTML = backups.map(b => {
+      return `
+        <div class="backup-history-item">
+          <div class="backup-item-info">
+            <span class="backup-item-title">${escapeHtml(b.reason)}</span>
+            <span class="backup-item-meta">${escapeHtml(b.dateStr)} • <strong>${b.count} staff records</strong></span>
+          </div>
+          <button type="button" class="mc-btn mc-btn-sm mc-btn-emerald" onclick="window.MailfooterLight.restoreBackupById('${b.id}')" title="Restore this snapshot">
+            ↺ Restore
+          </button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Add Single Staff Modal Engine
+  function initAddStaffModal() {
+    const btnOpen = document.getElementById('btnAddStaffModalBtn');
+    const modal = document.getElementById('addStaffModal');
+    const btnCloseX = document.getElementById('btnCloseAddStaffModalX');
+    const btnCancel = document.getElementById('btnCancelAddStaffModal');
+    const btnSubmit = document.getElementById('btnSubmitAddStaff');
+
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', () => {
+        document.getElementById('addStaffForm')?.reset();
+        modal.classList.add('active');
+      });
+    }
+
+    [btnCloseX, btnCancel].forEach(b => {
+      if (b && modal) {
+        b.addEventListener('click', () => {
+          modal.classList.remove('active');
+        });
+      }
+    });
+
+    if (btnSubmit && modal) {
+      btnSubmit.addEventListener('click', async () => {
+        const fName = (document.getElementById('addStaffFirstName')?.value || '').trim();
+        const lName = (document.getElementById('addStaffLastName')?.value || '').trim();
+        const role = document.getElementById('addStaffRole')?.value || 'Staff';
+        const dept = (document.getElementById('addStaffDept')?.value || '').trim() || 'General';
+        const title = (document.getElementById('addStaffTitle')?.value || '').trim() || 'Team Member';
+        const email = (document.getElementById('addStaffEmail')?.value || '').trim().toLowerCase();
+        const phone = (document.getElementById('addStaffPhone')?.value || '').trim() || '+27 (0) 11 463 1000';
+
+        if (!fName || !lName || !email) {
+          showToast('Please fill in First Name, Surname, and Email.', 'error');
+          return;
+        }
+
+        const newRecord = {
+          id: 'osh-' + Date.now(),
+          firstName: fName,
+          lastName: lName,
+          role: role,
+          title: title,
+          department: dept,
+          email: email,
+          phone: phone,
+          mobile: phone,
+          company: 'OS Holdings',
+          location: 'Sandton, Johannesburg',
+          web: 'https://os-holdings.co.za/',
+          logo: 'Resources/2x/logo.png',
+          primaryColor: '#0d4b8e',
+          secondaryColor: '#f18a22',
+          template: 'os-flat-banner'
+        };
+
+        const existingIdx = staffList.findIndex(s => (s.email || '').toLowerCase() === email);
+        if (existingIdx !== -1) {
+          staffList[existingIdx] = { ...staffList[existingIdx], ...newRecord, id: staffList[existingIdx].id };
+        } else {
+          staffList.push(newRecord);
+        }
+
+        createBackupSnapshot(`Added staff: ${fName} ${lName}`);
+        saveDataStore(true, `Added staff: ${fName} ${lName}`);
+        renderOverviewTable();
+        updateHeaderMetrics();
+        modal.classList.remove('active');
+        showToast(`✓ Added ${fName} ${lName} to directory and synced to cloud!`);
+      });
+    }
+  }
+
 })();
+

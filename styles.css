@@ -3346,4 +3346,298 @@ select.form-control {
   letter-spacing: 0.5px;
 }
 
+/* ==========================================================================
+   Simulated macOS / Modern Email Client Window (Live Preview Suite)
+   ========================================================================== */
+.mail-window-card {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.mail-window-header {
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.window-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.window-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-close { background: #ef4444; }
+.dot-min { background: #f59e0b; }
+.dot-expand { background: #10b981; }
+
+.mail-window-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  flex: 1;
+  text-align: center;
+}
+
+.simulator-mode-switch {
+  display: flex;
+  align-items: center;
+  background: #e2e8f0;
+  padding: 2px;
+  border-radius: 9999px;
+  gap: 2px;
+}
+
+.sim-mode-btn {
+  border: none;
+  background: transparent;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.sim-mode-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.mail-sync-indicator {
+  font-size: 11px;
+  font-weight: 700;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mail-meta-pane {
+  padding: 14px 22px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 12.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.meta-label {
+  color: #64748b;
+  width: 60px;
+  font-weight: 600;
+}
+
+.meta-val {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.mail-body-pane {
+  padding: 24px;
+  background: #ffffff;
+  min-height: 260px;
+  transition: background 0.2s ease;
+}
+
+.mail-dummy-text {
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  transition: color 0.2s ease;
+}
+
+/* Canvas Viewport */
+.canvas-container {
+  padding-top: 18px;
+  border-top: 1px dashed #cbd5e1;
+  overflow-x: auto;
+  transition: border-color 0.2s ease;
+}
+
+.canvas-viewport {
+  background: #ffffff;
+  width: 100%;
+  min-height: 180px;
+  transition: background 0.2s ease;
+}
+
+.canvas-viewport img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Simulated Dark Mode for macOS Apple Mail / Outlook */
+.mail-window-card.sim-dark-mode {
+  border-color: #272a33;
+  background: #14151a;
+}
+
+.mail-window-card.sim-dark-mode .mail-window-header {
+  background: #1c1e26;
+  border-bottom-color: #272a33;
+}
+
+.mail-window-card.sim-dark-mode .mail-window-title {
+  color: #94a3b8;
+}
+
+.mail-window-card.sim-dark-mode .simulator-mode-switch {
+  background: #272a33;
+}
+
+.mail-window-card.sim-dark-mode .sim-mode-btn {
+  color: #94a3b8;
+}
+
+.mail-window-card.sim-dark-mode .sim-mode-btn.active {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+.mail-window-card.sim-dark-mode .mail-meta-pane {
+  background: #181a21;
+  border-bottom-color: #272a33;
+}
+
+.mail-window-card.sim-dark-mode .meta-label {
+  color: #64748b;
+}
+
+.mail-window-card.sim-dark-mode .meta-val {
+  color: #e2e8f0;
+}
+
+.mail-window-card.sim-dark-mode .mail-body-pane {
+  background: #14151a;
+}
+
+.mail-window-card.sim-dark-mode .mail-dummy-text {
+  color: #94a3b8;
+}
+
+.mail-window-card.sim-dark-mode .canvas-container {
+  border-top-color: #272a33;
+}
+
+.mail-window-card.sim-dark-mode .canvas-viewport {
+  background: transparent;
+}
+
+.mail-window-card.sim-dark-mode .canvas-action-footer {
+  background: #181a21;
+  border-top-color: #272a33;
+}
+
+.mail-window-card.sim-dark-mode .delivery-action-left div:first-child {
+  color: #f1f5f9 !important;
+}
+
+.mail-window-card.sim-dark-mode .delivery-action-left div:last-child {
+  color: #94a3b8 !important;
+}
+
+.mail-window-card.sim-dark-mode .mc-btn-dark {
+  background: #272a33;
+  border-color: #3b3f4f;
+  color: #f1f5f9 !important;
+}
+
+.mail-window-card.sim-dark-mode .mc-btn-dark:hover {
+  background: #323642;
+  border-color: #4b5263;
+}
+
+/* Docked Canvas Action Footer */
+.canvas-action-footer {
+  padding: 16px 22px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Modern Action Buttons */
+.mc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  height: 38px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+
+.mc-btn-emerald {
+  background: #059669;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.mc-btn-emerald:hover {
+  background: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+}
+
+.mc-btn-dark {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.mc-btn-dark:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.mc-btn-lg {
+  height: 44px;
+  padding: 9px 24px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+
 

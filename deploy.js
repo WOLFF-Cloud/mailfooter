@@ -23,6 +23,7 @@ const filesToUpload = [
   'light.css',
   'light.js',
   'register.html',
+  'reset-password.html',
   'admin.html',
   'super-admin.html',
   'landing-index.html',
@@ -32,6 +33,8 @@ const filesToUpload = [
   'styles.css',
   'landing.css',
   'landing.js',
+  'login.css',
+  'login.js',
   '.htaccess',
   'router.php'
 ];

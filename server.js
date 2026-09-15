@@ -7,6 +7,15 @@ const url = require('url');
 const mockUsers = {};
 const mockClicks = [];
 const mockOpens = [];
+const mockClients = {};
+const mockAdmins = {
+  'admin@wolff-tech.com': { name: 'Sarah Jenkins', domain: 'wolff-tech.com', password: 'WolffDemo2026!' },
+  'sarah.jenkins@wolff-tech.com': { name: 'Sarah Jenkins', domain: 'wolff-tech.com', password: 'WolffDemo2026!' },
+  'marcus.vance@wolff-tech.com': { name: 'Marcus Vance', domain: 'wolff-tech.com', password: 'WolffDemo2026!' },
+  'daniel.mercer@apexglobal.io': { name: 'Daniel Mercer', domain: 'apexglobal.io', password: 'ApexDemo2026!' }
+};
+const mockResetTokens = {};
+const mockEmailLogs = [];
 
 const PORT = 3000;
 const ROOT_DIR = __dirname;
@@ -97,12 +106,20 @@ const server = http.createServer((req, res) => {
   }
 
   // Normalize extensionless routes
-  if (pathname === '/admin' || pathname === '/admin/') {
+  if (pathname === '/mailfooter' || pathname === '/mailfooter/' || pathname === '/login' || pathname === '/login/') {
+    pathname = '/index.html';
+  } else if (pathname === '/landing' || pathname === '/landing/') {
+    pathname = '/landing-index.html';
+  } else if (pathname === '/admin' || pathname === '/admin/') {
     pathname = '/admin.html';
   } else if (pathname === '/super-admin' || pathname === '/super-admin/') {
     pathname = '/super-admin.html';
   } else if (pathname === '/app' || pathname === '/app/') {
     pathname = '/app.html';
+  } else if (pathname === '/register' || pathname === '/register/') {
+    pathname = '/register.html';
+  } else if (pathname === '/reset-password' || pathname === '/reset-password/') {
+    pathname = '/reset-password.html';
   } else if (pathname === '/index' || pathname === '/index/') {
     pathname = '/index.html';
   }
@@ -204,6 +221,34 @@ const server = http.createServer((req, res) => {
       req.on('end', () => {
         try {
           const data = JSON.parse(body);
+          const isBulk = parsedUrl.query.bulk === '1' || data.action === 'bulk' || Array.isArray(data.users) || Array.isArray(data);
+          
+          if (isBulk) {
+            const list = Array.isArray(data.users) ? data.users : (Array.isArray(data) ? data : []);
+            let count = 0;
+            list.forEach(u => {
+              const email = (u.email || '').toLowerCase().trim();
+              const name = (u.name || ((u.firstName || '') + ' ' + (u.lastName || ''))).trim();
+              if (email && name) {
+                mockUsers[email] = {
+                  email: email,
+                  name: name,
+                  title: u.title || u.jobTitle || '',
+                  department: u.department || u.dept || 'General',
+                  phone: u.phone || u.mobile || '',
+                  template: u.template || 'os-flat-banner',
+                  campaign_enabled: u.campaign_enabled ? 1 : 0,
+                  campaign_id: u.campaign_id || null,
+                  created_at: new Date().toISOString()
+                };
+                count++;
+              }
+            });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: true, count, message: `Successfully imported ${count} personnel records.` }));
+            return;
+          }
+
           if (!data || !data.email || !data.name) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ success: false, error: 'Missing email or name' }));
@@ -216,7 +261,7 @@ const server = http.createServer((req, res) => {
             title: data.title || '',
             department: data.department || '',
             phone: data.phone || '',
-            template: data.template || 'db-default',
+            template: data.template || 'os-flat-banner',
             campaign_enabled: data.campaign_enabled ? 1 : 0,
             campaign_id: data.campaign_id || null,
             created_at: new Date().toISOString()
@@ -229,16 +274,72 @@ const server = http.createServer((req, res) => {
         }
       });
     } else {
-      // GET request
-      const email = (parsedUrl.query.email || '').toLowerCase().trim();
-      const user = mockUsers[email];
-      if (user) {
+      // GET request: supports ?email=..., ?query=... / ?search=..., ?name=..., ?list=1
+      const queryVal = (parsedUrl.query.query || parsedUrl.query.search || parsedUrl.query.name || parsedUrl.query.email || '').toLowerCase().trim();
+      const listAll = parsedUrl.query.list === '1' || parsedUrl.query.all === '1';
+
+      if (listAll) {
+        const clientFilter = (parsedUrl.query.client || '').toLowerCase().trim();
+        let users = Object.values(mockUsers);
+        if (clientFilter && clientFilter !== 'all') {
+          users = users.filter(u => {
+            const uDomain = (u.email || '').split('@')[1] || '';
+            const mappedDomain = (uDomain === 'osbusinessamp.com' || uDomain === 'osbusinessam.com') ? 'osholdings.co.za' : uDomain;
+            const mappedClient = (clientFilter === 'osbusinessamp.com' || clientFilter === 'osbusinessam.com') ? 'osholdings.co.za' : clientFilter;
+            return mappedDomain === mappedClient || (mappedClient === 'osholdings.co.za' && uDomain === 'os-holdings.co.za');
+          });
+        }
+        const directory = users.map(u => ({
+          name: u.name,
+          email: u.email,
+          title: u.title,
+          department: u.department,
+          phone: u.phone,
+          template: u.template,
+          campaign_enabled: u.campaign_enabled,
+          campaign_id: u.campaign_id,
+          created_at: u.created_at
+        }));
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, user }));
-      } else {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: false, error: 'User not found' }));
+        res.end(JSON.stringify({ success: true, users: directory }));
+        return;
       }
+
+      if (!queryVal) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Missing search query or email parameter' }));
+        return;
+      }
+
+      // Exact email match
+      if (mockUsers[queryVal]) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, user: mockUsers[queryVal] }));
+        return;
+      }
+
+      // Name or email match across all mock users
+      const allUsers = Object.values(mockUsers);
+      const exactNameMatch = allUsers.find(u => (u.name || '').toLowerCase().trim() === queryVal);
+      if (exactNameMatch) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, user: exactNameMatch }));
+        return;
+      }
+
+      const partialMatches = allUsers.filter(u => 
+        (u.name || '').toLowerCase().includes(queryVal) || 
+        (u.email || '').toLowerCase().includes(queryVal)
+      );
+
+      if (partialMatches.length > 0) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, user: partialMatches[0], matches: partialMatches }));
+        return;
+      }
+
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: 'User not found' }));
     }
     return;
   }
@@ -260,21 +361,18 @@ const server = http.createServer((req, res) => {
             return;
           }
 
-          const allowedAdmins = {
-            'admin@wolff-tech.com': { name: 'Sarah Jenkins', domain: 'wolff-tech.com' },
-            'sarah.jenkins@wolff-tech.com': { name: 'Sarah Jenkins', domain: 'wolff-tech.com' },
-            'marcus.vance@wolff-tech.com': { name: 'Marcus Vance', domain: 'wolff-tech.com' },
-            'daniel.mercer@apexglobal.io': { name: 'Daniel Mercer', domain: 'apexglobal.io' }
-          };
+          const adminRecord = mockAdmins[email];
+          const isDemoMatch = (adminRecord && (password === 'WolffDemo2026!' || password === 'ApexDemo2026!' || password === adminRecord.password));
 
-          if (allowedAdmins[email] && (password === 'WolffDemo2026!' || password === 'ApexDemo2026!')) {
+          if (isDemoMatch) {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({
               success: true,
               role: 'admin',
               email,
-              domain: allowedAdmins[email].domain,
-              name: allowedAdmins[email].name
+              domain: adminRecord.domain,
+              name: adminRecord.name,
+              company_name: adminRecord.company_name || 'Corporate Tenant'
             }));
           } else {
             res.writeHead(401, { 'Content-Type': 'application/json' });
@@ -289,6 +387,214 @@ const server = http.createServer((req, res) => {
       res.writeHead(405, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: false, error: 'Method not allowed' }));
     }
+    return;
+  }
+
+  // 3.6 MOCK API: register
+  if (isApiEndpoint('register')) {
+    if (req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', () => {
+        try {
+          const data = JSON.parse(body);
+          const companyName = (data.companyName || '').trim();
+          const rawDomain = (data.companyDomain || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+          const adminName = (data.adminName || '').trim();
+          const adminEmail = (data.adminEmail || '').trim().toLowerCase();
+          const adminPassword = data.adminPassword || '';
+          const plan = data.plan || 'starter';
+          const billingCycle = data.billingCycle || 'annual';
+          const billingMethod = data.billingMethod || 'invoice';
+
+          if (!companyName || !rawDomain || !adminName || !adminEmail || !adminPassword) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: 'All required fields must be completed.' }));
+            return;
+          }
+
+          if (mockClients[rawDomain]) {
+            res.writeHead(409, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: `Organization with domain '${rawDomain}' is already registered.` }));
+            return;
+          }
+
+          const invoiceId = 'inv_' + Date.now().toString().slice(-6);
+          const planPrices = { starter: 1500, team: 2300, enterprise: 4500, custom: 12500 };
+          const planUsers = { starter: 5, team: 20, enterprise: 50, custom: 999 };
+          const price = planPrices[plan] || 1500;
+          const maxUsers = planUsers[plan] || 5;
+
+          // Save in mock stores
+          mockClients[rawDomain] = {
+            id: 'client_' + rawDomain.replace(/[^a-z0-9]/g, '_'),
+            name: companyName,
+            domain: rawDomain,
+            plan: plan,
+            plan_name: plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan',
+            max_users: maxUsers,
+            billing_cycle: billingCycle,
+            price: price,
+            admin_name: adminName,
+            admin_email: adminEmail,
+            created_at: new Date().toISOString()
+          };
+
+          mockAdmins[adminEmail] = {
+            name: adminName,
+            domain: rawDomain,
+            company_name: companyName,
+            password: adminPassword
+          };
+
+          mockUsers[adminEmail] = {
+            email: adminEmail,
+            name: adminName,
+            title: 'Managing Administrator',
+            department: 'Executive',
+            phone: data.adminPhone || '',
+            template: 'db-default'
+          };
+
+          const welcomeHtml = `
+            <div style="font-family: sans-serif; padding: 20px; color: #1e293b;">
+              <h2 style="color: #0f172a;">Welcome to MailFooter, ${adminName}!</h2>
+              <p>Your tenant environment for <strong>${companyName}</strong> (${rawDomain}) is live.</p>
+              <p>Plan: <strong>${plan.toUpperCase()}</strong> (${maxUsers} Users Limit)</p>
+              <p>Invoice Reference: <strong>${invoiceId}</strong></p>
+              <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+              <p>Log in to your Admin Dashboard to configure your branding guidelines and signatures.</p>
+            </div>
+          `;
+
+          mockEmailLogs.push({
+            id: mockEmailLogs.length + 1,
+            recipient: adminEmail,
+            recipient_name: adminName,
+            subject: `Welcome to MailFooter - ${companyName} Environment Provisioned`,
+            email_type: 'welcome',
+            client_domain: rawDomain,
+            status: 'sent',
+            body_html: welcomeHtml,
+            created_at: new Date().toISOString()
+          });
+
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            success: true,
+            message: `Tenant for ${companyName} provisioned successfully.`,
+            client: {
+              id: 'client_' + rawDomain.replace(/[^a-z0-9]/g, '_'),
+              name: companyName,
+              domain: rawDomain,
+              plan: plan,
+              plan_name: plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan',
+              max_users: maxUsers,
+              billing_cycle: billingCycle,
+              price: price,
+              admin_name: adminName,
+              admin_email: adminEmail,
+              invoice_id: invoiceId,
+              invoice_status: (billingMethod === 'cc' ? 'paid' : 'pending')
+            },
+            session: {
+              admin_domain: rawDomain,
+              admin_email: adminEmail,
+              admin_name: adminName,
+              role: 'admin'
+            },
+            welcome_email: {
+              recipient: adminEmail,
+              subject: `Welcome to MailFooter - ${companyName} Environment Provisioned`,
+              status: 'sent',
+              log_id: mockEmailLogs.length,
+              body_html: welcomeHtml
+            }
+          }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: 'Invalid JSON payload' }));
+        }
+      });
+    } else {
+      res.writeHead(405, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: 'Method not allowed' }));
+    }
+    return;
+  }
+
+  // 3.7 MOCK API: password_reset
+  if (isApiEndpoint('password_reset')) {
+    const action = parsedUrl.query.action || '';
+    if (action === 'request' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', () => {
+        try {
+          const data = JSON.parse(body);
+          const email = (data.email || '').trim().toLowerCase();
+          const token = 'mock_token_' + Date.now();
+          mockResetTokens[token] = { email, expires: Date.now() + 3600000 };
+
+          const resetLink = `http://localhost:${PORT}/reset-password.html?token=${token}&email=${encodeURIComponent(email)}`;
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            success: true,
+            message: 'If an account matches this email, a reset link has been dispatched.',
+            debug_reset_link: resetLink
+          }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: 'Invalid payload' }));
+        }
+      });
+      return;
+    } else if (action === 'verify' && req.method === 'GET') {
+      const token = parsedUrl.query.token || '';
+      const email = parsedUrl.query.email || '';
+      const valid = mockResetTokens[token] && mockResetTokens[token].email === email && mockResetTokens[token].expires > Date.now();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: valid, valid: Boolean(valid) }));
+      return;
+    } else if (action === 'reset' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', () => {
+        try {
+          const data = JSON.parse(body);
+          const email = (data.email || '').trim().toLowerCase();
+          const password = data.password || '';
+          if (mockAdmins[email]) {
+            mockAdmins[email].password = password;
+          }
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, message: 'Password has been successfully updated.' }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: 'Invalid payload' }));
+        }
+      });
+      return;
+    }
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: false, error: 'Invalid action' }));
+    return;
+  }
+
+  // 3.8 MOCK API: mailer
+  if (isApiEndpoint('mailer')) {
+    const action = parsedUrl.query.action || '';
+    if (action === 'logs') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, count: mockEmailLogs.length, logs: mockEmailLogs }));
+      return;
+    } else if (action === 'preview') {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end('<h1>MailFooter Preview: Welcome Email</h1><p>Demo preview content.</p>');
+      return;
+    }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, message: 'Mailer API online' }));
     return;
   }
 

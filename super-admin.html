@@ -1486,7 +1486,7 @@ Type 'help' to review list of administrative core commands.
     (function() {
       const superadminLoggedIn = sessionStorage.getItem('superadmin_logged_in');
       if (superadminLoggedIn !== 'true') {
-        window.location.replace('landing-index.html?login=superadmin');
+        window.location.replace('index.html?login=superadmin');
       }
     })();
 
