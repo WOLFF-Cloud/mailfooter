@@ -28,8 +28,18 @@
   let saveDebounceTimer = null;
 
   // DOM Ready Initialization
-  document.addEventListener('DOMContentLoaded', () => {
-    loadDataStore();
+  document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Immediately hydrate from localStorage cache if available
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          staffList = sanitizeStaffData(parsed);
+        }
+      } catch (err) {}
+    }
+
     initTabNavigation();
     initOverviewTable();
     initBulkAddTab();
@@ -43,6 +53,9 @@
     if (yearEl) {
       yearEl.textContent = new Date().getFullYear();
     }
+
+    // 2. Load fresh server dataset
+    await loadDataStore();
   });
 
   const STORAGE_KEY = 'osh_mailfooter_light_staff_v6';
@@ -96,12 +109,15 @@
   // Server Data Store Engine (Direct SQLite API Integration via api/users.php)
   async function loadDataStore() {
     try {
-      const resp = await fetch('api/users.php?action=list');
+      const resp = await fetch(`api/users.php?action=list&_t=${Date.now()}`);
       if (!resp.ok) throw new Error('Server returned status ' + resp.status);
       const data = await resp.json();
 
       if (data && data.success && Array.isArray(data.users)) {
         staffList = data.users;
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(staffList));
+        } catch (err) {}
       } else {
         staffList = [];
       }
@@ -129,14 +145,12 @@
       populateInstallationForm();
     }
 
-    // Seed initial backup snapshot if none exists
-    const existingBackups = getBackups();
-    if (existingBackups.length === 0 && staffList.length > 0) {
-      createBackupSnapshot('Initial Directory State');
-    }
-
-    // Asynchronously synchronize with cloud backend so other devices see latest
-    syncWithCloudBackend();
+    // Trigger silent 48-hour automated cloud backup check
+    fetch('api/backups.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'auto_check' })
+    }).catch(() => {});
   }
 
   // Persist staff records to server database and local cache
@@ -191,34 +205,33 @@
     }
   }
 
-  // Multi-Version Backup Snapshots
-  function getBackups() {
+  // Server Cloud Database Backup Engine (Last 5 Snapshots • 48h Auto-Rotation)
+  async function getBackups() {
     try {
-      const raw = localStorage.getItem(BACKUP_STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      const resp = await fetch(`api/backups.php?_t=${Date.now()}`);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      return (data && Array.isArray(data.backups)) ? data.backups : [];
     } catch (e) {
+      console.warn('Could not fetch cloud backups:', e);
       return [];
     }
   }
 
-  function createBackupSnapshot(reason) {
+  async function createBackupSnapshot(reason) {
     try {
-      const backups = getBackups();
-      const now = new Date();
-      const snapshot = {
-        id: 'bk_' + Date.now(),
-        timestamp: now.toISOString(),
-        dateStr: now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        reason: reason || 'Automatic Snapshot',
-        count: staffList.length,
-        data: JSON.parse(JSON.stringify(staffList))
-      };
-      backups.unshift(snapshot);
-      if (backups.length > 15) backups.length = 15;
-      localStorage.setItem(BACKUP_STORAGE_KEY, JSON.stringify(backups));
-      renderBackupsList();
+      const resp = await fetch('api/backups.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'create', reason: reason || 'Manual Cloud Snapshot' })
+      });
+      const data = await resp.json();
+      if (data && data.success) {
+        renderBackupsList();
+      }
+      return data;
     } catch (e) {
-      console.warn('Failed to create backup snapshot:', e);
+      console.warn('Failed to create cloud backup snapshot:', e);
     }
   }
 
@@ -447,8 +460,13 @@
     updateAnalyticsCards(filtered);
 
     if (filtered.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--text-secondary);">No personnel found in server database matching the search criteria. Use <strong>📥 BULK ADD TAB</strong> or <strong>Full App Builder</strong> to add staff.</td></tr>';
-      document.getElementById('tableShowingCount').textContent = 'Showing 0 of ' + staffList.length + ' records';
+      if (staffList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--text-secondary);"><span class="stat-pulse-dot" style="display:inline-block; margin-right: 8px;"></span> Loading live corporate personnel directory from server database...</td></tr>';
+        document.getElementById('tableShowingCount').textContent = 'Loading records...';
+      } else {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--text-secondary);">No personnel found matching the search criteria. Use <strong>📥 BULK ADD TAB</strong> or <strong>Full App Builder</strong> to add staff.</td></tr>';
+        document.getElementById('tableShowingCount').textContent = 'Showing 0 of ' + staffList.length + ' records';
+      }
       return;
     }
 
@@ -480,8 +498,8 @@
             '<button class="mc-btn mc-btn-sm mc-btn-dark btn-copy-html" onclick="window.MailfooterLight.copyHtmlByEmpId(\'' + user.id + '\')" title="Copy Raw HTML Code Snippet">' +
               '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>' +
             '</button>' +
-            '<button class="mc-btn mc-btn-sm mc-btn-dark" onclick="window.MailfooterLight.openInLiveEditor('' + user.id + '')" title="Edit in Live Preview Canvas">✎ Edit</button>' +
-            '<button class="mc-btn mc-btn-sm mc-btn-dark" onclick="window.MailfooterLight.deleteByEmail('' + escapeHtml(user.email) + '')" title="Delete Personnel Record">🗑 Delete</button>' +
+            '<button class="mc-btn mc-btn-sm mc-btn-dark" onclick="window.MailfooterLight.openInLiveEditor(\'' + user.id + '\')" title="Edit in Live Preview Canvas">✎ Edit</button>' +
+            '<button class="mc-btn mc-btn-sm mc-btn-dark" onclick="window.MailfooterLight.deleteByEmail(\'' + escapeHtml(user.email) + '\')" title="Delete Personnel Record">🗑 Delete</button>' +
           '</div>' +
         '</td>' +
       '</tr>';
@@ -802,21 +820,28 @@
         deleteUserFromServer(email);
       }
     },
-    restoreBackupById: (backupId) => {
-      const backups = getBackups();
-      const target = backups.find(b => b.id === backupId);
-      if (target && target.data) {
-        if (confirm(`Restore snapshot from ${target.dateStr} (${target.count} records)? Current data will be backed up.`)) {
-          createBackupSnapshot('Pre-restore of snapshot: ' + target.reason);
-          staffList = sanitizeStaffData(target.data);
-          saveDataStore(null, true, 'Restored snapshot ' + target.id);
-          renderOverviewTable();
-          updateHeaderMetrics();
-          const modal = document.getElementById('backupsModal');
-          if (modal) modal.classList.remove('active');
-          showToast('✓ Directory restored to snapshot (' + staffList.length + ' records)!');
+    restoreBackupById: async (backupId) => {
+      if (!backupId) return;
+      if (confirm('Reinstate backup #' + backupId + ' into the live server database? A safety pre-restore snapshot will be saved automatically.')) {
+        try {
+          const resp = await fetch('api/backups.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'restore', id: backupId })
+          });
+          const data = await resp.json();
+          if (data && data.success) {
+            showToast('✓ Successfully reinstated ' + data.restored_count + ' personnel records into live database!');
+            await loadDataStore();
+            const modal = document.getElementById('backupsModal');
+            if (modal) modal.classList.remove('active');
+          } else {
+            showToast('Failed to reinstate database: ' + (data?.error || 'Unknown error'), 'error');
+          }
+        } catch (err) {
+          console.error('Error reinstating backup:', err);
+          showToast('Connection error reinstating database backup.', 'error');
         }
-      }
       }
     }
   };
@@ -909,9 +934,6 @@
     const fileInput = document.getElementById('csvFileInput');
     const dropzone = document.getElementById('csvDropzone');
     const dropzoneText = document.getElementById('dropzoneText');
-
-    const dropzone = document.getElementById('csvFileDropzone');
-    const fileInput = document.getElementById('csvFileInput');
     const fileNameEl = document.getElementById('dropzoneFileName');
 
     if (dropzone && fileInput) {
@@ -975,50 +997,6 @@
     }
     if (dlSampleBtn) {
       dlSampleBtn.addEventListener('click', downloadCurrentCSV);
-    }
-
-    // Drag & Drop File Upload Listeners
-    if (dropzone && fileInput) {
-      dropzone.addEventListener('click', () => fileInput.click());
-
-      dropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropzone.classList.add('dragover');
-      });
-
-      dropzone.addEventListener('dragleave', () => {
-        dropzone.classList.remove('dragover');
-      });
-
-      dropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropzone.classList.remove('dragover');
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-          handleSelectedFile(e.dataTransfer.files[0]);
-        }
-      });
-
-      fileInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files.length > 0) {
-          handleSelectedFile(e.target.files[0]);
-        }
-      });
-    }
-
-    function handleSelectedFile(file) {
-      if (!file) return;
-      if (dropzoneText) {
-        dropzoneText.innerHTML = '<strong>📄 Selected File:</strong> ' + escapeHtml(file.name) + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
-      }
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const fileContent = evt.target.result || '';
-        if (textarea) {
-          textarea.value = fileContent;
-        }
-        showToast('Loaded file: ' + file.name);
-      };
-      reader.readAsText(file);
     }
 
     if (ingestBtn) {
@@ -1494,16 +1472,13 @@
     canvas.innerHTML = compiledHtml;
   }
 
-  // Backup Manager Engine
+  // Backup Manager Engine (Server Cloud Database Snapshots)
   function initBackupsManager() {
     const btnOpen = document.getElementById('btnOpenBackupsModal');
     const modal = document.getElementById('backupsModal');
     const btnClose = document.getElementById('btnCloseBackupsModal');
     const btnCloseX = document.getElementById('btnCloseBackupsModalX');
     const btnCreate = document.getElementById('btnCreateSnapshotNow');
-    const btnExport = document.getElementById('btnExportBackupJson');
-    const btnTriggerImport = document.getElementById('btnTriggerRestoreJson');
-    const fileInput = document.getElementById('backupJsonFileInput');
 
     if (btnOpen && modal) {
       btnOpen.addEventListener('click', () => {
@@ -1521,80 +1496,50 @@
     });
 
     if (btnCreate) {
-      btnCreate.addEventListener('click', () => {
-        createBackupSnapshot('Manual Snapshot by Administrator');
-        showToast('✓ Created new backup snapshot with ' + staffList.length + ' records.');
-      });
-    }
-
-    if (btnExport) {
-      btnExport.addEventListener('click', () => {
-        const payload = {
-          app: 'Mailfooter Light Suite',
-          exportedAt: new Date().toISOString(),
-          totalRecords: staffList.length,
-          staff: staffList
-        };
-        const str = JSON.stringify(payload, null, 2);
-        const dateStr = new Date().toISOString().slice(0, 10);
-        triggerDownload(str, `Mailfooter_Personnel_Backup_${dateStr}.json`, 'application/json');
-        showToast('Downloaded JSON backup file.');
-      });
-    }
-
-    if (btnTriggerImport && fileInput) {
-      btnTriggerImport.addEventListener('click', () => fileInput.click());
-      fileInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files[0]) {
-          const file = e.target.files[0];
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            try {
-              const parsed = JSON.parse(ev.target.result);
-              const list = Array.isArray(parsed) ? parsed : (parsed.staff || []);
-              if (Array.isArray(list) && list.length > 0) {
-                if (confirm(`Restore ${list.length} personnel records from file "${file.name}"? Current data will be backed up first.`)) {
-                  createBackupSnapshot('Pre-restore of file: ' + file.name);
-                  staffList = sanitizeStaffData(list);
-                  saveDataStore(true, 'Restored from JSON: ' + file.name);
-                  renderOverviewTable();
-                  updateHeaderMetrics();
-                  if (modal) modal.classList.remove('active');
-                  showToast('✓ Successfully restored ' + list.length + ' personnel records from backup file!');
-                }
-              } else {
-                showToast('Invalid backup file format: no staff records found.', 'error');
-              }
-            } catch (err) {
-              showToast('Error reading backup file: ' + err.message, 'error');
-            }
-          };
-          reader.readAsText(file);
-          fileInput.value = '';
+      btnCreate.addEventListener('click', async () => {
+        btnCreate.disabled = true;
+        const originalText = btnCreate.innerHTML;
+        btnCreate.innerHTML = '⏳ Creating Snapshot...';
+        try {
+          const res = await createBackupSnapshot('Manual Snapshot by Administrator');
+          if (res && res.success) {
+            showToast('✓ Created new server cloud snapshot (' + (res.total_records || staffList.length) + ' records)!');
+            await renderBackupsList();
+          } else {
+            showToast('Failed to create snapshot: ' + (res?.error || 'Unknown error'), 'error');
+          }
+        } catch (e) {
+          showToast('Error creating server backup.', 'error');
+        } finally {
+          btnCreate.disabled = false;
+          btnCreate.innerHTML = originalText;
         }
       });
     }
   }
 
-  function renderBackupsList() {
+  async function renderBackupsList() {
     const listEl = document.getElementById('backupHistoryList');
     if (!listEl) return;
-    const backups = getBackups();
+    listEl.innerHTML = '<div style="font-size: 12px; color: #94a3b8; padding: 14px; text-align: center;">Loading server cloud snapshots...</div>';
+    
+    const backups = await getBackups();
 
-    if (backups.length === 0) {
-      listEl.innerHTML = '<div style="font-size: 12px; color: #94a3b8; padding: 14px; text-align: center;">No snapshots recorded yet. Click "Snapshot Current State" to create one.</div>';
+    if (!Array.isArray(backups) || backups.length === 0) {
+      listEl.innerHTML = '<div style="font-size: 12px; color: #94a3b8; padding: 14px; text-align: center;">No cloud database snapshots found yet. Click "Snapshot Current Database" below to create the first save.</div>';
       return;
     }
 
     listEl.innerHTML = backups.map(b => {
+      const dateStr = b.created_at || 'Recent';
       return `
-        <div class="backup-history-item">
-          <div class="backup-item-info">
-            <span class="backup-item-title">${escapeHtml(b.reason)}</span>
-            <span class="backup-item-meta">${escapeHtml(b.dateStr)} • <strong>${b.count} staff records</strong></span>
+        <div class="backup-history-item" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+          <div class="backup-item-info" style="display: flex; flex-direction: column; gap: 3px;">
+            <span class="backup-item-title" style="font-weight: 700; font-size: 13px; color: #1e293b;">${escapeHtml(b.reason || 'Cloud Snapshot')}</span>
+            <span class="backup-item-meta" style="font-size: 11.5px; color: #64748b;">${escapeHtml(dateStr)} • <strong style="color: #0284c7;">${b.total_records} records</strong></span>
           </div>
-          <button type="button" class="mc-btn mc-btn-sm mc-btn-emerald" onclick="window.MailfooterLight.restoreBackupById('${b.id}')" title="Restore this snapshot">
-            ↺ Restore
+          <button type="button" class="mc-btn mc-btn-sm mc-btn-emerald" onclick="window.MailfooterLight.restoreBackupById(${b.id})" title="Reinstate this snapshot into live production database">
+            ↺ Reinstate
           </button>
         </div>
       `;

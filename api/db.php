@@ -180,6 +180,15 @@ try {
             used INTEGER DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
+
+        CREATE TABLE IF NOT EXISTS directory_backups (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            domain TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            total_records INTEGER NOT NULL,
+            data_json TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
     ");
 
     // ==========================================
