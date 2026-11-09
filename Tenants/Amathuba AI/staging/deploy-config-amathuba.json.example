@@ -1,0 +1,8 @@
+{
+  "host": "ftp.amathuba-ai.com",
+  "port": 21,
+  "username": "your_ftp_username",
+  "password": "your_ftp_password",
+  "remotePath": "public_html/mailfooter",
+  "domain": "https://amathuba-ai.com/mailfooter"
+}

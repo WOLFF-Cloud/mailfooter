@@ -1,5 +1,7 @@
 # Deployment and Credentials
 deploy-config.json
+deploy-config*.json
+**/deploy-config*.json
 .env
 .env.*
 *.pem

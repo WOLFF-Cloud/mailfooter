@@ -95,10 +95,15 @@
     
     <!-- Top Header -->
     <header class="app-header">
-      <a href="index.html" id="headerLogo" class="brand" style="opacity: 0; display: flex; align-items: center; text-decoration: none;">
-        <img id="headerLogoImg" src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" width="169" height="80" style="display: block;" />
-      </a>
-      <div style="display: flex; align-items: center; gap: 10px;">
+      <div id="headerLogo" class="brand" style="opacity: 1; display: flex; align-items: center;">
+        <div class="header-logo-dropzone" id="headerLogoDropzone" title="Click or Drag & Drop to Quick Change Logo">
+          <img id="headerLogoImg" src="MailFooter Resources/MailFooter - Logo.png" alt="Company Logo" style="display: block; max-height: 36px; width: auto;" />
+          <input type="file" id="headerLogoFileInput" accept="image/*" style="display: none;">
+          <span class="logo-hover-badge">📷 Drag or Click to Change Logo</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button type="button" class="theme-switch-btn" aria-label="Toggle Theme"></button>
         <a href="light.html" class="btn btn-secondary" style="border-color: rgba(78, 224, 0, 0.4); color: #4ee000; text-decoration: none;">⚡ Light Portal</a>
         <button id="btnBackToPortal" class="btn btn-secondary back-to-portal-btn">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
@@ -474,8 +479,13 @@
 
     </main>
 
-    <footer class="app-footer">
-      <p>&copy; 2026 <span class="brand-green">MailFooter</span>. All rights reserved. Developed by <span class="brand-green">WOLFF - Cloud Solutions</span>.</p>
+    <!-- Platform Footer -->
+    <footer class="platform-footer" style="padding: 24px 0; margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="platform-logo" style="height: 26px; width: auto;" />
+        <span style="font-weight: 700; color: var(--text-primary, #ffffff); font-size: 15px;">Mailfooter Signature Suite</span>
+      </div>
+      <div style="font-size: 12px; color: var(--text-secondary, #94a3b8);">&copy; 2026 <strong>MailFooter Platform</strong>. Powered by <strong>WOLFF Cloud Solutions</strong>.</div>
     </footer>
 
   </div>

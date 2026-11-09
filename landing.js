@@ -2,6 +2,46 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ==========================================
+  // --- THEME SWITCHER & COLOR ENGINE ---
+  // ==========================================
+  function updateThemeIcon(btn, theme) {
+    if (!btn) return;
+    if (theme === 'light') {
+      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      btn.setAttribute('title', 'Switch to Dark Mode');
+    } else {
+      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+      btn.setAttribute('title', 'Switch to Light Mode');
+    }
+  }
+
+  function initThemeSwitcher() {
+    const savedTheme = localStorage.getItem('mailfooter_theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-theme');
+      document.documentElement.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+      document.documentElement.classList.remove('light-theme');
+    }
+
+    const themeBtns = document.querySelectorAll('.theme-switch-btn');
+    themeBtns.forEach(btn => {
+      updateThemeIcon(btn, savedTheme);
+      btn.onclick = (e) => {
+        e.preventDefault();
+        const isLight = document.body.classList.toggle('light-theme');
+        document.documentElement.classList.toggle('light-theme', isLight);
+        const newTheme = isLight ? 'light' : 'dark';
+        localStorage.setItem('mailfooter_theme', newTheme);
+        themeBtns.forEach(b => updateThemeIcon(b, newTheme));
+      };
+    });
+  }
+
+  initThemeSwitcher();
+
+  // ==========================================
   // 1. STICKY HEADER SCROLL LOGIC
   // ==========================================
   const header = document.querySelector('.app-header');
@@ -418,6 +458,49 @@ document.addEventListener('DOMContentLoaded', () => {
   const planSummaryCard = document.getElementById('planSummaryCard');
 
   if (registerForm) {
+    // Registration Branding Handlers
+    const regLogoUploadZone = document.getElementById('regLogoUploadZone');
+    const regLogoFileInput = document.getElementById('regLogoFileInput');
+    const regLogoPreviewContainer = document.getElementById('regLogoPreviewContainer');
+    const regLogoPreviewImg = document.getElementById('regLogoPreviewImg');
+
+    if (regLogoUploadZone && regLogoFileInput) {
+      regLogoUploadZone.addEventListener('click', () => regLogoFileInput.click());
+      regLogoUploadZone.addEventListener('dragover', (e) => e.preventDefault());
+      regLogoUploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleRegLogo(e.dataTransfer.files[0]);
+        }
+      });
+      regLogoFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleRegLogo(e.target.files[0]);
+        }
+      });
+
+      function handleRegLogo(file) {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          if (regLogoPreviewImg) regLogoPreviewImg.src = ev.target.result;
+          if (regLogoPreviewContainer) regLogoPreviewContainer.style.display = 'block';
+          window.registrationLogoB64 = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    const regSwatches = document.querySelectorAll('#regPaletteSwatches .palette-swatch-btn');
+    regSwatches.forEach(btn => {
+      btn.addEventListener('click', () => {
+        regSwatches.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        window.registrationPrimaryColor = btn.getAttribute('data-primary');
+        window.registrationSecondaryColor = btn.getAttribute('data-secondary');
+      });
+    });
+
     // Parse query params to select plan
     const urlParams = new URLSearchParams(window.location.search);
     const planParam = urlParams.get('plan');
@@ -537,6 +620,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      // Save initial tenant branding into settings DB if provided
+      sessionStorage.setItem('admin_domain', companyDomain);
+      sessionStorage.setItem('admin_email', adminEmail);
+
+      const initBrandingPayload = {
+        company_name: companyName,
+        admin_name: adminName,
+        admin_email: adminEmail,
+        company_logo: window.registrationLogoB64 || '',
+        color_primary: window.registrationPrimaryColor || '#4ee000',
+        color_secondary: window.registrationSecondaryColor || '#0d4b8e'
+      };
+
+      fetch(`${API_DOMAIN}/api/settings.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(initBrandingPayload)
+      }).catch(() => {});
+
       // Hide register submit button and show overlay animation
       const submitBtn = registerForm.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
@@ -550,7 +652,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const loadingSteps = [
           { percentage: 20, status: 'Creating tenant account...' },
           { percentage: 50, status: 'Provisioning SQL database...' },
-          { percentage: 80, status: 'Generating admin profile token...' },
+          { percentage: 80, status: 'Configuring corporate brand theme...' },
           { percentage: 100, status: 'Deployment ready! Redirecting...' }
         ];
 

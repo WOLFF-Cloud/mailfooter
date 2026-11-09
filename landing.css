@@ -14,6 +14,10 @@
   --primary-glow: rgba(78, 224, 0, 0.15);
   --primary-glow-heavy: rgba(78, 224, 0, 0.35);
   
+  --client-primary: var(--primary);
+  --client-primary-hover: var(--primary-hover);
+  --client-primary-text: #000000;
+  
   --border-color: rgba(255, 255, 255, 0.08);
   --border-glow: rgba(78, 224, 0, 0.2);
   --border-focus: rgba(78, 224, 0, 0.4);
@@ -30,6 +34,19 @@
   
   --transition-smooth: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   --transition-fast: all 0.2s ease;
+}
+
+.light-theme {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  --shadow-lg: 0 20px 40px -15px rgba(15, 23, 42, 0.08);
 }
 
 /* Base resets & theme setting */

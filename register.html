@@ -24,10 +24,11 @@
   <header class="app-header scrolled" style="position: absolute;">
     <div class="container header-container">
       <a href="index.html" class="logo-wrapper">
-        <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="logo-img" style="height: 42px;">
+        <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="logo-img" style="height: 36px;">
       </a>
-      <div class="header-actions">
-        <a href="index.html" class="btn btn-secondary" style="padding: 8px 20px; font-size: 13px;">&larr; Back to Site</a>
+      <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" class="theme-switch-btn" aria-label="Toggle Theme"></button>
+        <a href="index.html" class="btn btn-secondary" style="padding: 6px 14px; font-size: 13px;">&larr; Back to Site</a>
       </div>
     </div>
   </header>
@@ -103,7 +104,44 @@
             </div>
           </div>
 
-          <!-- Section 3: Admin User Credentials -->
+          <!-- Section 3: Corporate Branding & Theme Palette -->
+          <div class="register-form-section-title">Corporate Branding & Palette (Optional)</div>
+          
+          <div class="form-field-group" style="grid-column: span 2;">
+            <label>Corporate Logo (Drag & Drop or Choose)</label>
+            <div class="upload-drop-zone" id="regLogoUploadZone" style="padding: 15px; text-align: center; border: 1px dashed var(--border-color); border-radius: 8px; background: var(--bg-tertiary); cursor: pointer;">
+              <div class="upload-text" id="regLogoUploadText" style="font-size: 12px; color: var(--text-secondary);">
+                Drag & drop company logo here, or <span style="color: var(--client-primary, var(--primary)); text-decoration: underline;">browse file</span>
+              </div>
+              <input type="file" id="regLogoFileInput" accept="image/*" style="display: none;">
+              <div class="upload-preview-container" id="regLogoPreviewContainer" style="display: none; margin-top: 8px;">
+                <img src="" alt="Logo Preview" id="regLogoPreviewImg" style="max-height: 40px; object-fit: contain;">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-field-group" style="grid-column: span 2;">
+            <label>Curated Corporate Palette Presets</label>
+            <div class="palette-swatches" id="regPaletteSwatches">
+              <button type="button" class="palette-swatch-btn active" data-primary="#4ee000" data-secondary="#0d4b8e">
+                <span class="swatch-dot" style="background: #4ee000;"></span> MailFooter Green
+              </button>
+              <button type="button" class="palette-swatch-btn" data-primary="#0d4b8e" data-secondary="#f18a22">
+                <span class="swatch-dot" style="background: #0d4b8e;"></span> Navy & Amber
+              </button>
+              <button type="button" class="palette-swatch-btn" data-primary="#059669" data-secondary="#0f172a">
+                <span class="swatch-dot" style="background: #059669;"></span> Emerald Slate
+              </button>
+              <button type="button" class="palette-swatch-btn" data-primary="#4f46e5" data-secondary="#06b6d4">
+                <span class="swatch-dot" style="background: #4f46e5;"></span> Royal Cyan
+              </button>
+              <button type="button" class="palette-swatch-btn" data-primary="#dc2626" data-secondary="#1e293b">
+                <span class="swatch-dot" style="background: #dc2626;"></span> Crimson Steel
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 4: Admin User Credentials -->
           <div class="register-form-section-title">Administrator Account</div>
           
           <div class="form-field-group">

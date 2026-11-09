@@ -17,12 +17,89 @@
 
   // DOM Ready Initialization
   document.addEventListener('DOMContentLoaded', () => {
+    initThemeSwitcher();
+    initHeaderLogoUploader();
     loadDataStore();
     initTabNavigation();
     initOverviewTable();
     initBulkAddTab();
     initInstallationTab();
   });
+
+  function updateThemeIcon(btn, theme) {
+    if (!btn) return;
+    if (theme === 'light') {
+      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      btn.setAttribute('title', 'Switch to Dark Mode');
+    } else {
+      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+      btn.setAttribute('title', 'Switch to Light Mode');
+    }
+  }
+
+  function initThemeSwitcher() {
+    const savedTheme = localStorage.getItem('mailfooter_theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-theme');
+      document.documentElement.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+      document.documentElement.classList.remove('light-theme');
+    }
+
+    const themeBtns = document.querySelectorAll('.theme-switch-btn');
+    themeBtns.forEach(btn => {
+      updateThemeIcon(btn, savedTheme);
+      btn.onclick = (e) => {
+        e.preventDefault();
+        const isLight = document.body.classList.toggle('light-theme');
+        document.documentElement.classList.toggle('light-theme', isLight);
+        const newTheme = isLight ? 'light' : 'dark';
+        localStorage.setItem('mailfooter_theme', newTheme);
+        themeBtns.forEach(b => updateThemeIcon(b, newTheme));
+      };
+    });
+  }
+
+  function initHeaderLogoUploader() {
+    const dropzone = document.getElementById('headerLogoDropzone');
+    const fileInput = document.getElementById('headerLogoFileInput');
+    const logoImg = document.getElementById('headerLogoImg');
+
+    if (!dropzone || !fileInput || !logoImg) return;
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleHeaderLogoFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleHeaderLogoFile(e.target.files[0]);
+      }
+    });
+
+    function handleHeaderLogoFile(file) {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const b64 = e.target.result;
+        logoImg.src = b64;
+        fetch('api/settings.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ company_logo: b64 })
+        }).catch(() => {});
+      };
+      reader.readAsDataURL(file);
+    }
+  }
 
   // Server Data Store Engine (Direct SQLite API Integration via api/users.php)
   async function loadDataStore() {

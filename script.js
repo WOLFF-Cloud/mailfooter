@@ -2,6 +2,239 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Centralized SaaS Routing Flag ---
   const ENABLE_CENTRAL_SAAS = false; // Set to true once the central domain (e.g., mailfooter.co.za) is live
 
+  // =========================================================
+  // --- FAILPROOF COLOR ENGINE & THEME SWITCHER SYSTEM ---
+  // =========================================================
+  function hexToRgb(hex) {
+    if (!hex) return { r: 78, g: 224, b: 0 };
+    let c = hex.replace('#', '');
+    if (c.length === 3) c = c.split('').map(x => x + x).join('');
+    const num = parseInt(c, 16);
+    return isNaN(num) ? { r: 78, g: 224, b: 0 } : { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+
+  function getLuminance(r, g, b) {
+    const a = [r, g, b].map(v => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+  }
+
+  function calculateContrastAndHover(primaryHex) {
+    if (!primaryHex || !primaryHex.startsWith('#') || (primaryHex.length !== 7 && primaryHex.length !== 4)) {
+      primaryHex = '#4ee000';
+    }
+    const rgb = hexToRgb(primaryHex);
+    const lum = getLuminance(rgb.r, rgb.g, rgb.b);
+    
+    // Choose best WCAG contrast text color (Pure White vs Dark Slate)
+    const contrastWhite = (1.0 + 0.05) / (lum + 0.05);
+    const contrastDark = (lum + 0.05) / (0.015 + 0.05);
+    
+    const textHex = contrastWhite >= contrastDark && contrastWhite >= 3.0 ? '#ffffff' : '#0f172a';
+    const bestRatio = Math.max(contrastWhite, contrastDark).toFixed(1);
+    
+    // HSL Shift for Hover State
+    let r = rgb.r / 255, g = rgb.g / 255, b = rgb.b / 255;
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+    
+    if (max === min) {
+      h = s = 0;
+    } else {
+      let d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    
+    let newL = l > 0.6 ? Math.max(0.2, l - 0.12) : Math.min(0.9, l + 0.12);
+    
+    function hslToHex(h, s, l) {
+      let r, g, b;
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+        };
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+      }
+      const toHex = x => {
+        const hex = Math.round(x * 255).toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      };
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    }
+    
+    return {
+      textHex,
+      hoverHex: hslToHex(h, s, newL),
+      contrastRatio: bestRatio,
+      isPass: parseFloat(bestRatio) >= 3.0
+    };
+  }
+
+  function applyTenantThemeColors(primaryHex, secondaryHex, accentHex) {
+    if (!primaryHex) return;
+    const analysis = calculateContrastAndHover(primaryHex);
+    const root = document.documentElement;
+    
+    root.style.setProperty('--client-primary', primaryHex);
+    root.style.setProperty('--client-primary-hover', analysis.hoverHex);
+    root.style.setProperty('--client-primary-text', analysis.textHex);
+    if (secondaryHex) root.style.setProperty('--client-secondary', secondaryHex);
+    if (accentHex) root.style.setProperty('--client-accent', accentHex);
+
+    const contrastBadge = document.getElementById('contrastSafetyBadge');
+    if (contrastBadge) {
+      contrastBadge.className = `contrast-badge ${analysis.isPass ? 'pass' : 'warn'}`;
+      contrastBadge.innerHTML = analysis.isPass 
+        ? `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> ${analysis.contrastRatio}:1 Contrast Ratio (Legible)`
+        : `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ${analysis.contrastRatio}:1 Ratio (Auto-adjusted text)`;
+    }
+  }
+
+  function updateThemeIcon(btn, theme) {
+    if (!btn) return;
+    if (theme === 'light') {
+      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      btn.setAttribute('title', 'Switch to Dark Mode');
+    } else {
+      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+      btn.setAttribute('title', 'Switch to Light Mode');
+    }
+  }
+
+  function initThemeSwitcher() {
+    const savedTheme = localStorage.getItem('mailfooter_theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-theme');
+      document.documentElement.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+      document.documentElement.classList.remove('light-theme');
+    }
+
+    const themeBtns = document.querySelectorAll('.theme-switch-btn');
+    themeBtns.forEach(btn => {
+      updateThemeIcon(btn, savedTheme);
+      btn.onclick = (e) => {
+        e.preventDefault();
+        const isLight = document.body.classList.toggle('light-theme');
+        document.documentElement.classList.toggle('light-theme', isLight);
+        const newTheme = isLight ? 'light' : 'dark';
+        localStorage.setItem('mailfooter_theme', newTheme);
+        themeBtns.forEach(b => updateThemeIcon(b, newTheme));
+      };
+    });
+  }
+
+  // Initialize theme switcher on DOM ready
+  initThemeSwitcher();
+
+  // --- Header Drag & Drop Quick Logo Uploader ---
+  function initHeaderLogoUploader() {
+    const dropzone = document.getElementById('headerLogoDropzone');
+    const fileInput = document.getElementById('headerLogoFileInput');
+    const logoImg = document.getElementById('headerLogoImg');
+
+    if (!dropzone || !fileInput || !logoImg) return;
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('drag-over');
+    });
+
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleHeaderLogoFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleHeaderLogoFile(e.target.files[0]);
+      }
+    });
+
+    function handleHeaderLogoFile(file) {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const b64 = e.target.result;
+        logoImg.src = b64;
+        
+        const settingLogoInput = document.getElementById('setting_company_logo');
+        if (settingLogoInput) settingLogoInput.value = b64;
+
+        const API_DOMAIN = window.location.origin + window.location.pathname.replace(/\/(index|app|admin|super-admin|register)(\.html)?$/, '').replace(/\/$/, '');
+        fetch(`${API_DOMAIN}/api/settings.php`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ company_logo: b64 })
+        }).catch(() => {});
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // --- Palette Preset Swatches Handler ---
+  function initPaletteSwatches() {
+    const swatchBtns = document.querySelectorAll('.palette-swatch-btn');
+    swatchBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const primary = btn.getAttribute('data-primary');
+        const secondary = btn.getAttribute('data-secondary');
+        
+        const parent = btn.closest('.palette-swatches');
+        if (parent) {
+          parent.querySelectorAll('.palette-swatch-btn').forEach(b => b.classList.remove('active'));
+        }
+        btn.classList.add('active');
+
+        applyTenantThemeColors(primary, secondary);
+
+        const primaryPicker = document.getElementById('setting_color_primary');
+        const primaryHex = document.getElementById('setting_color_primary_hex');
+        const secondaryPicker = document.getElementById('setting_color_secondary');
+        const secondaryHex = document.getElementById('setting_color_secondary_hex');
+
+        if (primaryPicker) primaryPicker.value = primary;
+        if (primaryHex) primaryHex.value = primary.toUpperCase();
+        if (secondaryPicker) secondaryPicker.value = secondary;
+        if (secondaryHex) secondaryHex.value = secondary.toUpperCase();
+      });
+    });
+  }
+
+  initHeaderLogoUploader();
+  initPaletteSwatches();
+
+  // Expose globally for inline calls if needed
+  window.applyTenantThemeColors = applyTenantThemeColors;
+  window.calculateContrastAndHover = calculateContrastAndHover;
+
   // --- Parse URL Parameters ---
   let clientDomain = '';
   let queryEmail = '';
@@ -363,11 +596,11 @@ document.addEventListener('DOMContentLoaded', () => {
       youtube: youtubeUrl.value ? `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=youtube&template=${selectedTemplate}` : '',
       webTracked: `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=website&template=${selectedTemplate}`,
       
-      // Dynamic campaign banner graphics & target links
+      // Dynamic campaign banner graphics & target links (with safe local file protocol fallbacks)
       campaignLink: `${TRACKING_DOMAIN}/track/click?user_id=${userId}&link_id=campaign_banner&template=${selectedTemplate}`,
-      campaignImg: isCampaignEnabled ? `${TRACKING_DOMAIN}/track/banner?user_id=${userId}&type=main&template=${selectedTemplate}` : '',
-      campaignPartner: `${TRACKING_DOMAIN}/track/banner?user_id=${userId}&type=partner&template=${selectedTemplate}`,
-      campaignBtn: `${TRACKING_DOMAIN}/track/banner?user_id=${userId}&type=button&template=${selectedTemplate}`,
+      campaignImg: isCampaignEnabled ? (window.location.protocol === 'file:' ? 'Resources/2x/cta-banner-left.png' : `${TRACKING_DOMAIN}/track/banner?user_id=${userId}&type=main&template=${selectedTemplate}`) : '',
+      campaignPartner: window.location.protocol === 'file:' ? 'Resources/2x/cta-banner-right-top.png' : `${TRACKING_DOMAIN}/track/banner?user_id=${userId}&type=partner&template=${selectedTemplate}`,
+      campaignBtn: window.location.protocol === 'file:' ? 'Resources/2x/cta-banner-right-bottom.png' : `${TRACKING_DOMAIN}/track/banner?user_id=${userId}&type=button&template=${selectedTemplate}`,
       
       companyBio: COMPANY_DEFAULTS.companyBio,
       sideImage: COMPANY_DEFAULTS.sideImage,
@@ -785,6 +1018,15 @@ document.addEventListener('DOMContentLoaded', () => {
           if (s.company_brand_graphic) COMPANY_DEFAULTS.sideImage = s.company_brand_graphic;
           if (s.color_primary) COMPANY_DEFAULTS.primaryColor = s.color_primary;
           if (s.color_secondary) COMPANY_DEFAULTS.secondaryColor = s.color_secondary;
+
+          // Apply failproof tenant theme colors dynamically
+          applyTenantThemeColors(COMPANY_DEFAULTS.primaryColor, COMPANY_DEFAULTS.secondaryColor);
+
+          // Update header logo with Client Logo if available
+          const headerLogoImg = document.getElementById('headerLogoImg');
+          if (headerLogoImg && COMPANY_DEFAULTS.logo) {
+            headerLogoImg.src = COMPANY_DEFAULTS.logo;
+          }
 
           // Dynamically update document title to white-label the tab
           if (s.company_name) {

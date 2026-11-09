@@ -32,11 +32,16 @@
     <!-- Top Header -->
     <header class="app-header">
       <div class="brand" style="opacity: 1; display: flex; align-items: center;">
-        <img id="headerLogoImg" src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" width="169" height="80" style="display: block;" />
+        <div class="header-logo-dropzone" id="headerLogoDropzone" title="Click or Drag & Drop to Quick Change Logo">
+          <img id="headerLogoImg" src="MailFooter Resources/MailFooter - Logo.png" alt="Company Logo" style="display: block; max-height: 36px; width: auto;" />
+          <input type="file" id="headerLogoFileInput" accept="image/*" style="display: none;">
+          <span class="logo-hover-badge">📷 Drag or Click to Change Logo</span>
+        </div>
         <span class="badge badge-admin">Admin Portal</span>
         <span class="demo-badge" id="demoBadge" style="display: none;">Demo Mode</span>
       </div>
-      <div class="header-actions">
+      <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+        <button type="button" class="theme-switch-btn" aria-label="Toggle Theme"></button>
         <button id="refreshBtn" class="btn btn-secondary">
           <svg id="refreshIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg> Refresh Data
         </button>
@@ -1079,14 +1084,37 @@
                     </div>
                     <span class="form-helper">Upload accent brand graphic image (shown in signature).</span>
                   </div>
+                  <div class="form-group">
+                    <label>Curated Corporate Palette Presets</label>
+                    <div class="palette-swatches" id="adminPaletteSwatches">
+                      <button type="button" class="palette-swatch-btn" data-primary="#0d4b8e" data-secondary="#f18a22">
+                        <span class="swatch-dot" style="background: #0d4b8e;"></span> Navy & Amber
+                      </button>
+                      <button type="button" class="palette-swatch-btn" data-primary="#4ee000" data-secondary="#0d4b8e">
+                        <span class="swatch-dot" style="background: #4ee000;"></span> Neon Green
+                      </button>
+                      <button type="button" class="palette-swatch-btn" data-primary="#059669" data-secondary="#0f172a">
+                        <span class="swatch-dot" style="background: #059669;"></span> Emerald Slate
+                      </button>
+                      <button type="button" class="palette-swatch-btn" data-primary="#4f46e5" data-secondary="#06b6d4">
+                        <span class="swatch-dot" style="background: #4f46e5;"></span> Royal Cyan
+                      </button>
+                      <button type="button" class="palette-swatch-btn" data-primary="#dc2626" data-secondary="#1e293b">
+                        <span class="swatch-dot" style="background: #dc2626;"></span> Crimson Steel
+                      </button>
+                    </div>
+                  </div>
                   <div class="form-row">
                     <div class="form-group col">
-                      <label for="setting_color_primary">Primary Color (Hex)</label>
+                      <label for="setting_color_primary">Primary Brand Color (Hex)</label>
                       <div class="color-picker-wrapper">
                         <input type="color" id="setting_color_primary" value="#0d4b8e">
                         <input type="text" id="setting_color_primary_hex" class="form-control hex-input" value="#0d4b8e" max-length="7">
                       </div>
-                      <span class="form-helper">Main color theme for employee name text.</span>
+                      <div id="contrastSafetyBadge" class="contrast-badge pass" style="margin-top: 6px;">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> WCAG Compliant Legibility
+                      </div>
+                      <span class="form-helper">Applied to action buttons & signature primary name text.</span>
                     </div>
                     <div class="form-group col">
                       <label for="setting_color_secondary">Accent Color (Hex)</label>
@@ -1243,9 +1271,13 @@
       </main>
     </div>
 
-    <!-- Footer -->
-    <footer class="app-footer">
-      <p>&copy; 2026 <span class="brand-green">MailFooter</span>. All rights reserved. Developed by <span class="brand-green">WOLFF - Cloud Solutions</span>.</p>
+    <!-- Platform Footer -->
+    <footer class="platform-footer" style="padding: 24px 0; margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="platform-logo" style="height: 26px; width: auto;" />
+        <span style="font-weight: 700; color: var(--text-primary, #ffffff); font-size: 15px;">Mailfooter Admin Governance Portal</span>
+      </div>
+      <div style="font-size: 12px; color: var(--text-secondary, #94a3b8);">&copy; 2026 <strong>MailFooter Platform</strong>. Powered by <strong>WOLFF Cloud Solutions</strong>.</div>
     </footer>
 
   </div>

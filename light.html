@@ -28,19 +28,17 @@
   <header class="portal-header">
     <div class="header-container">
       <div class="brand-section">
-        <a href="index.html" class="brand-logo-wrapper">
-          <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="brand-logo-img">
-        </a>
-        <div class="portal-title-wrapper">
-          <div class="portal-title">
-            Mailfooter <span class="badge-light-version">Light Portal</span>
-          </div>
-          <div class="portal-subtitle">OS Holdings Corporate On-Site Deployment Suite</div>
+        <div class="header-logo-dropzone" id="headerLogoDropzone" title="Click or Drag & Drop to Quick Change Logo">
+          <img id="headerLogoImg" src="MailFooter Resources/MailFooter - Logo.png" alt="Company Logo" class="brand-logo-img" style="max-height: 36px; width: auto;" />
+          <input type="file" id="headerLogoFileInput" accept="image/*" style="display: none;">
+          <span class="logo-hover-badge">📷 Drag or Click to Change Logo</span>
         </div>
+        <span class="badge-light-version">Light Portal</span>
       </div>
 
       <!-- Live Directory Statistics Badge Bar -->
-      <div class="header-stats">
+      <div class="header-stats" style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" class="theme-switch-btn" aria-label="Toggle Theme"></button>
         <div class="stat-item">
           <span class="stat-label">Total Staff:</span>
           <span id="statTotalCount" class="stat-value">0</span>
@@ -318,9 +316,16 @@
           </div>
         </div>
 
+    <!-- Platform Footer -->
+    <footer class="platform-footer" style="padding: 24px 0; margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="platform-logo" style="height: 26px; width: auto;" />
+        <span style="font-weight: 700; color: var(--text-main, #ffffff); font-size: 15px;">Mailfooter <span class="badge-light-version" style="font-size: 10px;">Light Portal</span></span>
       </div>
-    </div>
-  </main>
+      <div style="font-size: 12px; color: var(--text-secondary, #94a3b8);">Corporate Signature Suite &bull; &copy; 2026 <strong>MailFooter Platform</strong>. Powered by <strong>WOLFF Cloud Solutions</strong>.</div>
+    </footer>
+
+  </div>
 
   <!-- Toast Container -->
   <div id="toastContainer" class="toast-container"></div>
