@@ -84,10 +84,20 @@ function saveSingleUser($pdo, $u, $enforceDomain, $clientDomain) {
     if ($enforceDomain) {
         $emailParts = explode('@', $email);
         $emailDomain = strtolower(end($emailParts));
-        $mappedEmailDomain = ($emailDomain === 'osbusinessamp.com' || $emailDomain === 'osbusinessam.com') ? 'osholdings.co.za' : $emailDomain;
-        $mappedClientDomain = ($clientDomain === 'osbusinessamp.com' || $clientDomain === 'osbusinessam.com') ? 'osholdings.co.za' : $clientDomain;
-        if (strcasecmp($mappedEmailDomain, $mappedClientDomain) !== 0 && strcasecmp($emailDomain, 'os-holdings.co.za') !== 0) {
-            throw new Exception("Email domain ($emailDomain) does not match active client domain ($clientDomain).");
+        if ($clientDomain === 'osbusinessamp.com' || $clientDomain === 'osbusinessam.com') {
+            if ($emailDomain !== 'osbusinessamp.com' && $emailDomain !== 'osbusinessam.com') {
+                throw new Exception("Email domain ($emailDomain) does not match active client domain ($clientDomain).");
+            }
+        } else if ($clientDomain === 'osholdings.co.za' || $clientDomain === 'os-holdings.co.za') {
+            if ($emailDomain !== 'os-holdings.co.za' && $emailDomain !== 'osholdings.co.za' && strpos($emailDomain, 'osholding') === false) {
+                throw new Exception("Email domain ($emailDomain) does not match active client domain ($clientDomain).");
+            }
+        } else {
+            $mappedEmailDomain = $emailDomain;
+            $mappedClientDomain = $clientDomain;
+            if (strcasecmp($mappedEmailDomain, $mappedClientDomain) !== 0) {
+                throw new Exception("Email domain ($emailDomain) does not match active client domain ($clientDomain).");
+            }
         }
     }
 
@@ -141,17 +151,32 @@ if ($method === 'GET') {
         try {
             $filterDomain = $clientParam ?: ($enforceDomain ? $clientDomain : '');
             if (!empty($filterDomain) && !isCentralOrDev() && empty($_GET['all'])) {
-                $mappedDomain = ($filterDomain === 'osbusinessamp.com' || $filterDomain === 'osbusinessam.com') ? 'osholdings.co.za' : $filterDomain;
-                $altDomain = ($mappedDomain === 'osholdings.co.za') ? 'os-holdings.co.za' : $mappedDomain;
-                $stmt = $pdo->prepare("
-                    SELECT * FROM users 
-                    WHERE LOWER(email) LIKE :domFilter OR LOWER(email) LIKE :altDomFilter
-                    ORDER BY name ASC, created_at ASC
-                ");
-                $stmt->execute([
-                    ':domFilter' => '%@' . strtolower($mappedDomain),
-                    ':altDomFilter' => '%@' . strtolower($altDomain)
-                ]);
+                if ($filterDomain === 'osbusinessamp.com' || $filterDomain === 'osbusinessam.com') {
+                    $stmt = $pdo->prepare("
+                        SELECT * FROM users 
+                        WHERE LOWER(email) LIKE '%@osbusinessamp.com' OR LOWER(email) LIKE '%@osbusinessam.com'
+                        ORDER BY name ASC, created_at ASC
+                    ");
+                    $stmt->execute();
+                } else if ($filterDomain === 'osholdings.co.za' || $filterDomain === 'os-holdings.co.za') {
+                    $stmt = $pdo->prepare("
+                        SELECT * FROM users 
+                        WHERE LOWER(email) LIKE '%@os-holdings.co.za' 
+                           OR LOWER(email) LIKE '%@osholdings.%' 
+                           OR LOWER(email) LIKE '%@osholdinsg.%'
+                        ORDER BY name ASC, created_at ASC
+                    ");
+                    $stmt->execute();
+                } else {
+                    $stmt = $pdo->prepare("
+                        SELECT * FROM users 
+                        WHERE LOWER(email) LIKE :domFilter
+                        ORDER BY name ASC, created_at ASC
+                    ");
+                    $stmt->execute([
+                        ':domFilter' => '%@' . strtolower($filterDomain)
+                    ]);
+                }
             } else {
                 $stmt = $pdo->query("SELECT * FROM users ORDER BY name ASC, created_at ASC");
             }
@@ -230,12 +255,26 @@ if (isset($data['action']) && $data['action'] === 'delete') {
     if ($enforceDomain) {
         $emailParts = explode('@', $targetEmail);
         $emailDomain = strtolower(end($emailParts));
-        $mappedEmailDomain = ($emailDomain === 'osbusinessamp.com' || $emailDomain === 'osbusinessam.com') ? 'osholdings.co.za' : $emailDomain;
-        $mappedClientDomain = ($clientDomain === 'osbusinessamp.com' || $clientDomain === 'osbusinessam.com') ? 'osholdings.co.za' : $clientDomain;
-        if (strcasecmp($mappedEmailDomain, $mappedClientDomain) !== 0 && strcasecmp($emailDomain, 'os-holdings.co.za') !== 0) {
-            header('HTTP/1.1 403 Forbidden');
-            echo json_encode(['error' => "Access denied to delete this domain's user records"]);
-            exit();
+        if ($clientDomain === 'osbusinessamp.com' || $clientDomain === 'osbusinessam.com') {
+            if ($emailDomain !== 'osbusinessamp.com' && $emailDomain !== 'osbusinessam.com') {
+                header('HTTP/1.1 403 Forbidden');
+                echo json_encode(['error' => "Access denied to delete this domain's user records"]);
+                exit();
+            }
+        } else if ($clientDomain === 'osholdings.co.za' || $clientDomain === 'os-holdings.co.za') {
+            if ($emailDomain !== 'os-holdings.co.za' && $emailDomain !== 'osholdings.co.za' && strpos($emailDomain, 'osholding') === false) {
+                header('HTTP/1.1 403 Forbidden');
+                echo json_encode(['error' => "Access denied to delete this domain's user records"]);
+                exit();
+            }
+        } else {
+            $mappedEmailDomain = $emailDomain;
+            $mappedClientDomain = $clientDomain;
+            if (strcasecmp($mappedEmailDomain, $mappedClientDomain) !== 0) {
+                header('HTTP/1.1 403 Forbidden');
+                echo json_encode(['error' => "Access denied to delete this domain's user records"]);
+                exit();
+            }
         }
     }
 

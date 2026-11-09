@@ -113,12 +113,9 @@
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed)) staffList = sanitizeStaffData(parsed);
         } catch (err) {}
+      } else {
+        staffList = [];
       }
-    }
-    } catch (e) {
-      console.warn('Could not fetch directory from server API:', e);
-      showToast('Could not fetch directory from server database. Ensure PHP server is running.', 'error');
-      staffList = [];
     }
 
     updateHeaderMetrics();
@@ -173,51 +170,6 @@
     }
   }
 
-  async function deleteUserFromServer(email) {
-    try {
-      const resp = await fetch('api/users.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete', email: email })
-      });
-      const data = await resp.json();
-      if (data && data.success) {
-        showToast('Staff member deleted successfully.');
-        await loadDataStore();
-      } else {
-        showToast('Failed to delete: ' + (data?.error || 'Unknown error'), 'error');
-      }
-    } catch (e) {
-      console.error('Delete error:', e);
-      showToast('Error connecting to server to delete staff member.', 'error');
-    }
-  }
-    updateHeaderMetrics();
-    if (!userToSave || !userToSave.email) return;
-
-    if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
-    saveDebounceTimer = setTimeout(() => {
-      fetch('api/users.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userToSave)
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res && res.success) {
-          console.log('Staff record persisted to server SQLite database:', userToSave.email);
-        } else {
-          showToast('Failed to save to server: ' + (res?.error || 'Unknown error'), 'error');
-        }
-      })
-      .catch(err => {
-        console.error('Failed to sync with server API:', err);
-        showToast('Connection error saving staff member to database.', 'error');
-      });
-    }, 300);
-  }
-
-  // Delete a staff record from the server database
   async function deleteUserFromServer(email) {
     if (!email) return;
     try {

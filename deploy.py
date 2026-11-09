@@ -106,27 +106,28 @@ def main():
  
     def upload_directory(local_dir_path, remote_base):
         dir_name = os.path.basename(local_dir_path)
-        remote_dir = f"{remote_base}/{dir_name}"
+        remote_dir = f"{remote_base}/{dir_name}".strip("/") if remote_base else dir_name
         ensure_remote_dir(remote_dir)
         
         for item in os.listdir(local_dir_path):
             if item.endswith(".sqlite"):
                 continue  # Skip local sqlite databases to protect production data
             local_item = os.path.join(local_dir_path, item)
-            remote_item = f"{remote_dir}/{item}"
+            remote_item = f"{remote_dir}/{item}".strip("/")
             if os.path.isfile(local_item):
                 upload_file(local_item, remote_item)
             elif os.path.isdir(local_item):
                 upload_directory(local_item, remote_dir)
 
     # Ensure root remote path exists
-    ensure_remote_dir(remote_path)
+    if remote_path:
+        ensure_remote_dir(remote_path)
     
     # 1. Upload files
     for file_name in files_to_upload:
         local_file = os.path.join(script_dir, file_name)
         if os.path.exists(local_file):
-            remote_file = f"{remote_path}/{file_name}"
+            remote_file = f"{remote_path}/{file_name}".strip("/") if remote_path else file_name
             upload_file(local_file, remote_file)
             
     # 2. Upload directories
