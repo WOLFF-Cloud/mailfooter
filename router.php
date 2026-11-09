@@ -15,6 +15,14 @@ if ($normalizedUri !== '/' && file_exists($filePath) && !is_dir($filePath)) {
 }
 
 // 2. Route Admin and HTML Portals
+if ($normalizedUri === '/mailfooter' || $normalizedUri === '/login') {
+    include __DIR__ . '/index.html';
+    exit();
+}
+if ($normalizedUri === '/landing') {
+    include __DIR__ . '/landing-index.html';
+    exit();
+}
 if ($normalizedUri === '/admin') {
     include __DIR__ . '/admin.html';
     exit();
@@ -29,6 +37,10 @@ if ($normalizedUri === '/app') {
 }
 if ($normalizedUri === '/register') {
     include __DIR__ . '/register.html';
+    exit();
+}
+if ($normalizedUri === '/reset-password') {
+    include __DIR__ . '/reset-password.html';
     exit();
 }
 if ($normalizedUri === '/index') {

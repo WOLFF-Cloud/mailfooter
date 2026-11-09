@@ -986,8 +986,12 @@
           <div class="admin-card directory-card-panel">
             <div class="admin-card-header">
               <h3><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Member Leaderboard</h3>
-              <div class="directory-search">
+              <div class="directory-search" style="display: flex; gap: 8px; align-items: center;">
                 <input type="text" id="dirSearchInput" class="form-control" placeholder="Search members...">
+                <button type="button" id="btnAdminImportCsv" class="btn btn-primary" style="white-space: nowrap; display: flex; align-items: center; gap: 6px; padding: 7px 14px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  Import Staff (CSV)
+                </button>
               </div>
             </div>
             <p class="card-subtitle">List of registered employees using the signature, ranked by total outbound clicks generated.</p>
@@ -1290,7 +1294,7 @@
       const impersonateClient = sessionStorage.getItem('impersonate_client');
       const adminDomain = sessionStorage.getItem('admin_domain');
       if (!impersonateClient && !adminDomain) {
-        window.location.replace('landing-index.html?login=admin');
+        window.location.replace('index.html?login=admin');
       }
     })();
 
@@ -3683,52 +3687,187 @@
       if (editSigCopySignatureBtn) {
         editSigCopySignatureBtn.addEventListener('click', () => {
           const html = getEditSignatureHtmlContent();
-          
-          // 1. Try selection-based copy first (highly compatible with Apple Mail settings & Outlook desktop)
-          const el = document.createElement('div');
-          el.innerHTML = html;
-          el.style.position = 'fixed';
-          el.style.left = '-9999px';
-          document.body.appendChild(el);
-          
-          const range = document.createRange();
-          range.selectNode(el);
-          const selection = window.getSelection();
-          selection.removeAllRanges();
-          selection.addRange(range);
-          
-          let copied = false;
-          try {
-            copied = document.execCommand('copy');
-          } catch (err) {
-            console.error('execCommand copy failed:', err);
+          const nameVal = document.getElementById('editSigName').value || 'Employee';
+          const plainText = `${nameVal}\n${document.getElementById('editSigTitle').value || ''}\n${document.getElementById('editSigPhone').value || ''} | ${document.getElementById('editSigEmail').value || ''}`;
+
+          if (navigator.clipboard && window.ClipboardItem) {
+            const htmlBlob = new Blob([html], { type: 'text/html' });
+            const textBlob = new Blob([plainText], { type: 'text/plain' });
+            navigator.clipboard.write([
+              new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })
+            ]).then(() => {
+              showToast('Rich signature copied for direct pasting into email!');
+            }).catch(err => {
+              console.warn('Clipboard write failed, using selection fallback:', err);
+              copyViaInViewportContentEditable(html);
+            });
+          } else {
+            copyViaInViewportContentEditable(html);
           }
-          
-          selection.removeAllRanges();
-          document.body.removeChild(el);
-          
-          if (copied) {
-            showToast('Rich signature copied for direct pasting!');
+        });
+      }
+
+      function copyViaInViewportContentEditable(html) {
+        const el = document.createElement('div');
+        el.setAttribute('contenteditable', 'true');
+        el.innerHTML = html;
+        el.style.position = 'fixed';
+        el.style.top = '0';
+        el.style.left = '0';
+        el.style.width = '1px';
+        el.style.height = '1px';
+        el.style.opacity = '0.01';
+        el.style.pointerEvents = 'none';
+        document.body.appendChild(el);
+        
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        let copied = false;
+        try {
+          copied = document.execCommand('copy');
+        } catch (err) {
+          console.error('execCommand copy failed:', err);
+        }
+        selection.removeAllRanges();
+        document.body.removeChild(el);
+
+        if (copied) {
+          showToast('Rich signature copied for direct pasting into email!');
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(html).then(() => {
+            showToast('Raw HTML code copied to clipboard.', true);
+          });
+        }
+      }
+
+      // --- Admin CSV Staff Import Engine ---
+      const btnAdminImportCsv = document.getElementById('btnAdminImportCsv');
+      const adminCsvFileInput = document.getElementById('adminCsvFileInput');
+      const adminCsvTextarea = document.getElementById('adminCsvTextarea');
+      const btnAdminProcessCsvSubmit = document.getElementById('btnAdminProcessCsvSubmit');
+      const adminCsvImportFeedback = document.getElementById('adminCsvImportFeedback');
+
+      if (btnAdminImportCsv) {
+        btnAdminImportCsv.addEventListener('click', () => {
+          if (adminCsvImportFeedback) adminCsvImportFeedback.style.display = 'none';
+          openModal('adminImportModal');
+        });
+      }
+
+      if (adminCsvFileInput) {
+        adminCsvFileInput.addEventListener('change', (e) => {
+          if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              if (adminCsvTextarea) adminCsvTextarea.value = ev.target.result;
+              showToast(`Loaded ${e.target.files[0].name}. Click "Process & Import".`);
+            };
+            reader.readAsText(e.target.files[0]);
+          }
+        });
+      }
+
+      if (btnAdminProcessCsvSubmit) {
+        btnAdminProcessCsvSubmit.addEventListener('click', async () => {
+          const raw = (adminCsvTextarea ? adminCsvTextarea.value : '').trim();
+          if (!raw) {
+            alert('Please paste CSV data or choose a file.');
             return;
           }
-          
-          // 2. Fallback to Clipboard API
-          try {
-            const blob = new Blob([html], { type: 'text/html' });
-            const item = new ClipboardItem({ 'text/html': blob });
-            navigator.clipboard.write([item]).then(() => {
-              showToast('Rich signature copied for direct pasting!');
-            }).catch(err => {
-              console.error('navigator.clipboard.write failed:', err);
-              // Fallback to text copy
-              navigator.clipboard.writeText(html).then(() => {
-                showToast('Rich copy failed. Raw HTML copied to clipboard instead.', true);
-              }).catch(fallbackErr => {
-                console.error('Fallback text copy failed:', fallbackErr);
+
+          const lines = raw.split(/\r?\n/).filter(l => l.trim() !== '');
+          if (lines.length === 0) return;
+
+          let delimiter = ',';
+          if (lines[0].includes('\t')) delimiter = '\t';
+          else if (lines[0].includes(';')) delimiter = ';';
+
+          const parseLine = (line) => line.split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
+          let headers = parseLine(lines[0]).map(h => h.toLowerCase());
+          let startIdx = 1;
+          const hasHeader = headers.some(h => ['firstname', 'first name', 'email', 'surname', 'last name'].includes(h));
+          if (!hasHeader) {
+            headers = ['first name', 'surname', 'role', 'department', 'email', 'job title', 'phone'];
+            startIdx = 0;
+          }
+
+          const getIdx = (candidates) => headers.findIndex(h => candidates.includes(h.toLowerCase()));
+          const fnIdx = getIdx(['first name', 'firstname', 'first', 'name']);
+          const snIdx = getIdx(['surname', 'last name', 'lastname', 'last']);
+          const roleIdx = getIdx(['role', 'tier', 'seniority']);
+          const deptIdx = getIdx(['department', 'dept', 'division']);
+          const emailIdx = getIdx(['email address', 'email', 'e-mail']);
+          const titleIdx = getIdx(['job title', 'title', 'designation']);
+          const phoneIdx = getIdx(['phone number', 'phone', 'telephone', 'mobile']);
+
+          const users = [];
+          for (let i = startIdx; i < lines.length; i++) {
+            const cols = parseLine(lines[i]);
+            if (cols.length < 2) continue;
+
+            const fName = fnIdx !== -1 ? cols[fnIdx] : cols[0];
+            const sName = snIdx !== -1 ? cols[snIdx] : (cols[1] && !cols[1].includes('@') ? cols[1] : '');
+            const email = emailIdx !== -1 ? cols[emailIdx] : (cols.find(c => c.includes('@')) || '');
+            const title = titleIdx !== -1 ? cols[titleIdx] : 'Team Member';
+            const dept = deptIdx !== -1 ? cols[deptIdx] : 'General';
+            const phone = phoneIdx !== -1 ? cols[phoneIdx] : '';
+
+            if (email) {
+              users.push({
+                name: `${fName || ''} ${sName || ''}`.trim(),
+                email: email.toLowerCase(),
+                title: title,
+                department: dept,
+                phone: phone,
+                template: 'os-flat-banner'
               });
+            }
+          }
+
+          if (users.length === 0) {
+            alert('No valid personnel records found in CSV.');
+            return;
+          }
+
+          btnAdminProcessCsvSubmit.disabled = true;
+          btnAdminProcessCsvSubmit.innerHTML = 'Importing to SQLite...';
+
+          try {
+            const res = await fetch(`${API_DOMAIN}/api/users?bulk=1`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'bulk', users: users })
             });
+            const data = await res.json();
+            if (data && data.success) {
+              if (adminCsvImportFeedback) {
+                adminCsvImportFeedback.style.display = 'block';
+                adminCsvImportFeedback.style.background = '#dcfce7';
+                adminCsvImportFeedback.style.color = '#166534';
+                adminCsvImportFeedback.innerHTML = `✓ Successfully imported ${data.count || users.length} personnel records into database!`;
+              }
+              showToast(`Imported ${data.count || users.length} staff records!`);
+              setTimeout(() => {
+                closeModal('adminImportModal');
+                fetchStats();
+              }, 1000);
+            } else {
+              throw new Error(data.error || 'Import failed');
+            }
           } catch (err) {
-            console.error('Clipboard API setup failed:', err);
+            if (adminCsvImportFeedback) {
+              adminCsvImportFeedback.style.display = 'block';
+              adminCsvImportFeedback.style.background = '#fee2e2';
+              adminCsvImportFeedback.style.color = '#991b1b';
+              adminCsvImportFeedback.textContent = 'Import error: ' + err.message;
+            }
+          } finally {
+            btnAdminProcessCsvSubmit.disabled = false;
+            btnAdminProcessCsvSubmit.innerHTML = '✓ Process & Import into Database';
           }
         });
       }
@@ -4658,6 +4797,42 @@
               <!-- Populated dynamically -->
             </tbody>
           </table>
+        </div>
+      </div>
+  <!-- Modal: Bulk CSV Staff Import -->
+  <div class="modal-overlay" id="adminImportModal">
+    <div class="modal-container" style="max-width: 650px; width: 90%;">
+      <div class="modal-header">
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          Import Staff from Spreadsheet (CSV)
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('adminImportModal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="card-subtitle" style="margin-bottom: 15px;">
+          Upload a <code>.csv</code> spreadsheet or paste rows below. Headers supported: <code>First Name, Surname, Role, Department, Email Address, Job Title, Phone Number</code>.
+        </p>
+
+        <div class="form-group" style="margin-bottom: 15px;">
+          <label>1. Upload Spreadsheet File (.csv, .tsv, .txt):</label>
+          <input type="file" id="adminCsvFileInput" accept=".csv,.tsv,.txt" class="form-control" style="padding: 8px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 15px;">
+          <label>2. Or Paste Raw Spreadsheet Data:</label>
+          <textarea id="adminCsvTextarea" class="form-control" rows="6" placeholder="First Name, Surname, Role, Department, Email Address, Job Title, Phone Number&#10;Sarah, Jenkins, Director, Executive, sarah.jenkins@os-holdings.co.za, Managing Director, +27 (0) 11 463 1000"></textarea>
+        </div>
+
+        <div id="adminCsvImportFeedback" style="display: none; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 15px;"></div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('adminImportModal')">Cancel</button>
+          <button type="button" id="btnAdminProcessCsvSubmit" class="btn btn-primary" style="display: flex; align-items: center; gap: 6px;">
+            ✓ Process & Import into Database
+          </button>
         </div>
       </div>
     </div>

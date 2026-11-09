@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mailfooter Light Portal - OS Holdings Email Signature Portal</title>
+  <title>Mailfooter Light Suite - OS Holdings Corporate Signature Portal</title>
   
   <!-- SEO Meta Tags -->
-  <meta name="description" content="Mailfooter Light Version - Clean OS Holdings corporate email signature generator & deployment portal. High-visibility data tables, automated CSV role ingestion, and single-action signature delivery.">
+  <meta name="description" content="Mailfooter Light Suite - Clean OS Holdings corporate email signature generator & deployment portal. High-visibility directory, automated CSV role ingestion, and single-action signature delivery.">
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="MailFooter Resources/MailFooter - Logo.png">
@@ -19,39 +19,51 @@
   <!-- Preload Critical Logo -->
   <link rel="preload" as="image" href="MailFooter Resources/MailFooter - Logo.png">
 
-  <!-- Black & Electric Green Branded CSS -->
-  <link rel="stylesheet" href="light.css?v=2.0">
+  <!-- Modern Light SaaS Theme Stylesheet -->
+  <link rel="stylesheet" href="light.css?v=3.0">
 </head>
 <body>
 
-  <!-- Black & Electric Green Sticky Header -->
+  <!-- Translucent Glassmorphic Header -->
   <header class="portal-header">
     <div class="header-container">
       <div class="brand-section">
-        <div class="header-logo-dropzone" id="headerLogoDropzone" title="Click or Drag & Drop to Quick Change Logo">
-          <img id="headerLogoImg" src="MailFooter Resources/MailFooter - Logo.png" alt="Company Logo" class="brand-logo-img" style="max-height: 36px; width: auto;" />
-          <input type="file" id="headerLogoFileInput" accept="image/*" style="display: none;">
-          <span class="logo-hover-badge">📷 Drag or Click to Change Logo</span>
+        <div class="client-logo-slot" id="clientLogoDropzone" title="Click or drop image to change logo">
+          <input type="file" id="clientLogoFileInput" accept="image/*" style="display: none;">
+          <div class="client-logo-preview">
+            <img id="headerClientLogoImg" src="Resources/2x/logo.png" alt="Client Logo" class="client-logo-img">
+            <div class="client-logo-edit-badge" title="Change logo">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"></path>
+              </svg>
+            </div>
+          </div>
         </div>
-        <span class="badge-light-version">Light Portal</span>
+        <div class="portal-title-wrapper">
+          <div class="portal-title">
+            Mailfooter
+          </div>
+          <div class="portal-subtitle">OS Holdings Corporate Directory & Deployment Suite</div>
+        </div>
       </div>
 
       <!-- Live Directory Statistics Badge Bar -->
-      <div class="header-stats" style="display: flex; align-items: center; gap: 10px;">
-        <button type="button" class="theme-switch-btn" aria-label="Toggle Theme"></button>
+      <div class="header-stats">
         <div class="stat-item">
+          <span class="stat-pulse-dot"></span>
           <span class="stat-label">Total Staff:</span>
           <span id="statTotalCount" class="stat-value">0</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <span class="stat-label">Managers/Directors:</span>
-          <span id="statMgrCount" class="stat-value">0</span>
+          <span class="stat-label">Leadership:</span>
+          <span id="statMgrCount" class="stat-value" style="color: #7c3aed;">0</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
           <span class="stat-label">Staff:</span>
-          <span id="statStaffCount" class="stat-value">0</span>
+          <span id="statStaffCount" class="stat-value" style="color: #059669;">0</span>
         </div>
       </div>
 
@@ -64,6 +76,9 @@
         <button id="refreshDataBtn" class="mc-btn mc-btn-dark" title="Refresh directory dataset from server database">
           ↻ Refresh Directory
         </button>
+        <button type="button" id="btnOpenBackupsModal" class="mc-btn mc-btn-dark" style="display: inline-flex; align-items: center; gap: 6px;" title="View snapshot history and restore previous data">
+          📦 Backups & Memory
+        </button>
         <a href="app.html" class="mc-btn mc-btn-primary" style="text-decoration: none;">
           Full App Builder →
         </a>
@@ -73,48 +88,56 @@
 
   <!-- Main Portal Body -->
   <main class="main-wrapper">
-    <!-- Top-Level Tabs Bar -->
+    <!-- Top-Level Segmented Tabs Bar -->
     <div class="mc-tabs-bar">
-      <div class="tab-nav-item active" data-tab="overview" id="tabNavOverview">
-        <span>📑 OVERVIEW TAB</span>
-      </div>
-      <div class="tab-nav-item" data-tab="bulk" id="tabNavBulk">
-        <span>📥 BULK ADD TAB</span>
-      </div>
-      <div class="tab-nav-item" data-tab="installation" id="tabNavInstallation">
-        <span>⚙️ INSTALLATION TAB</span>
-      </div>
+      <button class="tab-nav-item active" data-tab="overview" id="tabNavOverview">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Staff Directory
+      </button>
+      <button class="tab-nav-item" data-tab="bulk" id="tabNavBulk">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Bulk Spreadsheet Ingestion
+      </button>
+      <button class="tab-nav-item" data-tab="installation" id="tabNavInstallation">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+        Live Preview Studio
+      </button>
     </div>
 
     <!-- TAB 1: OVERVIEW TAB PANE -->
     <div id="tabPane-overview" class="tab-content-pane">
-      <!-- Sub-tabs Bar -->
-      <div class="subtabs-bar">
-        <button class="subtab-btn active" data-subtab="all">
-          📋 Full Staff List Sub-tab
-        </button>
-        <button class="subtab-btn" data-subtab="managers">
-          👔 Managers Sub-tab
-        </button>
-        <button class="subtab-btn" data-subtab="staff">
-          👥 Staff Sub-tab
-        </button>
+      <!-- Analytics KPI Metric Cards -->
+      <div id="analyticsGrid" class="analytics-grid">
+        <!-- Rendered dynamically by light.js -->
       </div>
 
-      <!-- Analytics Cards -->
-      <div id="analyticsGrid" class="analytics-grid"></div>
-
-      <!-- Toolbar: Search & Dept Filter -->
+      <!-- Toolbar: Subtabs + Search & Dept Filter -->
       <div class="table-toolbar">
-        <div class="search-box-wrapper">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="tableSearchInput" class="mc-input" placeholder="Search personnel by name, email, department, or title...">
+        <div class="subtabs-bar" style="margin-bottom: 0;">
+          <button class="subtab-btn active" data-subtab="all">
+            All Personnel
+          </button>
+          <button class="subtab-btn" data-subtab="managers">
+            Directors & Managers
+          </button>
+          <button class="subtab-btn" data-subtab="staff">
+            Staff Members
+          </button>
         </div>
-        <div class="filter-group">
-          <label style="font-size: 13px; font-weight: 700; color: var(--text-secondary);">Department Filter:</label>
-          <select id="tableDeptFilter" class="mc-select">
-            <option value="ALL">All Departments</option>
-          </select>
+
+        <div style="display: flex; align-items: center; gap: 12px; flex: 1; justify-content: flex-end; min-width: 320px;">
+          <button type="button" id="btnAddStaffModalBtn" class="mc-btn mc-btn-primary mc-btn-sm" style="display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+            ➕ Add Staff
+          </button>
+          <div class="search-box-wrapper">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="tableSearchInput" class="mc-input" placeholder="Search personnel by name, email, department, or title...">
+          </div>
+          <div class="filter-group">
+            <select id="tableDeptFilter" class="mc-select">
+              <option value="ALL">All Departments</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -128,7 +151,7 @@
               <th>Department</th>
               <th>Email Address</th>
               <th>Contact Phone</th>
-              <th>⚡ Row-Level Quick Actions</th>
+              <th style="text-align: right;">1-Click Signature Actions</th>
             </tr>
           </thead>
           <tbody id="staffTableBody">
@@ -137,7 +160,10 @@
         </table>
         <div class="table-footer">
           <span id="tableShowingCount">Showing 0 records</span>
-          <span style="font-size: 12px; color: var(--text-secondary);">⚡ Single-click [Copy Rich Text] injects the formatted signature asset into your clipboard for Outlook or Apple Mail.</span>
+          <span id="cloudSyncStatus" style="font-size: 12px; color: #10b981; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
+            <span class="stat-pulse-dot" style="display: inline-block;"></span> Cloud Synced
+          </span>
+          <span style="font-size: 12px; color: var(--text-muted);">⚡ Single-click [Copy Rich Text] formats signature for direct paste into Outlook, Apple Mail, or Gmail.</span>
         </div>
       </div>
     </div>
@@ -146,40 +172,47 @@
     <div id="tabPane-bulk" class="tab-content-pane tab-pane-hidden">
       <div class="bulk-container">
         <div class="bulk-header-box">
-          <div class="bulk-header-icon">📥</div>
+          <div class="bulk-header-icon">📋</div>
           <div class="bulk-header-text">
             <h3>Raw Data Ingestion & Automated Role-Detection Engine</h3>
-            <p>Highlight data columns from a client spreadsheet, press Ctrl+C, and paste directly below. The automated ingestion engine parses headers, categorizes personnel into "Director", "Manager", or "Staff", and updates the directory instantly.</p>
+            <p>Highlight data columns from your client spreadsheet or HR export, copy (Ctrl+C), and paste directly below. The automated engine parses headers, categorizes personnel into "Director", "Manager", or "Staff", and updates the directory instantly.</p>
           </div>
         </div>
 
         <!-- Download Import Templates Card (Blank & Pre-filled) -->
         <div class="template-download-row">
           <div class="template-download-title">
-            📥 Import Templates: Download pre-formatted spreadsheets for client handoff:
+            📥 Import Spreadsheets: Pre-formatted templates for client distribution
           </div>
           <div class="template-btns">
             <button id="downloadBlankCsvBtn" class="mc-btn mc-btn-sm mc-btn-dark" title="Download empty CSV template with standard headers">
               📄 Download Blank Template
             </button>
-            <button id="downloadSampleCsvBtn" class="mc-btn mc-btn-sm mc-btn-primary" title="Download pre-filled CSV sample template">
+            <button id="downloadSampleCsvBtn" class="mc-btn mc-btn-sm mc-btn-dark" title="Download pre-filled CSV sample template">
               📋 Download Pre-filled Sample
             </button>
           </div>
         </div>
 
         <!-- Drag and Drop CSV Upload Zone -->
-        <div class="csv-upload-dropzone" id="csvDropzone">
-          <input type="file" id="csvFileInput" accept=".csv, .txt, .tsv" style="display: none;">
+        <label class="form-label" style="margin-bottom: 6px; font-size: 13px; font-weight: 700;">1. Upload File or Drag & Drop (.csv, .tsv, .txt):</label>
+        <div class="csv-upload-dropzone bulk-file-dropzone" id="csvDropzone">
+          <input type="file" id="csvFileInput" accept=".csv, .tsv, .txt" style="display: none;">
           <div class="dropzone-icon">📥</div>
           <div class="dropzone-text" id="dropzoneText">
             <strong>Click to select a CSV file</strong> or drag & drop spreadsheet file here
           </div>
-          <div class="dropzone-subtext">Supports RFC 4180 .csv, .txt, and .tsv formats with auto-header matching</div>
+          <div class="dropzone-subtext" id="dropzoneFileName">Supports RFC 4180 .csv, .tsv, and .txt formats with auto-header matching</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin: 16px 0 8px;">
+          <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
+          <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">OR PASTE RAW SPREADSHEET TEXT DIRECTLY</span>
+          <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
         </div>
 
         <!-- Text Area Input -->
-        <label class="form-label" style="margin-bottom: 6px; font-size: 13px; font-weight: 700;">Or Paste CSV / Excel Spreadsheet Data Below:</label>
+        <label class="form-label" style="margin-bottom: 6px; font-size: 13px; font-weight: 700;">2. Spreadsheet Raw Text:</label>
         <textarea id="csvTextArea" class="mc-textarea" placeholder="Paste raw CSV block here... E.g.&#10;First Name, Surname, Role, Job Title, Department, Email Address, Phone Number, Mobile Number, Company, Location&#10;Jonathan, Sterling, Director, Managing Director, Executive, j.sterling@company.com, +27 11 463 1000, +27 82 123 4567, OS Holdings, Sandton&#10;Samantha, Vanderbilt, Manager, Marketing Head, Marketing, s.vanderbilt@company.com, +27 11 463 1005, +27 83 234 5678, OS Holdings, Sandton"></textarea>
 
         <div class="bulk-actions-row">
@@ -196,7 +229,7 @@
       </div>
     </div>
 
-    <!-- TAB 3: INSTALLATION TAB PANE -->
+    <!-- TAB 3: INSTALLATION & LIVE STUDIO TAB PANE -->
     <div id="tabPane-installation" class="tab-content-pane tab-pane-hidden">
       <div class="installation-workspace">
         
@@ -204,10 +237,11 @@
         <div class="panel-card">
           <div class="panel-header">
             <div class="panel-title">
-              ✎ Edit Form (Keystroke Real-Time Mutation)
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              Keystroke Live Customizer
             </div>
             <div class="filter-group">
-              <select id="activeEmpSelect" class="mc-select" style="max-width: 220px; font-weight: 600;">
+              <select id="activeEmpSelect" class="mc-select" style="max-width: 230px; font-weight: 600;">
                 <!-- Populated dynamically -->
               </select>
             </div>
@@ -215,6 +249,7 @@
 
           <div class="panel-body">
             <form id="liveEditForm" onsubmit="return false;" class="form-grid">
+              <div class="form-section-divider">1. Identity & Role</div>
               <div>
                 <label class="form-label">First Name</label>
                 <input type="text" id="inputFirstName" class="form-input">
@@ -239,6 +274,8 @@
                 <label class="form-label">Job Title</label>
                 <input type="text" id="inputJobTitle" class="form-input">
               </div>
+
+              <div class="form-section-divider">2. Contact & Company</div>
               <div class="form-group-full">
                 <label class="form-label">Email Address</label>
                 <input type="email" id="inputEmail" class="form-input">
@@ -255,83 +292,301 @@
                 <label class="form-label">Office Location</label>
                 <input type="text" id="inputLocation" class="form-input">
               </div>
+
+              <div class="form-section-divider">3. Brand Colors & Layout</div>
               <div>
                 <label class="form-label">Primary Brand Hex</label>
                 <div class="color-input-wrapper">
                   <input type="color" id="inputPrimaryColor" class="color-picker" value="#0d4b8e">
+                  <span id="labelPrimaryColor" style="font-size: 12px; font-weight: 600; color: var(--text-muted);">#0d4b8e</span>
                 </div>
               </div>
               <div>
                 <label class="form-label">Secondary Brand Hex</label>
                 <div class="color-input-wrapper">
                   <input type="color" id="inputSecondaryColor" class="color-picker" value="#f18a22">
+                  <span id="labelSecondaryColor" style="font-size: 12px; font-weight: 600; color: var(--text-muted);">#f18a22</span>
                 </div>
               </div>
               <div class="form-group-full">
-                <label class="form-label">Signature Layout Theme</label>
+                <label class="form-label">Signature Layout Blueprint</label>
                 <select id="tplSelect" class="form-input" style="font-weight: 700;">
                   <option value="os-flat-banner" selected>OS Holdings 2026 Signature (Flat Banner)</option>
-                  <option value="os-premium">OS Holdings Premium Layout (With Campaign Banner)</option>
                 </select>
+              </div>
+
+              <!-- Dedicated Save & Sync to Cloud Button -->
+              <div class="form-group-full" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color, #e2e8f0);">
+                <button type="button" id="btnSaveEmployeeCloud" class="mc-btn mc-btn-primary mc-btn-lg" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                  💾 Save & Sync Personnel to Cloud
+                </button>
+                <div id="saveStatusFeedback" style="font-size: 11px; text-align: center; color: var(--text-muted); margin-top: 6px;">
+                  Saves to cloud database so all devices and staff see the latest update.
+                </div>
               </div>
             </form>
           </div>
         </div>
 
-        <!-- Right-Hand Panel (Virtual Canvas Preview) -->
-        <div class="panel-card">
-          <div class="panel-header">
-            <div class="panel-title">
-              🖥️ Live Signature Canvas
+        <!-- Right-Hand Panel (Simulated macOS / Modern Email Client Window) -->
+        <div class="mail-window-card" id="mailPreviewWindow">
+          <div class="mail-window-header">
+            <div class="window-dots">
+              <span class="window-dot dot-close"></span>
+              <span class="window-dot dot-min"></span>
+              <span class="window-dot dot-expand"></span>
             </div>
-            <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">
-              Updates character-by-character
+            <div class="mail-window-title">Message Preview — Outlook / Apple Mail</div>
+            <div class="simulator-mode-switch">
+              <button type="button" id="btnSimLightMode" class="sim-mode-btn active" title="Simulate standard light mode client">
+                ☀️ Light Mode
+              </button>
+              <button type="button" id="btnSimDarkMode" class="sim-mode-btn" title="Simulate macOS Apple Mail / Outlook dark mode client">
+                🌙 Dark Mode
+              </button>
+            </div>
+            <div class="mail-sync-indicator">
+              <span class="stat-pulse-dot"></span>
+              Live Synced
             </div>
           </div>
 
-          <div class="panel-body">
+          <div class="mail-meta-pane">
+            <div class="meta-row">
+              <span class="meta-label">From:</span>
+              <span class="meta-val" id="mailPreviewSender">Sarah Jenkins &lt;sarah.jenkins@os-holdings.co.za&gt;</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">To:</span>
+              <span class="meta-val">Corporate Partners &lt;client@partner-enterprise.com&gt;</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Subject:</span>
+              <span class="meta-val">OS Holdings Corporate Overview & Partnership Alignment</span>
+            </div>
+          </div>
+
+          <div class="mail-body-pane">
+            <div class="mail-dummy-text">
+              Dear Partner,<br><br>
+              Thank you for meeting with us today. Below is our updated corporate correspondence signature with direct channel links and campaign collateral. Please reach out if you have any questions.
+            </div>
+
+            <!-- Virtual Canvas Viewport -->
             <div class="canvas-container">
               <div id="signatureCanvasViewport" class="canvas-viewport">
                 <!-- Signature output dynamically rendered by light.js -->
               </div>
             </div>
+          </div>
 
-            <!-- Sticky Floating Action Footer (The 5-Second Asset Fix Delivery) -->
-            <div class="canvas-action-footer">
-              <div style="font-size: 14px; font-weight: 800; color: #FFFFFF;">
-                Asset Delivery Triggers:
+          <!-- Sticky Floating Action Footer -->
+          <div class="canvas-action-footer">
+            <div class="delivery-action-left">
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">
+                1-Click Deployment Triggers:
               </div>
-              <div class="footer-btn-group">
-                <button id="btnFooterCopyRichText" class="mc-btn mc-btn-primary mc-btn-lg">
-                  📋 Copy Rich Text Signature
-                </button>
-                <button id="btnFooterCopyHtml" class="mc-btn mc-btn-dark mc-btn-lg">
-                  &lt;/&gt; Copy HTML Snippet
-                </button>
-                <button id="btnFooterDownloadHtml" class="mc-btn mc-btn-sm mc-btn-dark" title="Download standalone HTML file">
-                  💾 Download .html File
-                </button>
+              <div style="font-size: 11px; color: var(--text-muted);">
+                Copies formatted rich text directly to your clipboard for instant paste into Outlook or Apple Mail.
               </div>
+            </div>
+            <div class="footer-btn-group">
+              <button id="btnFooterCopyRichText" class="mc-btn mc-btn-emerald mc-btn-lg">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copy Rich Text Signature
+              </button>
+              <button id="btnFooterCopyHtml" class="mc-btn mc-btn-dark mc-btn-lg">
+                &lt;/&gt; Copy HTML Snippet
+              </button>
+              <button id="btnFooterDownloadHtml" class="mc-btn mc-btn-sm mc-btn-dark" title="Download standalone HTML file">
+                💾 Download .html
+              </button>
             </div>
           </div>
         </div>
 
-    <!-- Platform Footer -->
-    <footer class="platform-footer" style="padding: 24px 0; margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="platform-logo" style="height: 26px; width: auto;" />
-        <span style="font-weight: 700; color: var(--text-main, #ffffff); font-size: 15px;">Mailfooter <span class="badge-light-version" style="font-size: 10px;">Light Portal</span></span>
       </div>
-      <div style="font-size: 12px; color: var(--text-secondary, #94a3b8);">Corporate Signature Suite &bull; &copy; 2026 <strong>MailFooter Platform</strong>. Powered by <strong>WOLFF Cloud Solutions</strong>.</div>
-    </footer>
+    </div>
+  </main>
 
+  <!-- Modern App Footer (With MailFooter Logo, Light Suite Badge, WOLFF Credit, Export Action, and Dynamic Year) -->
+  <footer class="portal-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <a href="index.html" class="footer-brand-logo-wrapper" title="MailFooter Home">
+          <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="footer-brand-logo-img">
+        </a>
+        <div class="footer-badge-group">
+          <span class="badge-light-version">
+            ⚡ Light Suite
+          </span>
+          <span style="font-size: 12px; color: var(--text-muted);">Corporate On-Site Deployment Portal</span>
+        </div>
+      </div>
+
+      <div class="footer-center">
+        <span>Created by <strong class="wolff-credit">WOLFF</strong></span>
+        <span>•</span>
+        <span>&copy; <span id="appCurrentYear">2026</span> OS Holdings</span>
+      </div>
+
+      <div class="footer-right">
+        <button id="exportDataBtn" class="mc-btn mc-btn-dark mc-btn-sm" title="Export directory dataset to CSV">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Export CSV
+        </button>
+        <a href="app.html" class="footer-link">Full Builder</a>
+        <span>•</span>
+        <a href="index.html" class="footer-link">Portal Home</a>
+        <span>•</span>
+        <span style="color: #10b981; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+          <span class="stat-pulse-dot" style="display: inline-block;"></span> Operational
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Client Logo Save Confirmation Modal -->
+  <div id="clientLogoSaveModal" class="mc-modal-overlay">
+    <div class="mc-modal-container">
+      <div class="mc-modal-header">
+        <div class="mc-modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Save Client Logo?
+        </div>
+        <button type="button" class="mc-modal-close" id="btnCancelLogoModalX" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="mc-modal-body">
+        <p class="mc-modal-desc">
+          A new client logo was dropped into the header. Would you like to save and apply this logo across the portal and corporate signatures?
+        </p>
+        <div class="logo-preview-box">
+          <div class="logo-preview-card">
+            <span class="logo-preview-label">New Client Logo Preview</span>
+            <div class="logo-preview-img-wrap">
+              <img id="modalNewLogoPreview" src="" alt="New Client Logo Preview">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mc-modal-footer">
+        <button type="button" id="btnCancelLogoModal" class="mc-btn mc-btn-dark">
+          Cancel
+        </button>
+        <button type="button" id="btnSaveLogoModal" class="mc-btn mc-btn-emerald">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Save & Apply Logo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Corporate Directory Backups & Memory Modal -->
+  <div id="backupsModal" class="mc-modal-overlay">
+    <div class="mc-modal-container" style="max-width: 600px;">
+      <div class="mc-modal-header">
+        <div class="mc-modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          📦 Personnel Directory Backups & Memory
+        </div>
+        <button type="button" class="mc-modal-close" id="btnCloseBackupsModalX" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="mc-modal-body">
+        <p class="mc-modal-desc">
+          Automated snapshots are saved whenever spreadsheets are ingested or records are modified. Restore any prior version or export a permanent copy.
+        </p>
+        
+        <div style="font-weight: 700; font-size: 12px; color: #334155; margin-bottom: 6px; text-transform: uppercase;">
+          Recent Automatic Snapshots:
+        </div>
+        <div id="backupHistoryList" class="backup-history-list">
+          <!-- Populated dynamically by light.js -->
+        </div>
+
+        <div class="backup-actions-toolbar">
+          <button type="button" id="btnCreateSnapshotNow" class="mc-btn mc-btn-sm mc-btn-dark">
+            📸 Snapshot Current State
+          </button>
+          <button type="button" id="btnExportBackupJson" class="mc-btn mc-btn-sm mc-btn-dark">
+            📥 Download Backup JSON
+          </button>
+          <button type="button" id="btnTriggerRestoreJson" class="mc-btn mc-btn-sm mc-btn-dark">
+            📤 Restore from File
+          </button>
+          <input type="file" id="backupJsonFileInput" accept=".json" style="display: none;">
+        </div>
+      </div>
+      <div class="mc-modal-footer">
+        <button type="button" id="btnCloseBackupsModal" class="mc-btn mc-btn-dark">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Single Staff Member Modal -->
+  <div id="addStaffModal" class="mc-modal-overlay">
+    <div class="mc-modal-container" style="max-width: 520px;">
+      <div class="mc-modal-header">
+        <div class="mc-modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+          ➕ Add Staff Member
+        </div>
+        <button type="button" class="mc-modal-close" id="btnCloseAddStaffModalX" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="mc-modal-body">
+        <form id="addStaffForm" onsubmit="return false;" class="form-grid">
+          <div>
+            <label class="form-label">First Name *</label>
+            <input type="text" id="addStaffFirstName" class="form-input" required>
+          </div>
+          <div>
+            <label class="form-label">Surname / Last Name *</label>
+            <input type="text" id="addStaffLastName" class="form-input" required>
+          </div>
+          <div>
+            <label class="form-label">Seniority Tier / Role</label>
+            <select id="addStaffRole" class="form-input">
+              <option value="Director">Director</option>
+              <option value="Manager">Manager</option>
+              <option value="Staff" selected>Staff</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Department</label>
+            <input type="text" id="addStaffDept" class="form-input" placeholder="e.g. Operations">
+          </div>
+          <div class="form-group-full">
+            <label class="form-label">Job Title *</label>
+            <input type="text" id="addStaffTitle" class="form-input" placeholder="e.g. Senior Specialist" required>
+          </div>
+          <div class="form-group-full">
+            <label class="form-label">Email Address *</label>
+            <input type="email" id="addStaffEmail" class="form-input" placeholder="name@company.com" required>
+          </div>
+          <div class="form-group-full">
+            <label class="form-label">Contact Phone</label>
+            <input type="text" id="addStaffPhone" class="form-input" placeholder="+27 (0) 11 463 1000">
+          </div>
+        </form>
+      </div>
+      <div class="mc-modal-footer">
+        <button type="button" id="btnCancelAddStaffModal" class="mc-btn mc-btn-dark">
+          Cancel
+        </button>
+        <button type="button" id="btnSubmitAddStaff" class="mc-btn mc-btn-emerald">
+          ✓ Save & Sync to Directory
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Toast Container -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- Engine Scripts (v2.0) -->
+  <!-- Engine Scripts -->
   <script src="templates.js?v=2.0"></script>
-  <script src="light.js?v=2.0"></script>
+  <script src="light.js?v=3.0"></script>
 </body>
 </html>

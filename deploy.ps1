@@ -52,7 +52,10 @@ $filesToUpload = @(
     "styles.css",
     "landing.css",
     "landing.js",
-    ".htaccess"
+    "login.css",
+    "login.js",
+    ".htaccess",
+    "router.php"
 )
 
 $dirsToUpload = @(

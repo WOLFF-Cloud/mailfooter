@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="MailFooter Resources/MailFooter - Logo.png">
 
   <!-- Style Sheets -->
-  <link rel="stylesheet" href="landing.css">
+  <link rel="stylesheet" href="landing.css?v=3.2">
 </head>
 <body class="register-page-wrapper">
 
@@ -24,40 +24,88 @@
   <header class="app-header scrolled" style="position: absolute;">
     <div class="container header-container">
       <a href="index.html" class="logo-wrapper">
-        <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="logo-img" style="height: 36px;">
+        <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="logo-img" style="height: 42px;">
       </a>
-      <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
-        <button type="button" class="theme-switch-btn" aria-label="Toggle Theme"></button>
-        <a href="index.html" class="btn btn-secondary" style="padding: 6px 14px; font-size: 13px;">&larr; Back to Site</a>
+      <div class="header-actions">
+        <a href="index.html" class="btn btn-secondary" style="padding: 8px 20px; font-size: 13px;">&larr; Back to Portal</a>
       </div>
     </div>
   </header>
 
   <!-- Main Registration Card Area -->
   <main class="register-main">
-    <div class="register-card">
+    <div class="register-card" style="position: relative;">
       
-      <!-- Submitting overlay state -->
+      <!-- Submitting overlay state & Post-Registration Hub -->
       <div class="register-success-overlay" id="registerSuccessOverlay">
         <div class="success-icon-checkmark">
           <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         </div>
-        <h3 style="font-size: 24px; margin-bottom: 10px;">Registration Successful!</h3>
-        <p style="color: var(--text-secondary); max-width: 380px;">We are configuring your corporate MailFooter environment and provisioning resources.</p>
         
-        <div class="success-setup-loader">
-          <span class="success-setup-status" id="successProgressStatus">Initializing account setup...</span>
+        <h3 id="overlayMainTitle" style="font-size: 24px; margin-bottom: 8px; color: var(--text-primary);">Configuring Environment...</h3>
+        <p id="overlaySubTitle" style="color: var(--text-secondary); max-width: 420px; font-size: 14px; margin-bottom: 16px;">
+          We are provisioning your corporate MailFooter tenant database, branding guidelines, and templates.
+        </p>
+        
+        <!-- Animated Loader -->
+        <div class="success-setup-loader" id="successSetupLoader">
+          <span class="success-setup-status" id="successProgressStatus">Validating domain & tenant info...</span>
           <div class="success-setup-progress-track">
             <div class="success-setup-progress-fill" id="successProgressFill"></div>
           </div>
         </div>
+
+        <!-- Onboarding Complete Panel (Appears after successful provisioning) -->
+        <div class="onboarding-completion-wrap" id="onboardingCompletionWrap">
+          <div class="onboarding-tenant-summary">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; margin-bottom: 8px;">
+              <span style="color: var(--text-muted);">Organization:</span>
+              <strong id="summaryRegisteredCompany">-</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; margin-bottom: 8px;">
+              <span style="color: var(--text-muted);">Authorized Domain:</span>
+              <strong id="summaryRegisteredDomain" style="color: #60a5fa;">-</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; margin-bottom: 8px;">
+              <span style="color: var(--text-muted);">Subscription Tier:</span>
+              <strong id="summaryRegisteredPlan" style="color: var(--primary);">-</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; margin-bottom: 8px;">
+              <span style="color: var(--text-muted);">Administrator:</span>
+              <strong id="summaryRegisteredEmail">-</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Invoice Reference:</span>
+              <strong id="summaryRegisteredInvoice">-</strong>
+            </div>
+          </div>
+
+          <div class="onboarding-buttons-grid">
+            <a href="admin.html" id="btnLaunchAdmin" class="btn-launch-dashboard">
+              <span>Launch Admin Dashboard &rarr;</span>
+            </a>
+            <div style="display: flex; gap: 10px; width: 100%;">
+              <a href="app.html" id="btnOpenSignatureBuilder" class="btn btn-secondary" style="flex: 1; padding: 12px; font-size: 13.5px; text-align: center;">
+                Signature Builder
+              </a>
+              <button type="button" id="btnOpenWelcomeEmail" class="btn-view-welcome-email" style="flex: 1.2; font-size: 13.5px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                <span>View Welcome Email</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div class="register-card-header">
         <h2>Register Your Company</h2>
-        <p>Set up a corporate tenant account to centralize team signatures.</p>
+        <p>Set up a corporate tenant account to centralize brand guidelines and team signatures.</p>
       </div>
 
       <!-- Registration Form -->
@@ -75,7 +123,25 @@
           <div class="form-field-group">
             <label for="companyDomain">Corporate Email Domain *</label>
             <input type="text" id="companyDomain" class="form-field-input" style="padding-left: 14px;" placeholder="e.g. osholdings.co.za" required>
-            <span style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">Used to auto-authorize employee signature builder access.</span>
+            <span style="font-size: 10.5px; color: var(--text-muted); margin-top: 3px;">Auto-authorizes staff signature builder access.</span>
+          </div>
+
+          <div class="form-field-group">
+            <label for="companyWebsite">Official Website URL</label>
+            <input type="url" id="companyWebsite" class="form-field-input" style="padding-left: 14px;" placeholder="https://osholdings.co.za">
+          </div>
+
+          <div class="form-field-group">
+            <label for="companyIndustry">Industry & Company Size</label>
+            <select id="companyIndustry" class="form-field-input" style="padding-left: 14px; cursor: pointer;">
+              <option value="Software & Cloud Technology">Software & Cloud Technology</option>
+              <option value="Financial & Legal Services">Financial & Legal Services</option>
+              <option value="Consulting & Professional Services">Consulting & Professional Services</option>
+              <option value="Healthcare & Life Sciences">Healthcare & Life Sciences</option>
+              <option value="Manufacturing & Logistics">Manufacturing & Logistics</option>
+              <option value="Retail & E-Commerce">Retail & E-Commerce</option>
+              <option value="Corporate & Other">Corporate & Other</option>
+            </select>
           </div>
 
           <!-- Section 2: Selected Plan -->
@@ -100,52 +166,15 @@
               <p id="summaryPlanUsers">1-5 Users Limit</p>
             </div>
             <div class="selected-plan-price">
-              <span id="summaryPlanCurrency">R</span><span id="summaryPlanPrice">1,500</span><span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">/yr</span>
+              <span id="summaryPlanCurrency">R</span><span id="summaryPlanPrice">1,500</span><span id="summaryPlanPeriod" style="font-size: 11px; font-weight: normal; color: var(--text-muted);">/yr</span>
             </div>
           </div>
 
-          <!-- Section 3: Corporate Branding & Theme Palette -->
-          <div class="register-form-section-title">Corporate Branding & Palette (Optional)</div>
-          
-          <div class="form-field-group" style="grid-column: span 2;">
-            <label>Corporate Logo (Drag & Drop or Choose)</label>
-            <div class="upload-drop-zone" id="regLogoUploadZone" style="padding: 15px; text-align: center; border: 1px dashed var(--border-color); border-radius: 8px; background: var(--bg-tertiary); cursor: pointer;">
-              <div class="upload-text" id="regLogoUploadText" style="font-size: 12px; color: var(--text-secondary);">
-                Drag & drop company logo here, or <span style="color: var(--client-primary, var(--primary)); text-decoration: underline;">browse file</span>
-              </div>
-              <input type="file" id="regLogoFileInput" accept="image/*" style="display: none;">
-              <div class="upload-preview-container" id="regLogoPreviewContainer" style="display: none; margin-top: 8px;">
-                <img src="" alt="Logo Preview" id="regLogoPreviewImg" style="max-height: 40px; object-fit: contain;">
-              </div>
-            </div>
-          </div>
-
-          <div class="form-field-group" style="grid-column: span 2;">
-            <label>Curated Corporate Palette Presets</label>
-            <div class="palette-swatches" id="regPaletteSwatches">
-              <button type="button" class="palette-swatch-btn active" data-primary="#4ee000" data-secondary="#0d4b8e">
-                <span class="swatch-dot" style="background: #4ee000;"></span> MailFooter Green
-              </button>
-              <button type="button" class="palette-swatch-btn" data-primary="#0d4b8e" data-secondary="#f18a22">
-                <span class="swatch-dot" style="background: #0d4b8e;"></span> Navy & Amber
-              </button>
-              <button type="button" class="palette-swatch-btn" data-primary="#059669" data-secondary="#0f172a">
-                <span class="swatch-dot" style="background: #059669;"></span> Emerald Slate
-              </button>
-              <button type="button" class="palette-swatch-btn" data-primary="#4f46e5" data-secondary="#06b6d4">
-                <span class="swatch-dot" style="background: #4f46e5;"></span> Royal Cyan
-              </button>
-              <button type="button" class="palette-swatch-btn" data-primary="#dc2626" data-secondary="#1e293b">
-                <span class="swatch-dot" style="background: #dc2626;"></span> Crimson Steel
-              </button>
-            </div>
-          </div>
-
-          <!-- Section 4: Admin User Credentials -->
-          <div class="register-form-section-title">Administrator Account</div>
+          <!-- Section 3: Admin User Credentials -->
+          <div class="register-form-section-title">Administrator Account & Credentials</div>
           
           <div class="form-field-group">
-            <label for="adminName">Full Name *</label>
+            <label for="adminName">Administrator Full Name *</label>
             <input type="text" id="adminName" class="form-field-input" style="padding-left: 14px;" placeholder="Lennon Arends" required>
           </div>
           
@@ -156,25 +185,96 @@
           
           <div class="form-field-group" style="grid-column: span 2;">
             <label for="adminPhone">Work Contact Number (Optional)</label>
-            <input type="text" id="adminPhone" class="form-field-input" style="padding-left: 14px;" placeholder="e.g. +27 11 234 5678">
+            <input type="tel" id="adminPhone" class="form-field-input" style="padding-left: 14px;" placeholder="e.g. +27 11 234 5678">
+          </div>
+
+          <div class="form-field-group">
+            <label for="adminPassword">Administrator Password *</label>
+            <div class="input-pw-wrapper">
+              <input type="password" id="adminPassword" class="form-field-input" style="padding-left: 14px;" placeholder="Min 8 characters" required>
+              <button type="button" class="input-pw-toggle" id="toggleRegPw" aria-label="Toggle password visibility">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+            <!-- Password strength indicator -->
+            <div class="pw-strength-container">
+              <div class="pw-strength-bar">
+                <div class="pw-strength-fill" id="regPwStrengthFill"></div>
+              </div>
+              <div class="pw-strength-meta">
+                <span>Security</span>
+                <span id="regPwStrengthText">Minimum 8 characters</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-field-group">
+            <label for="adminPasswordConfirm">Confirm Password *</label>
+            <div class="input-pw-wrapper">
+              <input type="password" id="adminPasswordConfirm" class="form-field-input" style="padding-left: 14px;" placeholder="Repeat password" required>
+              <button type="button" class="input-pw-toggle" id="toggleRegPwConfirm" aria-label="Toggle password visibility">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+            <span id="regPwMatchNotice" style="font-size: 11px; display: none; margin-top: 4px;"></span>
           </div>
 
           <!-- Section 4: Billing Option -->
-          <div class="register-form-section-title">Billing & Payment</div>
+          <div class="register-form-section-title">Billing & Activation</div>
           
-          <div class="form-field-group" style="grid-column: span 2;">
-            <label for="billingMethod">Simulated Payment Method *</label>
-            <select id="billingMethod" class="form-field-input" style="padding-left: 14px; appearance: none; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; cursor: pointer;" required>
-              <option value="invoice" selected>Request Invoice (30-day corporate payment terms)</option>
-              <option value="cc">Simulate Credit Card Payment</option>
+          <div class="form-field-group">
+            <label for="billingCycle">Billing Frequency</label>
+            <select id="billingCycle" class="form-field-input" style="padding-left: 14px; cursor: pointer;">
+              <option value="annual" selected>Annual (Best Value - Save 15%)</option>
+              <option value="monthly">Monthly</option>
             </select>
+          </div>
+
+          <div class="form-field-group">
+            <label for="billingMethod">Payment Method *</label>
+            <select id="billingMethod" class="form-field-input" style="padding-left: 14px; cursor: pointer;" required>
+              <option value="invoice" selected>Request Invoice (30-day corporate terms)</option>
+              <option value="cc">Simulate Credit Card (Instant Activation)</option>
+            </select>
+          </div>
+
+          <!-- Compliance Agreement Checkbox -->
+          <div class="form-field-group" style="grid-column: span 2; margin-top: 8px;">
+            <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 12.5px; color: var(--text-secondary); cursor: pointer; text-transform: none; letter-spacing: normal;">
+              <input type="checkbox" id="termsAgreed" style="margin-top: 3px; accent-color: var(--primary);" required>
+              <span>I confirm I am authorized to register this corporate domain and agree to the MailFooter Terms of Service, Acceptable Use Policy, and Privacy Policy.</span>
+            </label>
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 10px;">Complete Registration</button>
+        <button type="submit" class="btn btn-primary" id="registerSubmitBtn" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 14px;">
+          Complete Registration & Provision Tenant
+        </button>
       </form>
     </div>
   </main>
+
+  <!-- Welcome Email Live Preview Modal -->
+  <div class="email-modal-backdrop" id="welcomeEmailModal">
+    <div class="email-modal-card">
+      <div class="email-modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #4ee000;"></span>
+          <h3>Dispatched Welcome Email Preview</h3>
+        </div>
+        <button type="button" class="email-modal-close" id="closeEmailModal" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="email-modal-body">
+        <iframe id="welcomeEmailIframe" class="email-modal-iframe" src="about:blank" title="Welcome Email Preview"></iframe>
+      </div>
+    </div>
+  </div>
 
   <!-- Footer -->
   <footer class="app-footer" style="padding: 30px 0;">
@@ -186,6 +286,6 @@
   </footer>
 
   <!-- Script Modules -->
-  <script src="landing.js"></script>
+  <script src="landing.js?v=3.2"></script>
 </body>
 </html>

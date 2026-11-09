@@ -2,46 +2,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ==========================================
-  // --- THEME SWITCHER & COLOR ENGINE ---
-  // ==========================================
-  function updateThemeIcon(btn, theme) {
-    if (!btn) return;
-    if (theme === 'light') {
-      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
-      btn.setAttribute('title', 'Switch to Dark Mode');
-    } else {
-      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
-      btn.setAttribute('title', 'Switch to Light Mode');
-    }
-  }
-
-  function initThemeSwitcher() {
-    const savedTheme = localStorage.getItem('mailfooter_theme') || 'dark';
-    if (savedTheme === 'light') {
-      document.body.classList.add('light-theme');
-      document.documentElement.classList.add('light-theme');
-    } else {
-      document.body.classList.remove('light-theme');
-      document.documentElement.classList.remove('light-theme');
-    }
-
-    const themeBtns = document.querySelectorAll('.theme-switch-btn');
-    themeBtns.forEach(btn => {
-      updateThemeIcon(btn, savedTheme);
-      btn.onclick = (e) => {
-        e.preventDefault();
-        const isLight = document.body.classList.toggle('light-theme');
-        document.documentElement.classList.toggle('light-theme', isLight);
-        const newTheme = isLight ? 'light' : 'dark';
-        localStorage.setItem('mailfooter_theme', newTheme);
-        themeBtns.forEach(b => updateThemeIcon(b, newTheme));
-      };
-    });
-  }
-
-  initThemeSwitcher();
-
-  // ==========================================
   // 1. STICKY HEADER SCROLL LOGIC
   // ==========================================
   const header = document.querySelector('.app-header');
@@ -438,87 +398,90 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 7. COMPANY REGISTRATION PAGE LOGIC
   // ==========================================
+  // REGISTRATION PAGE MODULE (`register.html`)
+  // ==========================================
   const registerForm = document.getElementById('registerForm');
   const registerSuccessOverlay = document.getElementById('registerSuccessOverlay');
   const progressFill = document.getElementById('successProgressFill');
   const progressStatus = document.getElementById('successProgressStatus');
+  const overlayMainTitle = document.getElementById('overlayMainTitle');
+  const overlaySubTitle = document.getElementById('overlaySubTitle');
+  const successSetupLoader = document.getElementById('successSetupLoader');
+  const onboardingCompletionWrap = document.getElementById('onboardingCompletionWrap');
   
-  // Registration parameters
+  // Registration Form Inputs
   const planSelector = document.getElementById('registerPlan');
+  const billingCycleSelect = document.getElementById('billingCycle');
+  const billingMethodSelect = document.getElementById('billingMethod');
   const companyNameInput = document.getElementById('companyName');
   const companyDomainInput = document.getElementById('companyDomain');
+  const companyWebsiteInput = document.getElementById('companyWebsite');
+  const companyIndustrySelect = document.getElementById('companyIndustry');
   const adminNameInput = document.getElementById('adminName');
   const adminEmailInput = document.getElementById('adminEmail');
   const adminPhoneInput = document.getElementById('adminPhone');
-  
+  const adminPasswordInput = document.getElementById('adminPassword');
+  const adminPasswordConfirmInput = document.getElementById('adminPasswordConfirm');
+  const termsAgreedCheckbox = document.getElementById('termsAgreed');
+  const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+
+  // Password & Security DOM Elements
+  const toggleRegPw = document.getElementById('toggleRegPw');
+  const toggleRegPwConfirm = document.getElementById('toggleRegPwConfirm');
+  const regPwStrengthFill = document.getElementById('regPwStrengthFill');
+  const regPwStrengthText = document.getElementById('regPwStrengthText');
+  const regPwMatchNotice = document.getElementById('regPwMatchNotice');
+
+  // Plan Visual Summary Elements
   const selectedPlanName = document.getElementById('summaryPlanName');
   const selectedPlanUsers = document.getElementById('summaryPlanUsers');
   const selectedPlanPrice = document.getElementById('summaryPlanPrice');
   const selectedPlanCurrency = document.getElementById('summaryPlanCurrency');
+  const selectedPlanPeriod = document.getElementById('summaryPlanPeriod');
   const planSummaryCard = document.getElementById('planSummaryCard');
 
+  // Completion Onboarding Elements
+  const summaryRegisteredCompany = document.getElementById('summaryRegisteredCompany');
+  const summaryRegisteredDomain = document.getElementById('summaryRegisteredDomain');
+  const summaryRegisteredPlan = document.getElementById('summaryRegisteredPlan');
+  const summaryRegisteredEmail = document.getElementById('summaryRegisteredEmail');
+  const summaryRegisteredInvoice = document.getElementById('summaryRegisteredInvoice');
+  const btnLaunchAdmin = document.getElementById('btnLaunchAdmin');
+  const btnOpenSignatureBuilder = document.getElementById('btnOpenSignatureBuilder');
+  const btnOpenWelcomeEmail = document.getElementById('btnOpenWelcomeEmail');
+
+  // Email Preview Modal Elements
+  const welcomeEmailModal = document.getElementById('welcomeEmailModal');
+  const closeEmailModal = document.getElementById('closeEmailModal');
+  const welcomeEmailIframe = document.getElementById('welcomeEmailIframe');
+
   if (registerForm) {
-    // Registration Branding Handlers
-    const regLogoUploadZone = document.getElementById('regLogoUploadZone');
-    const regLogoFileInput = document.getElementById('regLogoFileInput');
-    const regLogoPreviewContainer = document.getElementById('regLogoPreviewContainer');
-    const regLogoPreviewImg = document.getElementById('regLogoPreviewImg');
-
-    if (regLogoUploadZone && regLogoFileInput) {
-      regLogoUploadZone.addEventListener('click', () => regLogoFileInput.click());
-      regLogoUploadZone.addEventListener('dragover', (e) => e.preventDefault());
-      regLogoUploadZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-          handleRegLogo(e.dataTransfer.files[0]);
-        }
-      });
-      regLogoFileInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files[0]) {
-          handleRegLogo(e.target.files[0]);
-        }
-      });
-
-      function handleRegLogo(file) {
-        if (!file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          if (regLogoPreviewImg) regLogoPreviewImg.src = ev.target.result;
-          if (regLogoPreviewContainer) regLogoPreviewContainer.style.display = 'block';
-          window.registrationLogoB64 = ev.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    const regSwatches = document.querySelectorAll('#regPaletteSwatches .palette-swatch-btn');
-    regSwatches.forEach(btn => {
-      btn.addEventListener('click', () => {
-        regSwatches.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        window.registrationPrimaryColor = btn.getAttribute('data-primary');
-        window.registrationSecondaryColor = btn.getAttribute('data-secondary');
-      });
-    });
+    const API_DOMAIN = window.location.origin + window.location.pathname.replace(/\/(index|app|admin|super-admin|register|reset-password)(\.html)?$/, '').replace(/\/$/, '');
 
     // Parse query params to select plan
     const urlParams = new URLSearchParams(window.location.search);
     const planParam = urlParams.get('plan');
     
     let plansInfo = {
-      starter: { name: 'Starter Plan', users: '1-5 Users Limit', price: '1,500', currency: 'R' },
-      team: { name: 'Team Plan', users: '6-20 Users Limit', price: '2,300', currency: 'R' },
-      enterprise: { name: 'Enterprise Plan', users: '21-50 Users Limit', price: '4,500', currency: 'R' },
-      custom: { name: 'Custom Enterprise', users: 'Unlimited Users', price: 'Quote', currency: '' }
+      starter: { name: 'Starter Plan', users: '1-5 Users Limit', priceAnnual: '1,500', priceMonthly: '150', currency: 'R' },
+      team: { name: 'Team Plan', users: '6-20 Users Limit', priceAnnual: '2,300', priceMonthly: '230', currency: 'R' },
+      enterprise: { name: 'Enterprise Plan', users: '21-50 Users Limit', priceAnnual: '4,500', priceMonthly: '450', currency: 'R' },
+      custom: { name: 'Custom Enterprise', users: 'Unlimited Users', priceAnnual: 'Quote', priceMonthly: 'Quote', currency: '' }
     };
 
-    const updatePlanSummary = (planId) => {
-      const info = plansInfo[planId];
+    const updatePlanSummary = () => {
+      const planId = planSelector ? planSelector.value : 'starter';
+      const cycle = billingCycleSelect ? billingCycleSelect.value : 'annual';
+      const info = plansInfo[planId] || plansInfo['starter'];
+
       if (info && selectedPlanName) {
         selectedPlanName.textContent = info.name;
         selectedPlanUsers.textContent = info.users;
-        selectedPlanPrice.textContent = info.price;
+        selectedPlanPrice.textContent = (cycle === 'monthly') ? info.priceMonthly : info.priceAnnual;
         selectedPlanCurrency.textContent = info.currency;
+        if (selectedPlanPeriod) {
+          selectedPlanPeriod.textContent = (cycle === 'monthly') ? '/mo' : '/yr';
+        }
         
         if (planSummaryCard) {
           planSummaryCard.classList.add('highlighted');
@@ -526,13 +489,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    const API_DOMAIN = window.location.origin + window.location.pathname.replace(/\/(index|app|admin|super-admin|register)(\.html)?$/, '').replace(/\/$/, '');
-    
-    // Load database configurations dynamically
+    // Load dynamic pricing plans from API
     fetch(`${API_DOMAIN}/api/super_admin.php?action=price_plans`)
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.plans.length > 0) {
+        if (data.success && Array.isArray(data.plans) && data.plans.length > 0) {
           plansInfo = {};
           if (planSelector) planSelector.innerHTML = '';
           
@@ -541,45 +502,114 @@ document.addEventListener('DOMContentLoaded', () => {
             plansInfo[p.plan_id] = {
               name: p.name,
               users: isCustom ? 'Unlimited Users' : `1-${p.max_users} Users Limit`,
-              price: isCustom ? 'Quote' : p.price_zar_annual.toLocaleString(),
+              priceAnnual: isCustom ? 'Quote' : Number(p.price_zar_annual).toLocaleString(),
+              priceMonthly: isCustom ? 'Quote' : Number(p.price_zar_monthly).toLocaleString(),
               currency: isCustom ? '' : 'R'
             };
             
             if (planSelector) {
               const opt = document.createElement('option');
               opt.value = p.plan_id;
-              const displayPrice = isCustom ? 'Contact Sales' : `R${p.price_zar_annual.toLocaleString()}/year`;
+              const displayPrice = isCustom ? 'Contact Sales' : `R${Number(p.price_zar_annual).toLocaleString()}/year`;
               const displayUsers = isCustom ? '51+' : `1-${p.max_users}`;
               opt.textContent = `${p.name} (${displayUsers} Users) - ${displayPrice}`;
               planSelector.appendChild(opt);
             }
           });
           
-          // Re-trigger pre-select or update
           if (planParam && plansInfo[planParam]) {
             if (planSelector) planSelector.value = planParam;
-            updatePlanSummary(planParam);
-          } else {
-            updatePlanSummary('starter');
           }
+          updatePlanSummary();
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        updatePlanSummary();
+      });
 
-    // Pre-select plan dropdown (initial placeholder)
-    if (planParam && plansInfo[planParam]) {
-      if (planSelector) {
-        planSelector.value = planParam;
-      }
-      updatePlanSummary(planParam);
-    } else {
-      updatePlanSummary('starter');
+    if (planSelector) planSelector.addEventListener('change', updatePlanSummary);
+    if (billingCycleSelect) billingCycleSelect.addEventListener('change', updatePlanSummary);
+
+    // Auto-derive company website from domain input if user hasn't typed one
+    if (companyDomainInput && companyWebsiteInput) {
+      companyDomainInput.addEventListener('blur', () => {
+        const domVal = companyDomainInput.value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+        if (domVal && !companyWebsiteInput.value) {
+          companyWebsiteInput.value = `https://${domVal}`;
+        }
+      });
     }
 
-    if (planSelector) {
-      planSelector.addEventListener('change', () => {
-        updatePlanSummary(planSelector.value);
+    // Password visibility toggle helpers
+    const setupToggle = (btn, input) => {
+      if (!btn || !input) return;
+      btn.addEventListener('click', () => {
+        const isPw = input.type === 'password';
+        input.type = isPw ? 'text' : 'password';
+        btn.style.color = isPw ? 'var(--primary)' : 'var(--text-muted)';
       });
+    };
+    setupToggle(toggleRegPw, adminPasswordInput);
+    setupToggle(toggleRegPwConfirm, adminPasswordConfirmInput);
+
+    // Password strength check
+    if (adminPasswordInput) {
+      adminPasswordInput.addEventListener('input', () => {
+        const val = adminPasswordInput.value;
+        let score = 0;
+        if (val.length >= 8) score += 25;
+        if (val.length >= 12) score += 20;
+        if (/[A-Z]/.test(val)) score += 20;
+        if (/[0-9]/.test(val)) score += 20;
+        if (/[^A-Za-z0-9]/.test(val)) score += 15;
+
+        if (regPwStrengthFill) {
+          regPwStrengthFill.style.width = `${score}%`;
+          if (score < 40) {
+            regPwStrengthFill.style.background = '#ef4444';
+            if (regPwStrengthText) {
+              regPwStrengthText.textContent = 'Weak (min 8 chars)';
+              regPwStrengthText.style.color = '#ef4444';
+            }
+          } else if (score < 75) {
+            regPwStrengthFill.style.background = '#f59e0b';
+            if (regPwStrengthText) {
+              regPwStrengthText.textContent = 'Moderate';
+              regPwStrengthText.style.color = '#f59e0b';
+            }
+          } else {
+            regPwStrengthFill.style.background = '#4ee000';
+            if (regPwStrengthText) {
+              regPwStrengthText.textContent = 'Strong & Secure';
+              regPwStrengthText.style.color = '#4ee000';
+            }
+          }
+        }
+        checkRegPwMatch();
+      });
+    }
+
+    // Password match check
+    const checkRegPwMatch = () => {
+      if (!adminPasswordConfirmInput || !adminPasswordInput || !regPwMatchNotice) return;
+      const p1 = adminPasswordInput.value;
+      const p2 = adminPasswordConfirmInput.value;
+      if (!p2) {
+        regPwMatchNotice.style.display = 'none';
+        return;
+      }
+      if (p1 === p2) {
+        regPwMatchNotice.textContent = '✓ Passwords match';
+        regPwMatchNotice.style.color = '#4ee000';
+        regPwMatchNotice.style.display = 'block';
+      } else {
+        regPwMatchNotice.textContent = '✗ Passwords do not match';
+        regPwMatchNotice.style.color = '#ef4444';
+        regPwMatchNotice.style.display = 'block';
+      }
+    };
+    if (adminPasswordConfirmInput) {
+      adminPasswordConfirmInput.addEventListener('input', checkRegPwMatch);
     }
 
     // Helper to validate email syntax
@@ -589,91 +619,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper to validate domain syntax (e.g. company.com or company.co.za)
     const isValidDomain = (domain) => {
-      return /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(domain);
+      const clean = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+      return /^([a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i.test(clean);
     };
-
-    // Form submission and success state transition
-    registerForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      const registerError = document.getElementById('registerError');
-      if (registerError) registerError.style.display = 'none';
-
-      // Validation
-      const companyName = companyNameInput.value.trim();
-      const companyDomain = companyDomainInput.value.trim();
-      const adminName = adminNameInput.value.trim();
-      const adminEmail = adminEmailInput.value.trim();
-      
-      if (!companyName || !companyDomain || !adminName || !adminEmail) {
-        showRegisterError('All fields marked with an asterisk (*) are required.');
-        return;
-      }
-
-      if (!isValidDomain(companyDomain)) {
-        showRegisterError('Please enter a valid company domain (e.g. yourcompany.co.za or company.com).');
-        return;
-      }
-
-      if (!isValidEmail(adminEmail)) {
-        showRegisterError('Please enter a valid work email address.');
-        return;
-      }
-
-      // Save initial tenant branding into settings DB if provided
-      sessionStorage.setItem('admin_domain', companyDomain);
-      sessionStorage.setItem('admin_email', adminEmail);
-
-      const initBrandingPayload = {
-        company_name: companyName,
-        admin_name: adminName,
-        admin_email: adminEmail,
-        company_logo: window.registrationLogoB64 || '',
-        color_primary: window.registrationPrimaryColor || '#4ee000',
-        color_secondary: window.registrationSecondaryColor || '#0d4b8e'
-      };
-
-      fetch(`${API_DOMAIN}/api/settings.php`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(initBrandingPayload)
-      }).catch(() => {});
-
-      // Hide register submit button and show overlay animation
-      const submitBtn = registerForm.querySelector('button[type="submit"]');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Processing...';
-
-      setTimeout(() => {
-        // Trigger overlay success
-        registerSuccessOverlay.classList.add('active');
-        
-        // Setup sequence loading bar simulation
-        const loadingSteps = [
-          { percentage: 20, status: 'Creating tenant account...' },
-          { percentage: 50, status: 'Provisioning SQL database...' },
-          { percentage: 80, status: 'Configuring corporate brand theme...' },
-          { percentage: 100, status: 'Deployment ready! Redirecting...' }
-        ];
-
-        let currentStep = 0;
-        const interval = setInterval(() => {
-          if (currentStep < loadingSteps.length) {
-            const step = loadingSteps[currentStep];
-            progressFill.style.width = step.percentage + '%';
-            progressStatus.textContent = step.status;
-            currentStep++;
-          } else {
-            clearInterval(interval);
-            setTimeout(() => {
-              // Redirect to admin.html for setup
-              window.location.href = 'admin.html';
-            }, 1000);
-          }
-        }, 1000);
-
-      }, 1000);
-    });
 
     const showRegisterError = (msg) => {
       let errDiv = document.getElementById('registerError');
@@ -691,5 +639,209 @@ document.addEventListener('DOMContentLoaded', () => {
       errDiv.textContent = msg;
       errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
+
+    // Store welcome email HTML for modal viewing
+    let dispatchedWelcomeEmailHtml = '';
+
+    // ============================================================
+    // Real Registration Form Submission & Provisioning
+    // ============================================================
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const registerError = document.getElementById('registerError');
+      if (registerError) registerError.style.display = 'none';
+
+      // 1. Client-Side Input Validations
+      const companyName = companyNameInput.value.trim();
+      const rawDomain = companyDomainInput.value.trim();
+      const companyWebsite = companyWebsiteInput ? companyWebsiteInput.value.trim() : '';
+      const companyIndustry = companyIndustrySelect ? companyIndustrySelect.value : 'Corporate & Enterprise';
+      const adminName = adminNameInput.value.trim();
+      const adminEmail = adminEmailInput.value.trim().toLowerCase();
+      const adminPhone = adminPhoneInput ? adminPhoneInput.value.trim() : '';
+      const adminPassword = adminPasswordInput ? adminPasswordInput.value : '';
+      const adminPasswordConfirm = adminPasswordConfirmInput ? adminPasswordConfirmInput.value : '';
+      const plan = planSelector ? planSelector.value : 'starter';
+      const billingCycle = billingCycleSelect ? billingCycleSelect.value : 'annual';
+      const billingMethod = billingMethodSelect ? billingMethodSelect.value : 'invoice';
+      const termsAgreed = termsAgreedCheckbox ? termsAgreedCheckbox.checked : false;
+
+      if (!companyName || !rawDomain || !adminName || !adminEmail || !adminPassword) {
+        showRegisterError('All fields marked with an asterisk (*) are required.');
+        return;
+      }
+
+      if (!isValidDomain(rawDomain)) {
+        showRegisterError('Please enter a valid corporate email domain (e.g. yourcompany.co.za or company.com).');
+        return;
+      }
+
+      if (!isValidEmail(adminEmail)) {
+        showRegisterError('Please enter a valid work email address for the administrator.');
+        return;
+      }
+
+      if (adminPassword.length < 8) {
+        showRegisterError('Administrator password must be at least 8 characters in length.');
+        return;
+      }
+
+      if (adminPassword !== adminPasswordConfirm) {
+        showRegisterError('Administrator passwords do not match. Please verify.');
+        return;
+      }
+
+      if (!termsAgreed) {
+        showRegisterError('You must agree to the Terms of Service and Privacy Policy to proceed.');
+        return;
+      }
+
+      // 2. Start Animated Provisioning UI
+      const submitBtn = registerSubmitBtn || registerForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Provisioning Environment...';
+      }
+
+      registerSuccessOverlay.classList.add('active');
+      if (successSetupLoader) successSetupLoader.style.display = 'flex';
+      if (onboardingCompletionWrap) onboardingCompletionWrap.style.display = 'none';
+      if (progressFill) progressFill.style.width = '20%';
+      if (progressStatus) progressStatus.textContent = 'Validating domain and tenant credentials...';
+
+      const registrationPayload = {
+        companyName,
+        companyDomain: rawDomain,
+        companyWebsite,
+        industry: companyIndustry,
+        plan,
+        billingCycle,
+        billingMethod,
+        adminName,
+        adminEmail,
+        adminPhone,
+        adminPassword
+      };
+
+      // 3. Send Real Registration API Request
+      setTimeout(() => {
+        if (progressFill) progressFill.style.width = '45%';
+        if (progressStatus) progressStatus.textContent = 'Creating multi-tenant database records...';
+      }, 600);
+
+      fetch(`${API_DOMAIN}/api/register.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registrationPayload)
+      })
+        .then(async res => {
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            throw new Error(data.error || 'Failed to provision corporate tenant account.');
+          }
+          return data;
+        })
+        .then(data => {
+          // Provisioning succeeded!
+          if (progressFill) progressFill.style.width = '85%';
+          if (progressStatus) progressStatus.textContent = 'Dispatching welcome email & initializing session...';
+
+          // Store active tenant session in sessionStorage so admin.html works immediately!
+          if (data.session) {
+            sessionStorage.setItem('admin_domain', data.session.admin_domain || data.client.domain);
+            sessionStorage.setItem('admin_email', data.session.admin_email || data.client.admin_email);
+            sessionStorage.setItem('admin_name', data.session.admin_name || data.client.admin_name);
+          }
+
+          // Cache welcome email for live preview
+          if (data.welcome_email && data.welcome_email.body_html) {
+            dispatchedWelcomeEmailHtml = data.welcome_email.body_html;
+          }
+
+          setTimeout(() => {
+            if (progressFill) progressFill.style.width = '100%';
+            if (progressStatus) progressStatus.textContent = 'Tenant Environment Live & Ready!';
+
+            setTimeout(() => {
+              // Switch overlay from loading bar to Onboarding Completion Panel
+              if (overlayMainTitle) overlayMainTitle.textContent = `${data.client.name} is Live!`;
+              if (overlaySubTitle) overlaySubTitle.textContent = `Your corporate tenant environment is fully provisioned. A welcome email has been dispatched to ${data.client.admin_email}.`;
+              if (successSetupLoader) successSetupLoader.style.display = 'none';
+
+              // Populate Onboarding Summary
+              if (summaryRegisteredCompany) summaryRegisteredCompany.textContent = data.client.name;
+              if (summaryRegisteredDomain) summaryRegisteredDomain.textContent = data.client.domain;
+              if (summaryRegisteredPlan) summaryRegisteredPlan.textContent = `${data.client.plan_name} (${data.client.max_users} Users)`;
+              if (summaryRegisteredEmail) summaryRegisteredEmail.textContent = data.client.admin_email;
+              if (summaryRegisteredInvoice) summaryRegisteredInvoice.textContent = `${data.client.invoice_id} (${data.client.invoice_status.toUpperCase()})`;
+
+              if (btnLaunchAdmin) {
+                btnLaunchAdmin.href = `admin.html`;
+              }
+              if (btnOpenSignatureBuilder) {
+                btnOpenSignatureBuilder.href = `app.html?email=${encodeURIComponent(data.client.admin_email)}`;
+              }
+
+              if (onboardingCompletionWrap) {
+                onboardingCompletionWrap.style.display = 'flex';
+              }
+            }, 600);
+          }, 800);
+        })
+        .catch(err => {
+          // Provisioning error: restore form
+          registerSuccessOverlay.classList.remove('active');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Complete Registration & Provision Tenant';
+          }
+          showRegisterError(err.message || 'An unexpected error occurred during registration.');
+        });
+    });
+
+    // ============================================================
+    // Welcome Email Preview Modal Handlers
+    // ============================================================
+    if (btnOpenWelcomeEmail && welcomeEmailModal && welcomeEmailIframe) {
+      btnOpenWelcomeEmail.addEventListener('click', () => {
+        if (!dispatchedWelcomeEmailHtml) {
+          // Fallback fetch if not in memory
+          const domainVal = companyDomainInput.value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+          fetch(`${API_DOMAIN}/api/mailer.php?action=preview&type=welcome`)
+            .then(res => res.text())
+            .then(html => {
+              renderEmailInIframe(html);
+            })
+            .catch(() => {});
+        } else {
+          renderEmailInIframe(dispatchedWelcomeEmailHtml);
+        }
+        welcomeEmailModal.style.display = 'flex';
+      });
+    }
+
+    function renderEmailInIframe(htmlContent) {
+      if (!welcomeEmailIframe) return;
+      welcomeEmailIframe.src = 'about:blank';
+      setTimeout(() => {
+        const doc = welcomeEmailIframe.contentDocument || welcomeEmailIframe.contentWindow.document;
+        doc.open();
+        doc.write(htmlContent);
+        doc.close();
+      }, 50);
+    }
+
+    if (closeEmailModal && welcomeEmailModal) {
+      closeEmailModal.addEventListener('click', () => {
+        welcomeEmailModal.style.display = 'none';
+      });
+      welcomeEmailModal.addEventListener('click', (e) => {
+        if (e.target === welcomeEmailModal) {
+          welcomeEmailModal.style.display = 'none';
+        }
+      });
+    }
   }
 });
+

@@ -48,16 +48,34 @@ try {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
-        // Successful login
-        $domain = explode('@', $email)[1] ?? '';
-        if ($domain === 'osbusinessamp.com' || $domain === 'osbusinessam.com') {
-            $domain = 'osholdings.co.za';
+        // Successful login: Resolve tenant domain from clients table
+        $emailDomain = explode('@', $email)[1] ?? '';
+        if ($emailDomain === 'osbusinessamp.com' || $emailDomain === 'osbusinessam.com') {
+            $emailDomain = 'osholdings.co.za';
         }
+
+        $stmtClient = $pdo->prepare("SELECT * FROM clients WHERE admin_email = :email OR domain = :domain LIMIT 1");
+        $stmtClient->execute([':email' => $email, ':domain' => $emailDomain]);
+        $client = $stmtClient->fetch();
+
+        if ($client && $client['status'] === 'suspended') {
+            header('HTTP/1.1 403 Forbidden');
+            echo json_encode([
+                'success' => false,
+                'error' => "The account for {$client['name']} ({$client['domain']}) is currently suspended. Please contact MailFooter billing support."
+            ]);
+            exit();
+        }
+
+        $domain = $client ? $client['domain'] : $emailDomain;
+        $companyName = $client ? $client['name'] : 'Corporate Tenant';
+
         echo json_encode([
             'success' => true,
             'role' => 'admin',
             'email' => $email,
             'domain' => $domain,
+            'company_name' => $companyName,
             'name' => $user['name']
         ]);
     } else {

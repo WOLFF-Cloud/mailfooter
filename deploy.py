@@ -41,6 +41,7 @@ def main():
         "light.css",
         "light.js",
         "register.html",
+        "reset-password.html",
         "admin.html",
         "super-admin.html",
         "landing-index.html",
@@ -50,7 +51,10 @@ def main():
         "styles.css",
         "landing.css",
         "landing.js",
-        ".htaccess"
+        "login.css",
+        "login.js",
+        ".htaccess",
+        "router.php"
     ]
     
     dirs_to_upload = [
