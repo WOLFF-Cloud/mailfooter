@@ -1,9 +1,11 @@
 <?php
 // api/users.php
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: Content-Type, X-Client-Impersonate');
+header('Access-Control-Allow-Headers: Content-Type, X-Client-Impersonate, Cache-Control, Pragma');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);

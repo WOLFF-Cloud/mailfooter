@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mailfooter Light Suite - OS Business Amplifier Corporate Portal</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Mailfooter Light Suite - OS Business Amplifier (OSBA) corporate email signature generator & directory portal. Automated CSV role ingestion and single-action signature delivery.">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="assets/osba-logo.jpg">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Preload Critical Logo -->
+  <link rel="preload" as="image" href="assets/osba-logo.jpg">
+
+  <!-- Modern Light SaaS Theme Stylesheet -->
+  <link rel="stylesheet" href="osba-light.css?v=20261109">
+</head>
+<body>
+
+  <!-- Translucent Glassmorphic Header -->
+  <header class="portal-header">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="client-logo-slot" id="clientLogoDropzone" title="Click or drop image to change logo">
+          <input type="file" id="clientLogoFileInput" accept="image/*" style="display: none;">
+          <div class="client-logo-preview">
+            <img id="headerClientLogoImg" src="assets/osba-logo.jpg" alt="OS Business Amplifier Logo" class="client-logo-img" style="max-height: 44px; width: auto; object-fit: contain;">
+            <div class="client-logo-edit-badge" title="Change logo">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="portal-title-wrapper">
+          <div class="portal-title">
+            Mailfooter
+          </div>
+          <div class="portal-subtitle">OS Business Amplifier Corporate Directory & Deployment Suite</div>
+        </div>
+      </div>
+
+      <!-- Header Controls -->
+      <div class="header-controls">
+        <span class="badge-light-version" style="font-size: 11px; padding: 4px 10px;">
+          ⚡ OSBA Production Suite
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Portal Body -->
+  <main class="main-wrapper">
+    <!-- Top-Level Segmented Tabs Bar -->
+    <div class="mc-tabs-bar">
+      <button class="tab-nav-item active" data-tab="overview" id="tabNavOverview">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Staff Directory
+      </button>
+      <button class="tab-nav-item" data-tab="bulk" id="tabNavBulk">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Bulk Spreadsheet Ingestion
+      </button>
+      <button class="tab-nav-item" data-tab="installation" id="tabNavInstallation">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+        Live Preview Studio
+      </button>
+    </div>
+
+    <!-- TAB 1: OVERVIEW TAB PANE -->
+    <div id="tabPane-overview" class="tab-content-pane">
+      <!-- Analytics KPI Metric Cards -->
+      <div id="analyticsGrid" class="analytics-grid">
+        <!-- Rendered dynamically by osba-light.js -->
+      </div>
+
+      <!-- Toolbar: Subtabs + Search & Dept Filter -->
+      <div class="table-toolbar">
+        <div class="subtabs-bar" style="margin-bottom: 0;">
+          <button class="subtab-btn active" data-subtab="all">
+            All Personnel
+          </button>
+          <button class="subtab-btn" data-subtab="managers">
+            Directors & Managers
+          </button>
+          <button class="subtab-btn" data-subtab="staff">
+            Staff Members
+          </button>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; flex: 1; justify-content: flex-end; min-width: 320px;">
+          <button type="button" id="btnAddStaffModalBtn" class="mc-btn mc-btn-primary mc-btn-sm" style="display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+            ➕ Add Staff
+          </button>
+          <button type="button" id="btnImportCsvToolbar" class="mc-btn mc-btn-dark mc-btn-sm" style="display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;" title="Bulk import personnel spreadsheet">
+            📥 Import CSV
+          </button>
+          <button type="button" id="btnPurgeDemoToolbar" class="mc-btn mc-btn-dark mc-btn-sm" style="display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;" title="Reset directory to initial default">
+            🧹 Reset to Default
+          </button>
+          <div class="search-box-wrapper">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="tableSearchInput" class="mc-input" placeholder="Search personnel by name, email, department, or title...">
+          </div>
+          <div class="filter-group">
+            <select id="tableDeptFilter" class="mc-select">
+              <option value="ALL">All Departments</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Staff Directory Table -->
+      <div class="table-container">
+        <table class="mc-table">
+          <thead>
+            <tr>
+              <th>Personnel Name & Title</th>
+              <th>Role Tier</th>
+              <th>Department</th>
+              <th>Email Address</th>
+              <th>Contact Phone</th>
+              <th style="text-align: right;">1-Click Signature Actions</th>
+            </tr>
+          </thead>
+          <tbody id="staffTableBody">
+            <!-- Rendered dynamically by osba-light.js -->
+          </tbody>
+        </table>
+        <div class="table-footer">
+          <span id="tableShowingCount">Showing 0 records</span>
+          <span id="cloudSyncStatus" style="font-size: 12px; color: #10b981; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
+            <span class="stat-pulse-dot" style="display: inline-block;"></span> Server Database Synced
+          </span>
+          <span style="font-size: 12px; color: var(--text-muted);">⚡ Single-click [Copy Rich Text] formats signature for direct paste into Outlook, Apple Mail, or Gmail.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: BULK ADD TAB PANE -->
+    <div id="tabPane-bulk" class="tab-content-pane tab-pane-hidden">
+      <div class="bulk-container">
+        <div class="bulk-header-box">
+          <div class="bulk-header-icon">📋</div>
+          <div class="bulk-header-text">
+            <h3>OS Business Amplifier Data Ingestion Engine</h3>
+            <p>Highlight data columns from your staff list or spreadsheet, copy (Ctrl+C), and paste directly below. The automated engine parses headers, categorizes personnel into "Director", "Manager", or "Staff", and updates the directory instantly.</p>
+          </div>
+        </div>
+
+        <!-- Download Import Templates Card (Blank & Pre-filled) -->
+        <div class="template-download-row">
+          <div class="template-download-title">
+            📥 Import Spreadsheets: Pre-formatted templates for team distribution
+          </div>
+          <div class="template-btns">
+            <button id="downloadBlankCsvBtn" class="mc-btn mc-btn-sm mc-btn-dark" title="Download empty CSV template with standard headers">
+              📄 Download Blank Template
+            </button>
+            <button id="downloadSampleCsvBtn" class="mc-btn mc-btn-sm mc-btn-dark" title="Download pre-filled CSV sample template">
+              📋 Download Pre-filled Sample
+            </button>
+          </div>
+        </div>
+
+        <!-- Drag and Drop CSV Upload Zone -->
+        <label class="form-label" style="margin-bottom: 6px; font-size: 13px; font-weight: 700;">1. Upload File or Drag & Drop (.csv, .tsv, .txt):</label>
+        <div class="csv-upload-dropzone bulk-file-dropzone" id="csvDropzone">
+          <input type="file" id="csvFileInput" accept=".csv, .tsv, .txt" style="display: none;">
+          <div class="dropzone-icon">📥</div>
+          <div class="dropzone-text" id="dropzoneText">
+            <strong>Click to select a CSV file</strong> or drag & drop spreadsheet file here
+          </div>
+          <div class="dropzone-subtext" id="dropzoneFileName">Supports RFC 4180 .csv, .tsv, and .txt formats with auto-header matching</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin: 16px 0 8px;">
+          <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
+          <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">OR PASTE RAW SPREADSHEET TEXT DIRECTLY</span>
+          <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
+        </div>
+
+        <!-- Text Area Input -->
+        <label class="form-label" style="margin-bottom: 6px; font-size: 13px; font-weight: 700;">2. Spreadsheet Raw Text:</label>
+        <textarea id="csvTextArea" class="mc-textarea" placeholder="Paste raw CSV block here... E.g.&#10;First Name, Surname, Role, Job Title, Department, Email Address, Phone Number, Mobile Number, Company, Location&#10;Wandile, Mbanjwa, Director, Managing Director, Executive, wandile@osbusinessamp.com, +27 64 064 5038, +27 64 064 5038, OS Business Amplifier, Sandton"></textarea>
+
+        <!-- Ingestion Mode Selector -->
+        <div style="margin: 14px 0 16px; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <div style="font-weight: 700; font-size: 13px; color: var(--text-main);">Ingestion Mode:</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Choose whether to merge with current staff or replace the entire directory.</div>
+          </div>
+          <div style="display: flex; gap: 16px; align-items: center;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+              <input type="radio" name="csvImportMode" value="merge" checked>
+              <span>Merge &amp; Update</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+              <input type="radio" name="csvImportMode" value="replace">
+              <span style="color: #dc2626; font-weight: 600;">Replace Entire Directory</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="bulk-actions-row">
+          <button id="loadSampleCsvBtn" class="mc-btn mc-btn-dark">
+            ⚡ Load OSBA CSV Sample
+          </button>
+          <button id="ingestDataBtn" class="mc-btn mc-btn-primary mc-btn-lg">
+            ⚡ Process & Ingest Data
+          </button>
+        </div>
+
+        <!-- Report Box -->
+        <div id="ingestReportBox" class="ingest-report-box"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: INSTALLATION & LIVE STUDIO TAB PANE -->
+    <div id="tabPane-installation" class="tab-content-pane tab-pane-hidden">
+      <div class="installation-workspace">
+        
+        <!-- Left-Hand Panel (Input Mutation Panel) -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              Keystroke Live Customizer
+            </div>
+            <div class="filter-group">
+              <select id="activeEmpSelect" class="mc-select" style="max-width: 230px; font-weight: 600;">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <form id="liveEditForm" onsubmit="return false;" class="form-grid">
+              <div class="form-section-divider">1. Identity & Role</div>
+              <div>
+                <label class="form-label">First Name</label>
+                <input type="text" id="inputFirstName" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Surname / Last Name</label>
+                <input type="text" id="inputLastName" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Seniority Tier / Role</label>
+                <select id="inputRole" class="form-input">
+                  <option value="Director">Director</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Staff">Staff</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Department</label>
+                <input type="text" id="inputDepartment" class="form-input">
+              </div>
+              <div class="form-group-full">
+                <label class="form-label">Job Title</label>
+                <input type="text" id="inputJobTitle" class="form-input">
+              </div>
+
+              <div class="form-section-divider">2. Contact & Company</div>
+              <div class="form-group-full">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="inputEmail" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Phone Number</label>
+                <input type="text" id="inputPhone" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Company Name</label>
+                <input type="text" id="inputCompany" class="form-input">
+              </div>
+              <div class="form-group-full">
+                <label class="form-label">Office Location</label>
+                <input type="text" id="inputLocation" class="form-input">
+              </div>
+
+              <div class="form-section-divider">3. Brand Colors & Layout</div>
+              <div>
+                <label class="form-label">Primary Color Hex</label>
+                <div class="color-input-wrapper">
+                  <input type="color" id="inputPrimaryColor" class="color-picker" value="#212d34">
+                  <span id="labelPrimaryColor" style="font-size: 12px; font-weight: 600; color: var(--text-muted);">#212d34</span>
+                </div>
+              </div>
+              <div>
+                <label class="form-label">Accent Color Hex</label>
+                <div class="color-input-wrapper">
+                  <input type="color" id="inputSecondaryColor" class="color-picker" value="#d92338">
+                  <span id="labelSecondaryColor" style="font-size: 12px; font-weight: 600; color: var(--text-muted);">#d92338</span>
+                </div>
+              </div>
+              <div class="form-group-full">
+                <label class="form-label">Signature Layout Blueprint</label>
+                <select id="tplSelect" class="form-input" style="font-weight: 700;">
+                  <option value="osba-signature" selected>OSBA Official Brand Signature (Ultra-Compatible Table)</option>
+                </select>
+              </div>
+
+              <!-- Campaign Marketing Banner Toggle -->
+              <div class="form-group-full" style="display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+                <input type="checkbox" id="inputCampaignEnabled" checked style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="inputCampaignEnabled" style="font-size: 13px; font-weight: 600; cursor: pointer; user-select: none; margin: 0;">Include Brand Banner &amp; Social Links</label>
+              </div>
+
+              <!-- Dedicated Save Button -->
+              <div class="form-group-full" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color, #e2e8f0);">
+                <button type="button" id="btnSaveEmployeeCloud" class="mc-btn mc-btn-primary mc-btn-lg" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                  💾 Save Personnel Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right-Hand Panel (Simulated macOS / Modern Email Client Window) -->
+        <div class="mail-window-card" id="mailPreviewWindow">
+          <div class="mail-window-header">
+            <div class="window-dots">
+              <span class="window-dot dot-close"></span>
+              <span class="window-dot dot-min"></span>
+              <span class="window-dot dot-expand"></span>
+            </div>
+            <div class="mail-window-title">Message Preview — Outlook / Apple Mail</div>
+            <div class="simulator-mode-switch">
+              <button type="button" id="btnSimLightMode" class="sim-mode-btn active" title="Simulate standard light mode client">
+                ☀️ Light Mode
+              </button>
+              <button type="button" id="btnSimDarkMode" class="sim-mode-btn" title="Simulate macOS Apple Mail / Outlook dark mode client">
+                🌙 Dark Mode
+              </button>
+            </div>
+            <div class="mail-sync-indicator">
+              <span class="stat-pulse-dot"></span>
+              Live Synced
+            </div>
+          </div>
+
+          <div class="mail-meta-pane">
+            <div class="meta-row">
+              <span class="meta-label">From:</span>
+              <span class="meta-val" id="mailPreviewSender">Wandile Mbanjwa &lt;wandile@osbusinessamp.com&gt;</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">To:</span>
+              <span class="meta-val">Partner &lt;client@example.com&gt;</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Subject:</span>
+              <span class="meta-val">Amplify Your Brand. Accelerate Your Business.</span>
+            </div>
+          </div>
+
+          <div class="mail-body-pane">
+            <div class="mail-dummy-text">
+              Dear Partner,<br><br>
+              Thank you for connecting with OS Business Amplifier. Below is our corporate signature with verified contact details, location, and social links.
+            </div>
+
+            <!-- Virtual Canvas Viewport -->
+            <div class="canvas-container">
+              <div id="signatureCanvasViewport" class="canvas-viewport">
+                <!-- Signature output dynamically rendered by osba-light.js -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky Floating Action Footer -->
+          <div class="canvas-action-footer">
+            <div class="delivery-action-left">
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">
+                1-Click Deployment Triggers:
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted);">
+                Copies formatted rich text directly to your clipboard for instant paste into Outlook or Apple Mail.
+              </div>
+            </div>
+            <div class="footer-btn-group">
+              <button id="btnFooterCopyRichText" class="mc-btn mc-btn-emerald mc-btn-lg">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copy Rich Text Signature
+              </button>
+              <button id="btnFooterCopyHtml" class="mc-btn mc-btn-dark mc-btn-lg">
+                &lt;/&gt; Copy HTML Snippet
+              </button>
+              <button id="btnFooterDownloadHtml" class="mc-btn mc-btn-sm mc-btn-dark" title="Download standalone HTML file">
+                💾 Download .html
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Modern App Footer -->
+  <footer class="portal-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <div class="footer-badge-group">
+          <span class="badge-light-version">
+            ⚡ OSBA Light Suite
+          </span>
+          <span style="font-size: 12px; color: var(--text-muted);">Corporate On-Site Deployment Portal</span>
+        </div>
+      </div>
+
+      <div class="footer-center">
+        <span>Created by <strong class="wolff-credit">WOLFF</strong></span>
+        <span>•</span>
+        <span>&copy; <span id="appCurrentYear">2026</span> OS Business Amplifier</span>
+      </div>
+
+      <div class="footer-right">
+        <button id="refreshDataBtn" class="mc-btn mc-btn-dark mc-btn-sm" title="Refresh directory dataset">
+          ↻ Reset Directory
+        </button>
+        <button id="btnFooterExportData" class="mc-btn mc-btn-dark mc-btn-sm" title="Export directory dataset to CSV">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Export CSV
+        </button>
+        <span style="color: #10b981; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+          <span class="stat-pulse-dot" style="display: inline-block;"></span> Production Ready
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Add Single Staff Member Modal -->
+  <div id="addStaffModal" class="mc-modal-overlay">
+    <div class="mc-modal-container" style="max-width: 520px;">
+      <div class="mc-modal-header">
+        <div class="mc-modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+          ➕ Add Staff Member
+        </div>
+        <button type="button" class="mc-modal-close" id="btnCloseAddStaffModalX" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="mc-modal-body">
+        <form id="addStaffForm" onsubmit="return false;" class="form-grid">
+          <div>
+            <label class="form-label">First Name *</label>
+            <input type="text" id="addStaffFirstName" class="form-input" required>
+          </div>
+          <div>
+            <label class="form-label">Surname / Last Name *</label>
+            <input type="text" id="addStaffLastName" class="form-input" required>
+          </div>
+          <div>
+            <label class="form-label">Seniority Tier / Role</label>
+            <select id="addStaffRole" class="form-input">
+              <option value="Director">Director</option>
+              <option value="Manager">Manager</option>
+              <option value="Staff" selected>Staff</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Department</label>
+            <input type="text" id="addStaffDept" class="form-input" placeholder="e.g. Executive">
+          </div>
+          <div class="form-group-full">
+            <label class="form-label">Job Title *</label>
+            <input type="text" id="addStaffTitle" class="form-input" placeholder="e.g. Managing Director" required>
+          </div>
+          <div class="form-group-full">
+            <label class="form-label">Email Address *</label>
+            <input type="email" id="addStaffEmail" class="form-input" placeholder="name@osbusinessamp.com" required>
+          </div>
+          <div class="form-group-full">
+            <label class="form-label">Contact Phone</label>
+            <input type="text" id="addStaffPhone" class="form-input" placeholder="+27 64 064 5038">
+          </div>
+          <div class="form-group-full" style="display: flex; align-items: center; gap: 8px; margin-top: 4px; padding: 8px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+            <input type="checkbox" id="addStaffCampaignEnabled" checked style="width: 18px; height: 18px; cursor: pointer;">
+            <label for="addStaffCampaignEnabled" style="font-size: 13px; font-weight: 600; cursor: pointer; user-select: none; margin: 0;">Include Brand Banner &amp; Social Links</label>
+          </div>
+        </form>
+      </div>
+      <div class="mc-modal-footer">
+        <button type="button" id="btnCancelAddStaffModal" class="mc-btn mc-btn-dark">
+          Cancel
+        </button>
+        <button type="button" id="btnSubmitAddStaff" class="mc-btn mc-btn-emerald">
+          ✓ Save to Directory
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Single Staff Member Modal -->
+  <div id="editStaffModal" class="mc-modal-overlay">
+    <div class="mc-modal-container" style="max-width: 520px;">
+      <div class="mc-modal-header">
+        <div class="mc-modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+          ✎ Edit Staff Member
+        </div>
+        <button type="button" class="mc-modal-close" id="btnCloseEditStaffModalX" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="mc-modal-body">
+        <form id="editStaffForm" onsubmit="return false;" class="form-grid">
+          <input type="hidden" id="editStaffId">
+          <input type="hidden" id="editStaffOriginalEmail">
+          <div>
+            <label class="form-label">First Name *</label>
+            <input type="text" id="editStaffFirstName" class="form-input" required>
+          </div>
+          <div>
+            <label class="form-label">Surname / Last Name *</label>
+            <input type="text" id="editStaffLastName" class="form-input" required>
+          </div>
+          <div>
+            <label class="form-label">Seniority Tier / Role</label>
+            <select id="editStaffRole" class="form-input">
+              <option value="Director">Director</option>
+              <option value="Manager">Manager</option>
+              <option value="Staff">Staff</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Department</label>
+            <input type="text" id="editStaffDept" class="form-input" placeholder="e.g. Executive">
+          </div>
+          <div class="form-group-full">
+            <label class="form-label">Job Title *</label>
+            <input type="text" id="editStaffTitle" class="form-input" placeholder="e.g. Managing Director" required>
+          </div>
+          <div class="form-group-full">
+            <label class="form-label">Email Address *</label>
+            <input type="email" id="editStaffEmail" class="form-input" placeholder="name@osbusinessamp.com" required>
+          </div>
+          <div class="form-group-full">
+            <label class="form-label">Contact Phone</label>
+            <input type="text" id="editStaffPhone" class="form-input" placeholder="+27 64 064 5038">
+          </div>
+          <div>
+            <label class="form-label">Company</label>
+            <input type="text" id="editStaffCompany" class="form-input" placeholder="OS Business Amplifier">
+          </div>
+          <div>
+            <label class="form-label">Location</label>
+            <input type="text" id="editStaffLocation" class="form-input" placeholder="Atrium on 5th, Sandton">
+          </div>
+          <div class="form-group-full" style="display: flex; align-items: center; gap: 8px; margin-top: 4px; padding: 8px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+            <input type="checkbox" id="editStaffCampaignEnabled" checked style="width: 18px; height: 18px; cursor: pointer;">
+            <label for="editStaffCampaignEnabled" style="font-size: 13px; font-weight: 600; cursor: pointer; user-select: none; margin: 0;">Include Brand Banner &amp; Social Links</label>
+          </div>
+        </form>
+      </div>
+      <div class="mc-modal-footer">
+        <button type="button" id="btnCancelEditStaffModal" class="mc-btn mc-btn-dark">
+          Cancel
+        </button>
+        <button type="button" id="btnOpenInLivePreviewFromEdit" class="mc-btn mc-btn-dark" title="Open full Live Preview Studio for this staff member">
+          🎨 Live Preview
+        </button>
+        <button type="button" id="btnSubmitEditStaff" class="mc-btn mc-btn-emerald">
+          ✓ Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- OSBA Staging Engine Script -->
+  <script src="osba-light.js?v=20261109"></script>
+</body>
+</html>

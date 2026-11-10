@@ -1,0 +1,21 @@
+RewriteEngine On
+
+# Allow normal files/directories to load directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Route Mailfooter, Login, and Portals
+RewriteRule ^mailfooter/?$ index.html [L,QSA]
+RewriteRule ^login/?$ index.html [L,QSA]
+RewriteRule ^landing/?$ landing-index.html [L,QSA]
+RewriteRule ^admin/?$ admin.html [L,QSA]
+RewriteRule ^super-admin/?$ super-admin.html [L,QSA]
+RewriteRule ^register/?$ register.html [L,QSA]
+RewriteRule ^reset-password/?$ reset-password.html [L,QSA]
+
+# Route REST API Endpoints (covers register, password_reset, mailer, login, etc.)
+RewriteRule ^api/([a-zA-Z0-9_-]+)/?$ api/$1.php [L,QSA]
+
+# Route Tracking Pixel and Click Redirect Endpoints
+RewriteRule ^track/([a-zA-Z0-9_-]+)/?$ track/$1.php [L,QSA]

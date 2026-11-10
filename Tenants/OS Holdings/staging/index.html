@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MailFooter - Corporate Access Portal</title>
+  
+  <meta name="description" content="Sign in to MailFooter to retrieve your branded company email signature or manage your organization's signature templates.">
+  <meta property="og:title" content="MailFooter - Corporate Access Portal">
+  <meta property="og:description" content="Access and create professional, enterprise-grade email signatures in real-time.">
+  <meta property="og:image" content="MailFooter Resources/MailFooter - Logo.png">
+  <link rel="icon" type="image/png" href="MailFooter Resources/MailFooter - Logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Modern Dual-Card Login Stylesheet -->
+  <link rel="stylesheet" href="login.css?v=3.1">
+</head>
+<body>
+
+  <!-- Ambient Glow Elements -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Portal Navigation Header -->
+  <header class="portal-header">
+    <a href="index.html" class="portal-brand">
+      <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="portal-logo">
+    </a>
+    <div class="header-meta">
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        <span>Corporate Directory Online</span>
+      </div>
+      <a href="register.html" class="link-overview" style="color: var(--accent-green); font-weight: 600; text-shadow: 0 0 10px rgba(78, 224, 0, 0.3);">Register Organization &rarr;</a>
+      <a href="landing-index.html" class="link-overview">Platform Overview</a>
+    </div>
+  </header>
+
+  <!-- Portal Main Body -->
+  <main class="portal-main">
+    <div class="portal-intro">
+      <h1 class="portal-title">Corporate Access Portal</h1>
+      <p class="portal-subtitle">Access your company email signature or sign in with administrative privileges to manage enterprise branding and templates.</p>
+    </div>
+
+    <!-- Dual Cards Container -->
+    <div class="cards-grid">
+      
+      <!-- CARD 1: STAFF MEMBER (Zero Password Friction) -->
+      <section class="portal-card card-staff">
+        <div class="card-top">
+          <span class="card-badge staff-badge">Staff Access</span>
+          <div class="card-icon-wrap staff-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+        </div>
+
+        <h2 class="card-title">Staff Member</h2>
+        <p class="card-desc">Enter your full name or work email address to retrieve and copy your official company signature.</p>
+
+        <form id="staffLoginForm" class="card-form" autocomplete="off">
+          <div class="form-group">
+            <label class="form-label" for="staffSearchInput">
+              <span>Full Name or Work Email</span>
+              <span class="label-hint">No password needed</span>
+            </label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input 
+                type="text" 
+                id="staffSearchInput" 
+                class="form-input" 
+                placeholder="e.g. Marcus Vance or marcus@company.com" 
+                required 
+                autofocus
+              >
+            </div>
+            <!-- Live autocomplete dropdown -->
+            <div id="staffDirectoryDropdown" class="directory-dropdown"></div>
+          </div>
+
+          <button type="submit" id="staffSubmitBtn" class="btn-submit btn-staff">
+            <span>Open My Signature</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </form>
+
+        <!-- Feedback Box -->
+        <div id="staffFeedback" class="feedback-box"></div>
+
+        <!-- User Not Found CTA State -->
+        <div id="notFoundBox" class="not-found-box">
+          <div class="not-found-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>No Signature Found</span>
+          </div>
+          <p class="not-found-desc">
+            We couldn't find an existing profile for <strong id="notFoundQueryText"></strong>. Would you like to create your new corporate email signature now?
+          </p>
+          <a href="#" id="btnCreateSignature" class="btn-create-sig">
+            <span>Create New Email Signature</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </section>
+
+      <!-- CARD 2: ADMINISTRATOR (Password Protected) -->
+      <section class="portal-card card-admin">
+        <div class="card-top">
+          <span class="card-badge admin-badge">Management</span>
+          <div class="card-icon-wrap admin-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+        </div>
+
+        <h2 class="card-title">Administrator</h2>
+        <p class="card-desc">Sign in to manage company templates, oversee employee signatures, and configure organization branding.</p>
+
+        <form id="adminLoginForm" class="card-form">
+          <div class="form-group">
+            <label class="form-label" for="adminEmail">Administrator Email</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              <input 
+                type="email" 
+                id="adminEmail" 
+                class="form-input" 
+                placeholder="admin@company.com" 
+                required
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="form-label" for="adminPassword" style="margin-bottom: 0;">Dashboard Password</label>
+              <a href="reset-password.html" style="font-size: 11.5px; color: #38bdf8; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Forgot password?</a>
+            </div>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <input 
+                type="password" 
+                id="adminPassword" 
+                class="form-input" 
+                placeholder="••••••••" 
+                required
+              >
+            </div>
+          </div>
+
+          <button type="submit" id="adminSubmitBtn" class="btn-submit btn-admin">
+            <span>Sign In to Dashboard</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+
+          <div style="margin-top: 14px; text-align: center; font-size: 12px; color: var(--text-dim);">
+            Need a corporate signature environment? <a href="register.html" style="color: var(--accent-green); text-decoration: none; font-weight: 600;">Register Organization &rarr;</a>
+          </div>
+        </form>
+
+        <!-- Feedback Box -->
+        <div id="adminFeedback" class="feedback-box"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Portal Footer -->
+  <footer class="portal-footer">
+    <div class="portal-footer-inner">
+      <img src="MailFooter Resources/MailFooter - Logo.png" alt="MailFooter Logo" class="portal-footer-logo">
+      <p>&copy; 2026 <span>MailFooter</span>. All rights reserved. Developed by <span>WOLFF - Cloud Solutions</span>.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="login.js?v=3.1"></script>
+</body>
+</html>

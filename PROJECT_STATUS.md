@@ -31,8 +31,9 @@ WOLFF MailFooter is an enterprise-grade HTML email signature management and outb
   - **Direct /mailfooter Dual-Card Access Portal (v3.1)**: Direct routing for `/mailfooter` and root domain to the dedicated high-performance dual-card portal (`index.html`, `login.css`, `login.js`). Includes passwordless Staff Member card with memory/tag indexing and database search by name or email (with instant fallback to create new signature), secure Administrator card, and preserved marketing landing page at `landing-index.html`.
   - **Auth & Password Recovery Expansion**: Implemented self-service registration and password reset pipeline with `api/mailer.php`, `api/password_reset.php`, `api/register.php`, and `reset-password.html`.
   - **Automated Live Deployment Pipeline**: Multi-domain deployment support verified across live production server environments:
-    - **WOLFF Cloud Domain**: `https://mailfooter.wolff-cloud.co.za/` and `https://wolff-cloud.co.za/mailfooter/` (Live HTTP 200).
-    - **OS Holdings Tenant Domain**: `https://os-holdings.co.za/mailfooter/` (Live HTTP 200, SQLite database preserved).
+    - **Amathuba AI Tenant Domain**: `https://www.amathuba-ai.com/mailfooter/` and `/mailfooter/light` (Live HTTP 200, SQLite database, directory portal). Staged in `Tenants/Amathuba AI/staging/`.
+    - **OS Business Amplifier (OSBA) Tenant Domain**: `https://osbusinessamp.com/mailfooter/` and `/mailfooter/light` (Live HTTP 200, SQLite persistence, Outlook 96 DPI fix). Staged in `Tenants/OSBA/staging/`.
+    - **OS Holdings Tenant Domain**: `https://os-holdings.co.za/mailfooter/` (Live HTTP 200, 44-user SQLite database preserved). Staged in `Tenants/OS Holdings/staging/`.
 
 ---
 

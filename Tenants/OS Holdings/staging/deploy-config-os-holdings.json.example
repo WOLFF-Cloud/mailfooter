@@ -1,0 +1,9 @@
+{
+  "protocol": "ftp",
+  "host": "ftp.os-holdings.co.za",
+  "port": 21,
+  "username": "mailfooter@os-holdings.co.za",
+  "password": "your_ftp_password",
+  "remotePath": "",
+  "domain": "https://os-holdings.co.za/mailfooter"
+}

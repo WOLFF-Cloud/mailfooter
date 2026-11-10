@@ -327,7 +327,7 @@ function renderOsPremium(data) {
   }
 
   const socialsHtml = socialsList.length > 0 ? `
-    <table cellpadding="0" cellspacing="0" border="0" style="display: inline-block;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border: 0;">
       <tr>
         ${socialsList.join('')}
       </tr>
@@ -360,29 +360,42 @@ function renderOsPremium(data) {
 
   const layout = `
     ${adaptiveStyles}
-    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: transparent; width: 100%; line-height: 1.25; border: 0; box-shadow: none;">
+    <!--[if gte mso 9]>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: transparent; width: 100%; line-height: 1.25; border: 0; box-shadow: none; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
       <tr>
         <td align="left" valign="top" style="border: 0; padding: 0;">
-          <table cellpadding="0" cellspacing="0" border="0" width="578" class="osh-card" style="width: 578px; max-width: 578px; background-color: ${cardBg}; background-image: ${cardGradient}; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 0; outline: none; box-shadow: none; border-collapse: collapse;">
+          <!--[if (gte mso 9)|(IE)]>
+          <table role="presentation" width="578" align="left" cellpadding="0" cellspacing="0" border="0" style="width: 578px;">
+          <tr>
+            <td width="578" valign="top">
+          <![endif]-->
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="578" class="osh-card" style="width: 578px; max-width: 578px; background-color: ${cardBg}; background-image: ${cardGradient}; font-family: Arial, 'Segoe UI', Candara, sans-serif; border: 0; outline: none; box-shadow: none; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
             <tr>
               <td valign="middle" height="85" class="osh-cell-top" style="height: 85px; border-bottom: 1px solid ${topBorderColor}; padding: 10px 15px; ${topCellBg} border-top: 0; border-left: 0; border-right: 0; box-shadow: none;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed; border: 0;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="548" style="width: 548px; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border: 0;">
                   <tr>
                     <td valign="middle" width="130" style="width: 130px; text-align: left; border: 0;">
-                      <a href="${data.webTracked}" target="_blank" style="text-decoration: none; display: block;">
-                        <img src="${data.logo}" alt="OS Holdings Logo" width="120" height="30" style="border: 0; display: block; max-width: 120px; height: 30px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
+                      <a href="${data.webTracked}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
+                        <img src="${data.logo}" alt="OS Holdings Logo" width="120" height="30" style="border: 0; display: block; width: 120px; height: 30px;" />
                       </a>
                     </td>
-                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; border-left: 1px solid ${dividerColor}; font-size: 1px; line-height: 1px;">&nbsp;</td>
-                    <td valign="middle" width="132" style="width: 132px; max-width: 132px; padding-left: 12px; padding-right: 5px; text-align: left; overflow: hidden; border: 0;">
-                      <div class="osh-name" style="font-size: 15px; font-weight: bold; color: ${nameColor}; margin: 0; letter-spacing: 0.2px; text-transform: none; line-height: 17px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
+                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; min-width: 1px; border-left: 1px solid ${dividerColor}; font-size: 0px; line-height: 0px;">&nbsp;</td>
+                    <td valign="middle" width="134" style="width: 134px; padding-left: 12px; padding-right: 5px; text-align: left; border: 0;">
+                      <p class="osh-name" style="margin: 0; padding: 0; font-size: 15px; font-weight: bold; color: ${nameColor}; letter-spacing: 0.2px; text-transform: none; line-height: 17px; font-family: Arial, 'Segoe UI', Candara, sans-serif; mso-line-height-rule: exactly;">
                         ${data.name}
-                      </div>
-                      <div class="osh-title" style="font-size: 12px; color: ${titleColor}; font-weight: bold; margin-top: 3px; line-height: 14px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
+                      </p>
+                      <p class="osh-title" style="margin: 0; padding: 0; font-size: 12px; color: ${titleColor}; font-weight: bold; margin-top: 3px; line-height: 14px; font-family: Arial, 'Segoe UI', Candara, sans-serif; mso-line-height-rule: exactly;">
                         ${data.title}
-                      </div>
+                      </p>
                     </td>
-                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; border-left: 1px solid ${dividerColor}; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; min-width: 1px; border-left: 1px solid ${dividerColor}; font-size: 0px; line-height: 0px;">&nbsp;</td>
                     <td valign="middle" width="163" style="width: 163px; padding-left: 12px; font-size: 10px; color: ${textColor}; text-align: left; border: 0;">
                       <table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: ${textColor}; border: 0;">
                         ${data.phone ? `
@@ -464,6 +477,11 @@ function renderOsPremium(data) {
               </td>
             </tr>
           </table>
+          <!--[if (gte mso 9)|(IE)]>
+            </td>
+          </tr>
+          </table>
+          <![endif]-->
           ${data.openPixel || ''}
         </td>
       </tr>
@@ -543,7 +561,7 @@ function renderOsFlatBanner(data) {
   }
 
   const socialsHtml = socialsList.length > 0 ? `
-    <table cellpadding="0" cellspacing="0" border="0" style="display: inline-block; border: 0;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border: 0;">
       <tr>
         ${socialsList.join('')}
       </tr>
@@ -592,29 +610,42 @@ function renderOsFlatBanner(data) {
 
   const layout = `
     ${adaptiveStyles}
-    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: transparent; width: 100%; line-height: 1.25; border: 0; box-shadow: none;">
+    <!--[if gte mso 9]>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: transparent; width: 100%; line-height: 1.25; border: 0; box-shadow: none; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
       <tr>
         <td align="left" valign="top" style="border: 0; padding: 0;">
-          <table cellpadding="0" cellspacing="0" border="0" width="578" class="osh-card" style="width: 578px; max-width: 578px; background-color: ${cardBg}; background-image: ${cardGradient}; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 0; outline: none; box-shadow: none; border-collapse: collapse;">
+          <!--[if (gte mso 9)|(IE)]>
+          <table role="presentation" width="578" align="left" cellpadding="0" cellspacing="0" border="0" style="width: 578px;">
+          <tr>
+            <td width="578" valign="top">
+          <![endif]-->
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="578" class="osh-card" style="width: 578px; max-width: 578px; background-color: ${cardBg}; background-image: ${cardGradient}; font-family: Arial, 'Segoe UI', Candara, sans-serif; border: 0; outline: none; box-shadow: none; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
             <tr>
               <td valign="middle" height="85" class="osh-cell-top" style="height: 85px; border-bottom: 1px solid ${topBorderColor}; padding: 10px 10px; background-color: ${cardBg}; background-image: ${cardGradient}; border-top: 0; border-left: 0; border-right: 0; box-shadow: none;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed; border: 0;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="558" style="width: 558px; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border: 0;">
                   <tr>
                     <td valign="middle" width="130" style="width: 130px; text-align: left; border: 0;">
-                      <a href="${data.webTracked}" target="_blank" style="text-decoration: none; display: block;">
-                        <img src="${data.logo}" alt="OS Holdings Logo" width="120" height="30" style="border: 0; display: block; max-width: 120px; height: 30px; filter: drop-shadow(0 0 1px rgba(255,255,255,0.7)); image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
+                      <a href="${data.webTracked}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
+                        <img src="${data.logo}" alt="OS Holdings Logo" width="120" height="30" style="border: 0; display: block; width: 120px; height: 30px;" />
                       </a>
                     </td>
-                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; border-left: 1px solid ${dividerColor}; font-size: 1px; line-height: 1px;">&nbsp;</td>
-                    <td valign="middle" width="152" style="width: 152px; max-width: 152px; padding-left: 12px; padding-right: 5px; text-align: left; overflow: hidden; border: 0;">
-                      <div class="osh-name" style="font-size: 15px; font-weight: bold; color: ${nameColor}; text-shadow: 0 0 1px rgba(255,255,255,0.6); margin: 0; letter-spacing: 0.2px; text-transform: none; line-height: 17px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
+                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; min-width: 1px; border-left: 1px solid ${dividerColor}; font-size: 0px; line-height: 0px;">&nbsp;</td>
+                    <td valign="middle" width="153" style="width: 153px; padding-left: 12px; padding-right: 5px; text-align: left; border: 0;">
+                      <p class="osh-name" style="margin: 0; padding: 0; font-size: 15px; font-weight: bold; color: ${nameColor}; letter-spacing: 0.2px; text-transform: none; line-height: 17px; font-family: Arial, 'Segoe UI', Candara, sans-serif; mso-line-height-rule: exactly;">
                         ${data.name}
-                      </div>
-                      <div class="osh-title" style="font-size: 12px; color: ${titleColor}; font-weight: bold; margin-top: 3px; line-height: 14px; font-family: 'Segoe UI', Arial, sans-serif; word-wrap: break-word;">
+                      </p>
+                      <p class="osh-title" style="margin: 0; padding: 0; font-size: 12px; color: ${titleColor}; font-weight: bold; margin-top: 3px; line-height: 14px; font-family: Arial, 'Segoe UI', Candara, sans-serif; mso-line-height-rule: exactly;">
                         ${data.title}
-                      </div>
+                      </p>
                     </td>
-                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; border-left: 1px solid ${dividerColor}; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                    <td valign="middle" width="1" class="osh-divider" style="width: 1px; min-width: 1px; border-left: 1px solid ${dividerColor}; font-size: 0px; line-height: 0px;">&nbsp;</td>
                     <td valign="middle" width="153" style="width: 153px; padding-left: 12px; font-size: 10px; color: ${textColor}; text-align: left; border: 0;">
                       <table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: ${textColor}; border: 0;">
                         ${data.phone ? `
@@ -696,6 +727,11 @@ function renderOsFlatBanner(data) {
               </td>
             </tr>
           </table>
+          <!--[if (gte mso 9)|(IE)]>
+            </td>
+          </tr>
+          </table>
+          <![endif]-->
           ${data.openPixel || ''}
         </td>
       </tr>
@@ -767,25 +803,38 @@ function renderGridBlueprint(data) {
   }
 
   const layout = `
-    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; width: 100%; line-height: 1.25;">
+    <!--[if gte mso 9]>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; width: 100%; line-height: 1.25; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
       <tr>
-        <td align="left" valign="top">
-          <table cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; border-collapse: separate;">
+        <td align="left" valign="top" style="padding: 0;">
+          <!--[if (gte mso 9)|(IE)]>
+          <table role="presentation" width="578" align="left" cellpadding="0" cellspacing="0" border="0" style="width: 578px;">
+          <tr>
+            <td width="578" valign="top">
+          <![endif]-->
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 1px solid #e5e7eb; border-radius: 8px; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
             <tr>
               <td valign="top" style="padding: 20px 20px 15px 20px; border-bottom: 1px solid #e5e7eb;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                   <tr>
                     ${photoHtml}
                     <td valign="top" style="text-align: left;">
-                      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                         <tr>
                           <td style="padding-bottom: 8px;">
-                            <div style="font-size: 18px; font-weight: 800; color: ${data.primary}; margin: 0; font-family: 'Segoe UI', Arial, sans-serif; line-height: 20px;">
+                            <p style="font-size: 18px; font-weight: 800; color: ${data.primary}; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; line-height: 20px; mso-line-height-rule: exactly;">
                               ${data.name}
-                            </div>
-                            <div style="font-size: 12px; color: ${data.secondary}; font-weight: bold; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Segoe UI', Arial, sans-serif;">
+                            </p>
+                            <p style="font-size: 12px; color: ${data.secondary}; font-weight: bold; margin: 2px 0 0 0; padding: 0; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Segoe UI', Arial, sans-serif; line-height: 14px; mso-line-height-rule: exactly;">
                               ${data.title}${data.dept}
-                            </div>
+                            </p>
                           </td>
                         </tr>
                         <tr>
@@ -823,6 +872,11 @@ function renderGridBlueprint(data) {
             ${socialBarHtml}
             ${campaignBannerHtml}
           </table>
+          <!--[if (gte mso 9)|(IE)]>
+            </td>
+          </tr>
+          </table>
+          <![endif]-->
           ${data.openPixel || ''}
         </td>
       </tr>
@@ -879,32 +933,45 @@ function renderCorporateBanner(data) {
   }
 
   const layout = `
-    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; width: 100%; line-height: 1.25;">
+    <!--[if gte mso 9]>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; width: 100%; line-height: 1.25; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
       <tr>
-        <td align="left" valign="top">
-          <table cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; border-collapse: separate;">
+        <td align="left" valign="top" style="padding: 0;">
+          <!--[if (gte mso 9)|(IE)]>
+          <table role="presentation" width="578" align="left" cellpadding="0" cellspacing="0" border="0" style="width: 578px;">
+          <tr>
+            <td width="578" valign="top">
+          <![endif]-->
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 1px solid #e5e7eb; border-radius: 8px; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
             <tr>
               <td valign="top" style="padding: 15px; text-align: left;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                   <tr>
                     ${photoHtml}
                     <td valign="top" style="text-align: left;">
-                      <div style="font-size: 16px; font-weight: bold; color: ${data.primary}; margin: 0; font-family: 'Segoe UI', Arial, sans-serif;">
+                      <p style="font-size: 16px; font-weight: bold; color: ${data.primary}; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; line-height: 18px; mso-line-height-rule: exactly;">
                         ${data.name}
-                      </div>
-                      <div style="font-size: 13px; font-weight: bold; color: ${data.secondary}; margin-top: 2px; margin-bottom: 8px; font-family: 'Segoe UI', Arial, sans-serif;">
+                      </p>
+                      <p style="font-size: 13px; font-weight: bold; color: ${data.secondary}; margin: 2px 0 8px 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; line-height: 15px; mso-line-height-rule: exactly;">
                         ${data.title}${data.dept}
-                      </div>
-                      <div style="font-size: 12px; color: #555555; font-family: 'Segoe UI', Arial, sans-serif;">
-                        ${data.phone ? `<div style="margin-bottom: 2px; font-family: 'Segoe UI', Arial, sans-serif;"><strong>Phone:</strong> ${data.phone}</div>` : ''}
-                        ${data.email ? `<div style="margin-bottom: 2px; font-family: 'Segoe UI', Arial, sans-serif;"><strong>Email:</strong> <a href="mailto:${data.email}" style="color: #333333; text-decoration: none;">${data.email}</a></div>` : ''}
-                        ${data.web ? `<div style="font-family: 'Segoe UI', Arial, sans-serif;"><strong>Website:</strong> <a href="${data.webTracked}" target="_blank" style="color: ${data.primary}; text-decoration: none; font-weight: 600;">${data.web}</a></div>` : ''}
-                      </div>
+                      </p>
+                      <table cellpadding="0" cellspacing="0" border="0" style="font-size: 12px; color: #555555; font-family: 'Segoe UI', Arial, sans-serif;">
+                        ${data.phone ? `<tr><td style="padding-bottom: 2px; font-family: 'Segoe UI', Arial, sans-serif; line-height: 14px;"><strong>Phone:</strong> ${data.phone}</td></tr>` : ''}
+                        ${data.email ? `<tr><td style="padding-bottom: 2px; font-family: 'Segoe UI', Arial, sans-serif; line-height: 14px;"><strong>Email:</strong> <a href="mailto:${data.email}" style="color: #333333; text-decoration: none;">${data.email}</a></td></tr>` : ''}
+                        ${data.web ? `<tr><td style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 14px;"><strong>Website:</strong> <a href="${data.webTracked}" target="_blank" style="color: ${data.primary}; text-decoration: none; font-weight: 600;">${data.web}</a></td></tr>` : ''}
+                      </table>
                       ${socialHtml}
                     </td>
                     <td valign="top" align="right" width="110" style="width: 110px;">
                       <a href="${data.webTracked}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
-                        <img src="${data.logo}" alt="Logo" width="100" style="border: 0; display: block; max-width: 100px; height: auto;" />
+                        <img src="${data.logo}" alt="Logo" width="100" style="border: 0; display: block; width: 100px; max-width: 100px; height: auto;" />
                       </a>
                     </td>
                   </tr>
@@ -913,6 +980,11 @@ function renderCorporateBanner(data) {
             </tr>
             ${campaignHtml}
           </table>
+          <!--[if (gte mso 9)|(IE)]>
+            </td>
+          </tr>
+          </table>
+          <![endif]-->
           ${data.openPixel || ''}
         </td>
       </tr>
@@ -969,36 +1041,54 @@ function renderModernSplit(data) {
   }
 
   const layout = `
-    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; width: 100%; line-height: 1.25;">
+    <!--[if gte mso 9]>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; width: 100%; line-height: 1.25; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
       <tr>
-        <td align="left" valign="top">
-          <table cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif;">
+        <td align="left" valign="top" style="padding: 0;">
+          <!--[if (gte mso 9)|(IE)]>
+          <table role="presentation" width="578" align="left" cellpadding="0" cellspacing="0" border="0" style="width: 578px;">
+          <tr>
+            <td width="578" valign="top">
+          <![endif]-->
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
             <tr>
               <!-- Left Column -->
               <td valign="top" width="120" style="width: 120px; text-align: center; padding: 10px 10px 10px 0; border-right: 2px solid ${data.primary}; font-family: 'Segoe UI', Arial, sans-serif;">
                 ${photoHtml}
                 <a href="${data.webTracked}" target="_blank" style="text-decoration: none; display: inline-block; line-height: 0;">
-                  <img src="${data.logo}" alt="Logo" width="80" style="border: 0; display: block; max-width: 80px; height: auto;" />
+                  <img src="${data.logo}" alt="Logo" width="80" style="border: 0; display: block; width: 80px; max-width: 80px; height: auto;" />
                 </a>
               </td>
               <!-- Right Column -->
               <td valign="top" style="padding-left: 20px; text-align: left;">
-                <div style="font-size: 18px; font-weight: bold; color: ${data.primary}; margin: 0; font-family: 'Segoe UI', Arial, sans-serif;">
+                <p style="font-size: 18px; font-weight: bold; color: ${data.primary}; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; line-height: 20px; mso-line-height-rule: exactly;">
                   ${data.name}
-                </div>
-                <div style="font-size: 13px; font-weight: bold; color: ${data.secondary}; margin-top: 2px; margin-bottom: 12px; font-family: 'Segoe UI', Arial, sans-serif;">
+                </p>
+                <p style="font-size: 13px; font-weight: bold; color: ${data.secondary}; margin: 2px 0 12px 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; line-height: 15px; mso-line-height-rule: exactly;">
                   ${data.title}${data.dept}
-                </div>
-                <div style="font-size: 12px; color: #555555; font-family: 'Segoe UI', Arial, sans-serif;">
-                  ${data.phone ? `<div style="margin-bottom: 4px; font-family: 'Segoe UI', Arial, sans-serif;"><strong>Phone:</strong> ${data.phone}</div>` : ''}
-                  ${data.email ? `<div style="margin-bottom: 4px; font-family: 'Segoe UI', Arial, sans-serif;"><strong>Email:</strong> <a href="mailto:${data.email}" style="color: #555555; text-decoration: none;">${data.email}</a></div>` : ''}
-                  ${data.web ? `<div style="font-family: 'Segoe UI', Arial, sans-serif;"><strong>Website:</strong> <a href="${data.webTracked}" target="_blank" style="color: ${data.primary}; text-decoration: none; font-weight: 600;">${data.web}</a></div>` : ''}
-                </div>
+                </p>
+                <table cellpadding="0" cellspacing="0" border="0" style="font-size: 12px; color: #555555; font-family: 'Segoe UI', Arial, sans-serif;">
+                  ${data.phone ? `<tr><td style="padding-bottom: 4px; font-family: 'Segoe UI', Arial, sans-serif; line-height: 14px;"><strong>Phone:</strong> ${data.phone}</td></tr>` : ''}
+                  ${data.email ? `<tr><td style="padding-bottom: 4px; font-family: 'Segoe UI', Arial, sans-serif; line-height: 14px;"><strong>Email:</strong> <a href="mailto:${data.email}" style="color: #555555; text-decoration: none;">${data.email}</a></td></tr>` : ''}
+                  ${data.web ? `<tr><td style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 14px;"><strong>Website:</strong> <a href="${data.webTracked}" target="_blank" style="color: ${data.primary}; text-decoration: none; font-weight: 600;">${data.web}</a></td></tr>` : ''}
+                </table>
                 ${socialHtml}
               </td>
             </tr>
             ${campaignHtml}
           </table>
+          <!--[if (gte mso 9)|(IE)]>
+            </td>
+          </tr>
+          </table>
+          <![endif]-->
           ${data.openPixel || ''}
         </td>
       </tr>
@@ -1041,10 +1131,23 @@ function renderCompactStacked(data) {
   }
 
   const layout = `
-    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; width: 100%; line-height: 1.25;">
+    <!--[if gte mso 9]>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; width: 100%; line-height: 1.25; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
       <tr>
-        <td align="left" valign="top">
-          <table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; text-align: left;">
+        <td align="left" valign="top" style="padding: 0;">
+          <!--[if (gte mso 9)|(IE)]>
+          <table role="presentation" width="578" align="left" cellpadding="0" cellspacing="0" border="0" style="width: 578px;">
+          <tr>
+            <td width="578" valign="top">
+          <![endif]-->
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; text-align: left; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
             <tr>
               <td style="font-size: 13px; line-height: 18px; color: #333333; font-family: 'Segoe UI', Arial, sans-serif;">
                 <strong style="color: ${data.primary}; font-size: 14px; font-family: 'Segoe UI', Arial, sans-serif;">${data.name}</strong>
@@ -1061,6 +1164,11 @@ function renderCompactStacked(data) {
             </tr>
             ${campaignHtml}
           </table>
+          <!--[if (gte mso 9)|(IE)]>
+            </td>
+          </tr>
+          </table>
+          <![endif]-->
           ${data.openPixel || ''}
         </td>
       </tr>

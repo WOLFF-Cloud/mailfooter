@@ -619,53 +619,69 @@
     const primary = data.primary || '#0d4b8e';
     const secondary = data.secondary || '#f18a22';
 
-    return `
-      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: transparent; width: 100%; line-height: 1.25; border: 0; box-shadow: none;">
+    return `<!--[if gte mso 9]>
+<xml>
+  <o:OfficeDocumentSettings>
+    <o:AllowPNG/>
+    <o:PixelsPerInch>96</o:PixelsPerInch>
+  </o:OfficeDocumentSettings>
+</xml>
+<![endif]-->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: transparent; width: 100%; border: 0; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+  <tr>
+    <td align="left" valign="top" style="border: 0; padding: 0;">
+      <!--[if (gte mso 9)|(IE)]>
+      <table role="presentation" width="578" align="left" cellpadding="0" cellspacing="0" border="0" style="width: 578px;">
+      <tr>
+        <td width="578" valign="top">
+      <![endif]-->
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; font-family: Arial, 'Segoe UI', Candara, sans-serif; border: 0; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
         <tr>
-          <td align="left" valign="top" style="border: 0; padding: 0;">
-            <table cellpadding="0" cellspacing="0" border="0" width="578" style="width: 578px; max-width: 578px; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff); font-family: 'Segoe UI', Candara, Calibri, Arial, sans-serif; border: 0; outline: none; box-shadow: none; border-collapse: collapse;">
+          <td valign="middle" height="85" style="height: 85px; border-bottom: 1px solid #e5e7eb; padding: 10px 15px; background-color: #ffffff; border-top: 0; border-left: 0; border-right: 0;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="548" style="width: 548px; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
               <tr>
-                <td valign="middle" height="85" style="height: 85px; border-bottom: 1px solid #e5e7eb; padding: 10px 15px; background-image: url('Resources/2x/brand-graphic-grey-top-left.png'), linear-gradient(#ffffff, #ffffff); background-repeat: no-repeat; background-position: left top; background-color: #ffffff; border-top: 0; border-left: 0; border-right: 0; box-shadow: none;">
-                  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; table-layout: fixed; border: 0;">
+                <td valign="middle" width="130" style="width: 130px; text-align: left; padding: 0; border: 0;">
+                  <a href="${data.web}" target="_blank" style="text-decoration: none; display: block; line-height: 0;">
+                    <img src="Resources/2x/logo.png" alt="Company Logo" width="120" height="30" style="border: 0; display: block; width: 120px; height: 30px;" />
+                  </a>
+                </td>
+                <td valign="middle" width="1" style="width: 1px; min-width: 1px; background-color: #d2d2d2; font-size: 0px; line-height: 0px; padding: 0; border: 0;">&nbsp;</td>
+                <td valign="middle" width="134" style="width: 134px; padding-left: 12px; padding-right: 5px; text-align: left; border: 0;">
+                  <p style="margin: 0; padding: 0; font-family: Arial, 'Segoe UI', Candara, sans-serif; font-size: 15px; font-weight: bold; color: ${primary}; line-height: 17px; mso-line-height-rule: exactly;">
+                    ${escapeHtml(data.name)}
+                  </p>
+                  <p style="margin: 0; padding: 0; margin-top: 3px; font-family: Arial, 'Segoe UI', Candara, sans-serif; font-size: 12px; color: ${secondary}; font-weight: bold; line-height: 14px; mso-line-height-rule: exactly;">
+                    ${escapeHtml(data.title)}
+                  </p>
+                </td>
+                <td valign="middle" width="1" style="width: 1px; min-width: 1px; background-color: #d2d2d2; font-size: 0px; line-height: 0px; padding: 0; border: 0;">&nbsp;</td>
+                <td valign="middle" width="163" style="width: 163px; padding-left: 12px; text-align: left; border: 0;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, 'Segoe UI', Candara, sans-serif; font-size: 10px; color: #555555; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                    ${data.phone ? `<tr><td valign="middle" style="padding-bottom: 3px; line-height: 14px; font-size: 10px; mso-line-height-rule: exactly; color: #333333; font-weight: 500; white-space: nowrap; border: 0;">📞 ${escapeHtml(data.phone)}</td></tr>` : ''}
                     <tr>
-                      <td valign="middle" width="130" style="width: 130px; text-align: left; border: 0;">
-                        <a href="${data.web}" target="_blank" style="text-decoration: none; display: block;">
-                          <img src="Resources/2x/logo.png" alt="Company Logo" width="120" height="30" style="border: 0; display: block; max-width: 120px; height: 30px;" />
-                        </a>
-                      </td>
-                      <td valign="middle" width="1" style="width: 1px; border-left: 1px solid #d2d2d2; font-size: 1px; line-height: 1px;">&nbsp;</td>
-                      <td valign="middle" width="132" style="width: 132px; max-width: 132px; padding-left: 12px; padding-right: 5px; text-align: left; overflow: hidden;">
-                        <div style="font-size: 15px; font-weight: bold; color: ${primary}; margin: 0; line-height: 17px; font-family: 'Segoe UI', Arial, sans-serif;">
-                          ${escapeHtml(data.name)}
-                        </div>
-                        <div style="font-size: 12px; color: ${secondary}; font-weight: bold; margin-top: 3px; line-height: 14px; font-family: 'Segoe UI', Arial, sans-serif;">
-                          ${escapeHtml(data.title)}
-                        </div>
-                      </td>
-                      <td valign="middle" width="1" style="width: 1px; border-left: 1px solid #d2d2d2; font-size: 1px; line-height: 1px;">&nbsp;</td>
-                      <td valign="middle" width="163" style="width: 163px; padding-left: 12px; font-size: 10px; color: #555555; text-align: left;">
-                        <table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #555555;">
-                          ${data.phone ? `<tr><td valign="middle" style="padding-bottom: 3px; line-height: 12px; color: #333333; font-weight: 500;">📞 ${escapeHtml(data.phone)}</td></tr>` : ''}
-                          <tr>
-                            <td valign="middle" style="padding-bottom: 3px; line-height: 12px;">
-                              ✉️ <a href="mailto:${escapeHtml(data.email)}" style="color: #333333; text-decoration: none; font-weight: 500;">${escapeHtml(data.email)}</a>
-                            </td>
-                          </tr>
-                          ${data.web ? `<tr><td valign="middle" style="line-height: 12px;">🌐 <a href="${data.web}" target="_blank" style="color: #333333; text-decoration: none; font-weight: 500;">${escapeHtml(data.web)}</a></td></tr>` : ''}
-                        </table>
-                      </td>
-                      <td valign="middle" width="119" style="width: 119px; text-align: right; line-height: 0;">
-                        <img src="Resources/2x/brand-graphic-colour-top-right.png" alt="Brand Graphic" width="119" height="70" style="border: 0; display: block; width: 119px; height: 70px;" />
+                      <td valign="middle" style="padding-bottom: 3px; line-height: 14px; font-size: 10px; mso-line-height-rule: exactly; white-space: nowrap; border: 0;">
+                        ✉️ <a href="mailto:${escapeHtml(data.email)}" style="color: #333333; text-decoration: none; font-weight: 500;">${escapeHtml(data.email)}</a>
                       </td>
                     </tr>
+                    ${data.web ? `<tr><td valign="middle" style="line-height: 14px; font-size: 10px; mso-line-height-rule: exactly; white-space: nowrap; border: 0;">🌐 <a href="${data.web}" target="_blank" style="color: #333333; text-decoration: none; font-weight: 500;">${escapeHtml(data.web)}</a></td></tr>` : ''}
                   </table>
+                </td>
+                <td valign="middle" width="119" style="width: 119px; text-align: right; line-height: 0; font-size: 0; padding: 0; border: 0;">
+                  <img src="Resources/2x/brand-graphic-colour-top-right.png" alt="Brand Graphic" width="119" height="70" style="border: 0; display: block; width: 119px; height: 70px;" align="right" />
                 </td>
               </tr>
             </table>
           </td>
         </tr>
       </table>
-    `;
+      <!--[if (gte mso 9)|(IE)]>
+        </td>
+      </tr>
+      </table>
+      <![endif]-->
+    </td>
+  </tr>
+</table>`;
   }
 
   // Universal Multi-Device Clipboard Delivery Engine (Outlook Desktop, Outlook Web, Gmail, Apple Mail, iOS, Android)

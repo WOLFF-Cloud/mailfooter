@@ -1,0 +1,8 @@
+{
+  "host": "ftp.os-holdings.co.za",
+  "port": 21,
+  "username": "mailfooter@osbusinessamp.com",
+  "password": "your_ftp_password",
+  "remotePath": "",
+  "domain": "https://osbusinessamp.com/mailfooter"
+}
